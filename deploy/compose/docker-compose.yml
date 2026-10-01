@@ -1,0 +1,83 @@
+# Phase 1.5 smoke stack. Locked primary stack: OpenTelemetry
+# Collector, Prometheus, Tempo, Loki, Grafana. Jaeger is the
+# documented alternative only (Appendix H).
+name: llmobs-smoke
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.162.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otelcol/config.yaml:/etc/otelcol/config.yaml:ro
+    environment:
+      TEMPO_OTLP_HTTP: http://tempo:4318
+      PROM_OTLP_HTTP: http://prometheus:9090/api/v1/otlp
+      LOKI_OTLP_HTTP: http://loki:3100/otlp
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8888:8888"
+      - "13133:13133"
+    depends_on: [tempo, loki, prometheus]
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-otlp-receiver
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  tempo:
+    image: grafana/tempo:3.1.0
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    # Tempo 3.1.0 needed ~30 s to stop in the Phase 1.5 native run
+    # (backend worker waits out a job timeout); allow it to exit.
+    stop_grace_period: 60s
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+    ports:
+      - "3200:3200"
+
+  loki:
+    image: grafana/loki:3.7.8
+    command: ["-config.file=/etc/loki/loki.yaml"]
+    volumes:
+      - ./loki/loki.yaml:/etc/loki/loki.yaml:ro
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: smoke-only-password
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    depends_on: [prometheus, tempo, loki]
+
+  smoke-app:
+    build: ../../services/smoke_app
+    environment:
+      OTEL_SERVICE_NAME: smoke-app
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRIC_EXPORT_INTERVAL: "2000"
+    ports:
+      - "8000:8000"
+    depends_on: [otel-collector]
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request as u; u.urlopen('http://localhost:8000/healthz', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 24

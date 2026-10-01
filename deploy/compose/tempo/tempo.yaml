@@ -1,0 +1,26 @@
+# Tempo v3.1.0 in monolithic mode: all components in-process,
+# no Kafka (Tempo 3.0 release notes). Based on the v3.1.0
+# example/docker-compose/single-binary configuration.
+stream_over_http_enabled: true
+
+server:
+  http_listen_port: 3200
+  log_level: info
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: "0.0.0.0:4318"
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /tmp/tempo/wal
+    local:
+      path: /tmp/tempo/blocks
+
+usage_report:
+  reporting_enabled: false

@@ -1,0 +1,307 @@
+# Frozen technical baseline for the companion repository of
+# "LLM Observability & Production AI Reliability".
+#
+# Frozen and verified: 2026-09-30 (Phase 1.5).
+# Rule: no casual upgrades or downgrades. Changing any entry needs
+# a full re-verification run and a line in the decision log.
+#
+# Option B: the OpenTelemetry GenAI semantic conventions are a
+# pinned REFERENCE, never a dependency. Every telemetry name lives
+# in one compatibility module (src/wrenholt/telemetry/
+# conventions.py); drift tests compare it with the commit below.
+
+[meta]
+frozen_on = "2026-09-30"
+verified_on = "2026-09-30"
+lockfile = "uv.lock"
+lock_tool = "uv 0.11.7"
+locked_packages = 94
+python_requires = ">=3.12,<3.15"
+phase3 = "re-verify every entry with recheck = true"
+
+[python]
+version = "3.14.7"
+released = "2026-08-05"
+source = "https://peps.python.org/pep-0745/"
+status = "bugfix"
+ci_matrix = ["3.12", "3.13", "3.14"]
+recheck = true
+notes = "3.14.8 due 2026-10-06; 3.15.0 due 2026-10-01 (PEP 790). Sandbox checks ran on uv-managed CPython 3.14.4."
+
+# ---- Python packages (all pinned exactly in pyproject.toml) ----
+
+[packages."opentelemetry-api"]
+group = "runtime"
+version = "1.45.0"
+released = "2026-09-25"
+status = "stable for traces and metrics; logs API in development"
+recheck = true
+
+[packages."opentelemetry-sdk"]
+group = "runtime"
+version = "1.45.0"
+released = "2026-09-25"
+status = "stable for traces and metrics; logs SDK in development"
+recheck = true
+
+[packages."opentelemetry-exporter-otlp-proto-http"]
+group = "runtime"
+version = "1.45.0"
+released = "2026-09-25"
+status = "stable"
+recheck = true
+
+[packages."opentelemetry-semantic-conventions"]
+group = "runtime"
+version = "0.66b0"
+released = "2026-09-25"
+status = "beta package; latest schema reported: https://opentelemetry.io/schemas/1.44.0"
+recheck = true
+
+[packages."opentelemetry-instrumentation-fastapi"]
+group = "runtime"
+version = "0.66b0"
+released = "2026-09-25"
+status = "beta"
+recheck = true
+
+[packages."opentelemetry-instrumentation-httpx"]
+group = "runtime"
+version = "0.66b0"
+released = "2026-09-25"
+status = "beta; provides HTTPX2ClientInstrumentor"
+recheck = true
+
+[packages."opentelemetry-instrumentation-logging"]
+group = "runtime"
+version = "0.66b0"
+released = "2026-09-25"
+status = "beta"
+recheck = true
+
+[packages.openai]
+group = "runtime"
+version = "3.22.1"
+released = "2026-09-30"
+status = "stable; used with max_retries=0"
+recheck = true
+
+[packages.anthropic]
+group = "runtime (optional adapter)"
+version = "1.9.0"
+released = "2026-09-28"
+status = "stable; used with max_retries=0"
+recheck = true
+
+[packages.httpx2]
+group = "runtime"
+version = "2.13.1"
+released = "2026-09-23"
+status = "stable"
+recheck = true
+
+[packages.fastapi]
+group = "runtime"
+version = "0.142.1"
+released = "2026-09-29"
+status = "pre-1.0"
+newer_available = "0.142.2 (not adopted: freeze)"
+recheck = true
+
+[packages.uvicorn]
+group = "runtime"
+version = "0.54.0"
+released = "2026-09-25"
+status = "pre-1.0"
+recheck = true
+
+[packages.pydantic]
+group = "runtime"
+version = "2.13.5"
+released = "2026-08-28"
+status = "stable"
+recheck = true
+
+[packages."pydantic-settings"]
+group = "runtime"
+version = "2.15.0"
+released = "2026-08-07"
+status = "stable"
+recheck = true
+
+[packages.pytest]
+group = "dev"
+version = "9.1.1"
+released = "2026-06-19"
+status = "stable"
+recheck = true
+
+[packages."pytest-asyncio"]
+group = "dev"
+version = "1.4.0"
+released = "2026-05-26"
+status = "stable"
+recheck = true
+
+[packages.hypothesis]
+group = "dev"
+version = "6.168.3"
+released = "2026-09-28"
+status = "stable"
+recheck = true
+
+[packages.mypy]
+group = "dev"
+version = "2.3.1"
+released = "2026-08-15"
+status = "stable; run with --strict"
+recheck = true
+
+[packages.ruff]
+group = "dev"
+version = "0.16.9"
+released = "2026-09-24"
+status = "pre-1.0; line-length 70"
+recheck = true
+
+[packages."opentelemetry-instrumentation-openai-v2"]
+group = "lab (Chapter 4 comparison only)"
+version = "2.4b0"
+released = "2026-05-01"
+status = "beta"
+recheck = true
+
+[packages."opentelemetry-util-genai"]
+group = "lab (Chapter 4 comparison only)"
+version = "0.4b0"
+released = "2026-05-01"
+status = "beta"
+newer_available = "1.2b0 (not adopted: breaks openai-v2 2.4b0 in the Phase 1 spike)"
+recheck = true
+
+[packages.httpx]
+group = "lab (Chapter 4 comparison only)"
+version = "0.28.1"
+released = "2024-12-06"
+status = "stable"
+recheck = true
+
+[packages.locust]
+group = "load"
+version = "2.46.6"
+released = "2026-09-17"
+status = "stable"
+recheck = true
+
+[packages.uv]
+group = "tooling"
+version = "0.11.7"
+released = "2026-04-15"
+status = "pre-1.0; enforced by tool.uv.required-version"
+newer_available = "0.12.21 (not adopted: lockfile produced by 0.11.7)"
+recheck = true
+
+[packages."presidio-analyzer"]
+group = "optional appendix, not locked"
+version = "2.2.364"
+released = "2026-07-22"
+status = "stable; installed separately for the redaction appendix"
+recheck = true
+
+# ---- Local stack (container images) ----
+
+[components.otel-collector-contrib]
+image = "otel/opentelemetry-collector-contrib:0.162.0"
+released = "2026-09-29"
+status = "used: otlp receiver, otlphttp exporter (Stable); batch, memory_limiter (Beta); health_check (in v0.162.0 contrib manifest)"
+recheck = true
+
+[components.prometheus]
+image = "prom/prometheus:v3.15.0"
+released = "2026-09-25"
+status = "stable; OTLP route /api/v1/otlp/v1/metrics verified in source"
+recheck = true
+
+[components.tempo]
+image = "grafana/tempo:3.1.0"
+released = "2026-09-29"
+status = "stable; 3.x monolithic mode runs without Kafka (3.0 release notes)"
+recheck = true
+
+[components.loki]
+image = "grafana/loki:3.7.8"
+released = "2026-09-17"
+status = "stable; OTLP logs at /otlp/v1/logs"
+recheck = true
+
+[components.grafana]
+image = "grafana/grafana:13.2.3"
+released = "2026-09-29"
+status = "stable; alert file-provisioning format verified in v13.2.3 docs"
+recheck = true
+
+[components.jaeger]
+image = "jaegertracing/jaeger:2.21.0"
+released = "2026-09-14"
+status = "documented alternative only (Appendix H); not in the smoke stack"
+recheck = true
+
+[components.otel-lgtm]
+image = "grafana/otel-lgtm:0.34.0"
+released = "2026-09-25"
+status = "quick-start alternative only; not in the smoke stack"
+recheck = true
+
+[components.python-base]
+image = "python:3.14.7-slim"
+status = "base image for smoke-app and webhook-sink"
+recheck = true
+
+[components.docker-compose]
+version = "v5.5.1"
+released = "2026-09-03"
+status = "installed as a CLI plugin by the workflow"
+recheck = true
+
+# Image tags are proven only when the CI run pulls them.
+[components.verification]
+image_tags = "REQUIRES EXECUTION (GitHub Actions)"
+
+# ---- Specifications ----
+
+[specifications.otel-semconv]
+version = "v1.44.0"
+released = "2026-08-04"
+status = "released"
+recheck = true
+
+[specifications.genai-semconv]
+role = "reference only, not a dependency (Option B)"
+repository = "https://github.com/open-telemetry/semantic-conventions-genai"
+commit = "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc"
+commit_date = "2026-09-29T21:34:59Z"
+status = "Development; unreleased as recorded in Phase 1 (release list not re-checked on 2026-09-30: GitHub API rate limit)"
+last_core_release_with_genai_text = "v1.41.0 (2026-04-28)"
+token_attributes = [
+  "gen_ai.usage.input_tokens",
+  "gen_ai.usage.output_tokens",
+  "gen_ai.usage.cache_read.input_tokens",
+  "gen_ai.usage.cache_write.input_tokens",
+  "gen_ai.usage.reasoning.output_tokens",
+]
+recheck = true
+
+[specifications.w3c-trace-context]
+version = "W3C Recommendation, 23 November 2021"
+status = "stable"
+recheck = false
+
+# ---- CI ----
+
+[ci]
+runner = "ubuntu-24.04"
+checkout = "actions/checkout@v7.0.1"
+actionlint = "v1.7.12"
+setup_python = "v7.0.0 (main CI; not used by compose-smoke)"
+setup_uv = "v10.2.0 (main CI; not used by compose-smoke)"
+compose_smoke = "REQUIRES EXECUTION: GitHub Actions access unavailable on 2026-09-30"

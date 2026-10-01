@@ -1,0 +1,15 @@
+# Overlay for the alert smoke job: file-provisioned Grafana alert
+# plus a stdlib webhook sink that records notifications.
+services:
+  grafana:
+    volumes:
+      - ./grafana/alerting-smoke:/etc/grafana/provisioning/alerting:ro
+    depends_on: [webhook-sink]
+
+  webhook-sink:
+    image: python:3.14.7-slim
+    command: ["python", "/sink/sink.py"]
+    volumes:
+      - ../../services/webhook_sink:/sink:ro
+    ports:
+      - "8099:8099"

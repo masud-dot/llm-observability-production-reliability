@@ -1,0 +1,48 @@
+# Grafana 13.2.3 file-provisioned alerting (format per the v13.2.3
+# docs). One always-firing expression rule routed to a webhook.
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: smoke-webhook
+    receivers:
+      - uid: smoke_webhook
+        type: webhook
+        disableResolveMessage: true
+        settings:
+          url: http://webhook-sink:8099/alert
+
+policies:
+  - orgId: 1
+    receiver: smoke-webhook
+    group_by: ["..."]
+    group_wait: 1s
+    group_interval: 5s
+    repeat_interval: 1m
+
+groups:
+  - orgId: 1
+    name: smoke_rules
+    folder: smoke
+    interval: 10s
+    rules:
+      - uid: smoke_always_firing
+        title: Smoke always firing
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: "__expr__"
+            model:
+              datasource:
+                type: __expr__
+                uid: "__expr__"
+              expression: 1==1
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+              type: math
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          purpose: phase-1-5-smoke

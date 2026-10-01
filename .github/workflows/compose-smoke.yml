@@ -1,0 +1,101 @@
+# Phase 1.5 gate: prove the locked local stack end to end.
+# Checks 1-8 run in stack-smoke; check 9 (file-provisioned Grafana
+# alert reaching a webhook) runs in alert-smoke.
+name: compose-smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "deploy/compose/**"
+      - "services/**"
+      - "scripts/smoke_*.py"
+      - ".github/workflows/compose-smoke.yml"
+  pull_request:
+    paths:
+      - "deploy/compose/**"
+      - "services/**"
+      - "scripts/smoke_*.py"
+      - ".github/workflows/compose-smoke.yml"
+
+permissions:
+  contents: read
+
+env:
+  COMPOSE_VERSION: v5.5.1
+
+jobs:
+  stack-smoke:
+    name: Stack smoke (checks 1-8)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install pinned Docker Compose
+        run: |
+          mkdir -p "$HOME/.docker/cli-plugins"
+          curl -fsSL -o "$HOME/.docker/cli-plugins/docker-compose" \
+            "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-x86_64"
+          chmod +x "$HOME/.docker/cli-plugins/docker-compose"
+          docker version
+          docker compose version
+
+      - name: Validate Compose model
+        working-directory: deploy/compose
+        run: docker compose config --quiet
+
+      - name: "Check 1: start stack (containers running, app healthy)"
+        working-directory: deploy/compose
+        run: docker compose up --detach --build --wait --wait-timeout 240
+
+      - name: "Checks 1-7: smoke test"
+        run: python3 scripts/smoke_stack.py
+
+      - name: Dump logs on failure
+        if: failure()
+        working-directory: deploy/compose
+        run: docker compose logs --no-color --timestamps
+
+      - name: "Check 8: shut down cleanly"
+        if: always()
+        working-directory: deploy/compose
+        run: |
+          docker compose down --volumes --remove-orphans --timeout 60
+          test -z "$(docker compose ps --all --quiet)"
+
+  alert-smoke:
+    name: Alert smoke (check 9)
+    needs: stack-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COMPOSE_FILE: docker-compose.yml:docker-compose.alerting.yml
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install pinned Docker Compose
+        run: |
+          mkdir -p "$HOME/.docker/cli-plugins"
+          curl -fsSL -o "$HOME/.docker/cli-plugins/docker-compose" \
+            "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-x86_64"
+          chmod +x "$HOME/.docker/cli-plugins/docker-compose"
+
+      - name: Start stack with alerting overlay
+        working-directory: deploy/compose
+        run: docker compose up --detach --build --wait --wait-timeout 240
+
+      - name: "Check 9: provisioned alert reaches webhook"
+        run: python3 scripts/smoke_alert.py
+
+      - name: Dump logs on failure
+        if: failure()
+        working-directory: deploy/compose
+        run: docker compose logs --no-color --timestamps grafana webhook-sink
+
+      - name: Shut down cleanly
+        if: always()
+        working-directory: deploy/compose
+        run: |
+          docker compose down --volumes --remove-orphans --timeout 60
+          test -z "$(docker compose ps --all --quiet)"
