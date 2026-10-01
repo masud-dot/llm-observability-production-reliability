@@ -214,6 +214,7 @@ recheck = true
 image = "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0-amd64"
 released = "2026-09-29"
 status = "used: otlp receiver, otlphttp exporter (Stable); batch, memory_limiter (Beta); health_check (in v0.162.0 contrib manifest)"
+notes = "Upstream published per-architecture tags only for 0.162.0 (no multi-arch tag on Docker Hub or GHCR). CI uses the amd64 tag; ARM hosts need emulation or the 0.162.0-arm64 tag."
 recheck = true
 
 [components.prometheus]
@@ -265,7 +266,7 @@ recheck = true
 
 # Image tags are proven only when the CI run pulls them.
 [components.verification]
-image_tags = "REQUIRES EXECUTION (GitHub Actions)"
+image_tags = "VERIFIED: all images pulled in GitHub Actions run 36845252895 (2026-10-01)"
 
 # ---- Specifications ----
 
@@ -304,4 +305,5 @@ checkout = "actions/checkout@v7.0.1"
 actionlint = "v1.7.12"
 setup_python = "v7.0.0 (main CI; not used by compose-smoke)"
 setup_uv = "v10.2.0 (main CI; not used by compose-smoke)"
-compose_smoke = "REQUIRES EXECUTION: GitHub Actions access unavailable on 2026-09-30"
+compose_smoke = "PASS: run 36845252895 (2026-10-01, commit 9b34e4a); run 36844415794 failed on the missing multi-arch Collector tag"
+compose_smoke_url = "https://github.com/masud-dot/llm-observability-production-reliability/actions/runs/36845252895"
