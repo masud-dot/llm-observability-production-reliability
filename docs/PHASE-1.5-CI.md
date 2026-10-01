@@ -1,9 +1,8 @@
 # Phase 1.5 CI gate: local observability stack
 
-**Status (30 September 2026): REQUIRES EXECUTION — GitHub Actions
-access unavailable.** The workflow is written and linted but has not
-run on GitHub Actions. No Compose check counts as passed until a run
-URL is recorded in Section 19 of the Phase 1 document.
+**Status (1 October 2026): PASS.** GitHub Actions run #2 passed both
+jobs, checks 1 to 9: https://github.com/masud-dot/llm-observability-production-reliability/actions/runs/36845252895
+(commit 9b34e4a, triggered by push).
 
 ## Checks
 
@@ -19,12 +18,22 @@ URL is recorded in Section 19 of the Phase 1 document.
 | 8 | Clean shutdown | `docker compose down --timeout 60`, then `docker compose ps --all` is empty |
 | 9 | Provisioned alert delivered | alert-smoke job: rule `smoke_always_firing` provisioned from file; a notification reaches the webhook sink |
 
-## Exact sequence
+## GitHub Actions runs
 
-1. Create a GitHub repository from this tree and push it.
-2. Run Actions, compose-smoke, Run workflow (`workflow_dispatch`).
-3. Record the run URL and both job results in Section 19 of the
-   Phase 1 document. Only then may checks 1 to 9 be marked PASS.
+| Run | Commit | Result | Notes |
+|---|---|---|---|
+| [#1](https://github.com/masud-dot/llm-observability-production-reliability/actions/runs/36844415794) | fd70bf9 | FAIL at check 1 | Docker Hub returned "manifest unknown" for `otel/opentelemetry-collector-contrib:0.162.0`: upstream published per-architecture tags only. The other images were interrupted, not rejected. |
+| [#2](https://github.com/masud-dot/llm-observability-production-reliability/actions/runs/36845252895) | 9b34e4a | PASS, both jobs, about 4 minutes | Collector pulled from GHCR as `0.162.0-amd64`; version unchanged. Every check step succeeded; both log-dump steps were skipped. |
+
+Step results for run #2 come from the public job pages; raw logs need
+a GitHub sign-in.
+
+## Repeating the gate
+
+1. Push a change under `deploy/compose/`, `services/` or the smoke
+   scripts, or run Actions, compose-smoke, Run workflow.
+2. Record the run URL and both job results in Section 19 of the
+   Phase 1 document.
 
 Local equivalent with Docker Engine and Compose v5.5.1:
 
@@ -81,12 +90,16 @@ Static checks run in the sandbox on 30 September 2026:
 - shellcheck 0.11.0 on `scripts/native_smoke.sh`: no findings.
 - ruff 0.16.9 and mypy 2.3.1 `--strict`: no issues in four files.
 
-Not covered by the sandbox, so still REQUIRES EXECUTION: image tags
-and pulls, the smoke-app image build, Compose networking and service
-names, Grafana (no Linux binary on GitHub releases), and the alert
-job (check 9).
+Not covered by the sandbox, and since covered by GitHub Actions run
+#2: image tags and pulls, the smoke-app image build, Compose
+networking and service names, Grafana, and the alert job (check 9).
 
-## Findings from the native run
+## Findings
+
+- Collector 0.162.0 shipped without a multi-arch image tag (run #1).
+  The stack pulls the GHCR `0.162.0-amd64` tag; ARM hosts need
+  emulation or the `0.162.0-arm64` tag until a multi-arch tag is
+  pinned in Phase 3.
 
 - Tempo 3.1.0 in monolithic mode took about 30 s to exit after
   SIGTERM, because its backend worker waits out a job timeout; it then
