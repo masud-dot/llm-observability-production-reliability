@@ -3,8 +3,11 @@
 Three hours of Linnet traffic, built deterministically: a normal
 sale-day hour, an hour in which the policy index serves the
 superseded returns policy to some answers, and a quiet night
-hour. Chapter 9 replays FS-09 against the live retriever.
+hour. Chapter 9 replays FS-09 against the live retriever: the
+policy version comes from each retrieval span's documents.
 """
+
+from collections.abc import Mapping, Sequence
 
 from wrenholt.slo.catalog import Catalog
 from wrenholt.slo.events import RequestEvent
@@ -116,3 +119,16 @@ def report(catalog: Catalog) -> str:
         cells = "".join(f"{cell(col[i]):>15}" for col in columns)
         lines.append(f"{spec.id:<18}{spec.layer:<6}{cells}")
     return "\n".join(lines)
+
+
+def policy_version(
+    documents: Sequence[Mapping[str, object]],
+) -> str | None:
+    """The returns-policy version one retrieval returned, read from
+    its span's gen_ai.retrieval.documents (Chapter 9), or None when
+    the answer relied on no policy document."""
+    for document in documents:
+        version = str(document.get("version", ""))
+        if version.startswith("returns-"):
+            return version
+    return None

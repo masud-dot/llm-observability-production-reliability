@@ -149,3 +149,39 @@ written.
 - Labs: `uv run python scripts/fs02_brownout.py` and
   `uv run python scripts/fs04_stream_cut.py`.
 - Checks: `make verify-ch08`.
+
+## Chapter 9: Observing Retrieval, Tools and Agent Loops
+
+- Linnet is an agent (`src/wrenholt/orchestrator/linnet.py`): one
+  `invoke_agent Linnet` span per answer. It retrieves help-centre
+  passages, packs them into a context budget (`build context`), and
+  for a question that names an order runs a tool loop before it
+  writes the answer, whole or streamed.
+- `src/wrenholt/rag/`: a synthetic, versioned corpus of 405
+  articles (hashes in `data/hashes.toml`), a feature-hashing
+  embedder (SIMULATED), an index that records the embedder that
+  built it, and a retriever whose `retrieval help-centre` and
+  `embeddings` spans carry index and embedder versions and document
+  IDs, versions and scores, never text. A retriever refuses an
+  index built by another embedder at start-up.
+- `src/wrenholt/tools/toolbox.py`: `lookup_order`, `issue_refund`
+  and `finish`, each call checked against its schema and run in an
+  `execute_tool` span with a keyed fingerprint of its arguments.
+  A refund carries one idempotency key per logical refund and is
+  retried once after a timeout.
+- `src/wrenholt/orchestrator/guard.py`: the loop guard stops a
+  repeated call and caps decision steps
+  (5, `WRENHOLT_AGENT_MAX_STEPS`).
+- Metrics: `gen_ai.invoke_agent.duration`,
+  `gen_ai.invoke_agent.inference_calls`,
+  `gen_ai.invoke_agent.tool_calls`, `gen_ai.execute_tool.duration`,
+  and `wrenholt.retrieval.returned`; retrieval and embeddings
+  durations join `gen_ai.client.operation.duration`.
+- The orders service refunds item by item up to an order's total;
+  `ORDERS_SLOW_COMMIT_MS` answers a new refund late (FS-07). The
+  mock provider calls tools (SIMULATED); `MOCK_LLM_PLAN=fs06`
+  repeats the order lookup.
+- Labs: `uv run python scripts/fs06_tool_loop.py`,
+  `uv run python scripts/fs07_duplicate_refund.py` and
+  `uv run python scripts/fs08_empty_retrieval.py`.
+- Checks: `make verify-ch09`.

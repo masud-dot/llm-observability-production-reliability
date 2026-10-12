@@ -414,3 +414,98 @@ Same run, other checks:
   at the gateway against the mock's schedules (`timeline_ch08.json`,
   14:51 UTC). Table 8.1 follows the compatibility module and the
   pinned GenAI metrics document.
+
+## Chapter 9: Observing Retrieval, Tools and Agent Loops
+
+- Command: `make verify-ch09` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages); `tests/lab` needs
+  the `lab` group
+- Date: 2026-10-12
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L09-01 | The retrieval span | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py` (attributes without text; FS-08); drift suite; native run | pass | pending |
+| L09-02 | The start-up check | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py`; native run (a second API process refused the re-indexed build) | pass | pending |
+| L09-03 | The loop guard | `src/wrenholt/orchestrator/guard.py` | `tests/unit/test_loop_guard.py` | pass | pending |
+| L09-04 | The tool loop | `src/wrenholt/orchestrator/linnet.py` | `tests/unit/test_agent.py`, `tests/unit/test_loop_guard.py` | pass | pending |
+| L09-05 | One span per tool call | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py` (invalid arguments), `tests/privacy/test_privacy_scan.py` | pass | pending |
+| L09-06 | The idempotent refund | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py`; FS-07 lab; native run | pass | pending |
+| L09-07 | Retrieval and agent queries | `deploy/compose/grafana/provisioning/dashboards/llm-gateway.json` (the same expressions on one line) | `promtool check rules` on the two wrapped PromQL expressions; the TraceQL query equals the replay panel's; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
+| L09-08 | FS-06 lab | `scripts/fs06_tool_loop.py` | run command (2026-10-12 08:13 UTC; rerun at 16:30 UTC differs only in the 1.44 s timing, then 1.28 s); `tests/unit/test_loop_guard.py` | pass (SIMULATED); timings vary by machine | pending |
+| L09-09 | FS-07 lab | `scripts/fs07_duplicate_refund.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_idempotent_refund.py` | pass (SIMULATED) | pending |
+| L09-10 | FS-08 lab | `scripts/fs08_empty_retrieval.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_retrieval.py` | pass (SIMULATED) | pending |
+| L09-11 | FS-07 tests | `tests/unit/test_idempotent_refund.py` | itself | pass | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `promtool` on `PATH` and `SEMCONV_GENAI_DIR`
+  set: 164 passed. `pytest tests/lab`: 8 passed. 172 tests: unit 113,
+  slo 17, resilience 3, drift 17, lab 8, privacy 14.
+- `ruff check`, `ruff format --check` and `mypy --strict` with the
+  lab group (144 source files): clean. `uv lock --check`: 96 packages.
+  `otelcol-contrib validate` (0.162.0) with the Compose environment:
+  valid. `docker compose config` was not run here (no Docker); the
+  compose-smoke workflow runs it on push.
+- Every source listing in Chapters 1 to 9 is verbatim in the
+  repository (49 checked; 20 captured outputs and queries skipped).
+- Earlier tests changed with the agent: the correlation test now
+  expects three provider requests for an order question (two
+  decisions and the answer) and checks each; the orders-service rule
+  that a new key cannot refund an order twice became a test of
+  refunds item by item (a second key refunds another part, 201 and
+  `part_refunded`; more than is left gets 422; the rest refunds the
+  order in full; a refund after that gets 409); the FS-14 lab app
+  subclasses `Linnet`; the rename
+  drill skips panels whose series the gateway does not produce. The
+  drift fixture runs the agent (a policy question and a refund
+  against the orders service), and the privacy scan gained a test
+  that its tools ran and leaked nothing.
+- Earlier labs rerun on the Chapter 9 code (16:30 UTC): FS-09, the
+  names lab, FS-11, FS-14 and FS-04 print their listings unchanged;
+  FS-01, the outage lab, the gateway lab, the hash lab and FS-02
+  differ only in timings (the outage lab's SDK warning counts, 18 and
+  13 against 17 and 12, follow its timings). The correlation lab now
+  reports 17 spans where L06-04 shows 6, with a new trace ID and
+  `service.version` ch09: the agent adds `invoke_agent`, retrieval,
+  embeddings, build context, two deciding model calls (chat, attempt
+  and HTTP each) and an `execute_tool` span around the orders call.
+  L06-04 stays the Chapter 6 capture, as L05-04 stays Chapter 5's
+  (the rename drill reports three problems, as in Chapter 8).
+- Native run, 2026-10-12 08:05 UTC: Collector 0.162.0, Prometheus
+  3.15.0 (OTLP receiver, exemplar storage), Tempo 3.1.0 and Loki
+  3.7.8; Linnet with the orders service (`ORDERS_SLOW_COMMIT_MS=2500`)
+  and the mock. Twenty questions, all answered with 200: 11 that
+  named no order (4 streamed), 4 order lookups and 2 refunds (1
+  streamed), then 3 order lookups after restarting the mock with
+  `MOCK_LLM_PLAN=fs06`. Raw counters: stop reasons `no_tools` 11,
+  `finished` 6, `repeated_call` 3; `wrenholt_retrieval_returned`
+  buckets `le="0"` 0, `"1"` 3, `"2"` 16, `"3"` 20; operation-duration
+  counts chat 40, retrieval 20, embeddings 20. The stop-reason panel
+  read 0 for `repeated_call` (`increase()` cannot count a new series'
+  first sample). A refund's trace: the orders service answered the
+  first `POST /refunds` with 201 after 2,501.94 ms, Linnet's client
+  span ended with `ReadTimeout` at 2,006.58 ms, and the retry's server
+  span answered 200 in 2.79 ms; the tool span carried
+  `wrenholt.tool.replayed` true. Tempo returned
+  `gen_ai.retrieval.documents` as an array of key-value lists. TraceQL
+  found 2 traces with replayed refunds and 3 with `repeated_call`; in
+  a first run, search returned nothing for traces that could already
+  be fetched by ID, so the second run fetched by ID first. A second API
+  process started with `WRENHOLT_INDEX_EMBEDDER=wrenholt-embed-2`
+  exited with code 1 and the `IndexMismatch` message. Details:
+  `native_ch09.json` in the figures archive.
+- Read 2026-10-12: the GenAI spans, agent spans and metrics documents
+  at `bcc7f9c` and the retrieval-documents JSON Schema; MAST (Cemri et
+  al., arXiv 2503.13657v3, Appendix A.1); Barnett et al. (CAIN 2024,
+  arXiv 2401.05856v1, FP3); the AWS Builders' Library article on
+  idempotent APIs; draft-ietf-httpapi-idempotency-key-header-07
+  (expired 18 April 2026); installed sources of openai 3.22.1 (the
+  function-call `arguments` docstring), opentelemetry-api 1.45.0
+  (`AnyValue`) and Starlette 1.7.0 (`BaseHTTPMiddleware` body cache).
+- Figure 9.1 is drawn by `figures_ch09.py` from a policy question's
+  trace in the native run (`traces_ch09.json`). Figure 9.2, a diagram
+  of the guard's checks, and Table 9.1 come from the same script;
+  the table takes each name's source from the compatibility module
+  and its data class from the privacy contract.

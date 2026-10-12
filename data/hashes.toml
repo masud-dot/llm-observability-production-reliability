@@ -6,3 +6,14 @@ generator = "services/orders/store.py"
 seed = 20260930
 count = 5000
 sha256_16 = "722ade62ca223c77"
+
+# Chapter 9: the help-centre corpus as of 2026-09-30, and as of
+# 2026-02-28, before the returns window changed (FS-09).
+[corpus]
+generator = "src/wrenholt/rag/corpus.py"
+seed = 20261009
+as_of = "2026-09-30"
+count = 405
+sha256_16 = "45e99498d070c9f0"
+stale_as_of = "2026-02-28"
+stale_sha256_16 = "7bd9b43fd5a43db3"

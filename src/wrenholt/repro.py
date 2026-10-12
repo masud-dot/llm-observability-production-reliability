@@ -69,6 +69,7 @@ def bundle(
     model: str,
     pinned: str,
     policy: RetryPolicy,
+    index_version: str = "none",
 ) -> Bundle:
     return Bundle(
         trace_id=format(span.trace_id, "032x"),
@@ -85,7 +86,7 @@ def bundle(
         pinned_model=pinned or "none",
         provider=route.provider,
         model_config_sha256=config_hash(route, model, policy),
-        index_version="none",  # no retriever until Chapter 9
+        index_version=index_version,  # Chapter 9
         scenario=os.environ.get("WRENHOLT_SCENARIO", "none"),
         seed=os.environ.get("WRENHOLT_SEED", "none"),
     )

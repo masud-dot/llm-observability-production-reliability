@@ -6,18 +6,30 @@ retrying them cannot restore access, so they map to
 quota_exhausted. Every other 429 is a rate limit.
 """
 
+import copy
 import math
 from collections.abc import AsyncGenerator, Mapping, Sequence
 from dataclasses import dataclass
-from typing import cast
+from typing import Literal, cast
 
 import httpx2
 import openai
-from openai.types.chat import ChatCompletionMessageParam
+from openai.types.chat import (
+    ChatCompletionFunctionToolParam,
+    ChatCompletionMessageFunctionToolCall,
+    ChatCompletionMessageParam,
+)
 
 from wrenholt.gateway.errors import ErrorType, ProviderError
 from wrenholt.gateway.routing import Route
-from wrenholt.gateway.types import Completion, Message
+from wrenholt.gateway.types import (
+    Completion,
+    Message,
+    ToolCall,
+    ToolSpec,
+)
+
+Choice = Literal["auto", "required"]
 
 QUOTA_CODES = frozenset(
     {
@@ -71,8 +83,47 @@ def retry_after(headers: Mapping[str, str]) -> float | None:
 
 
 def to_openai(message: Message) -> ChatCompletionMessageParam:
-    payload = {"role": message.role, "content": message.content}
+    payload: dict[str, object] = {
+        "role": message.role,
+        "content": message.content,
+    }
+    if message.tool_calls:  # Chapter 9: the assistant called tools
+        payload["tool_calls"] = [
+            {
+                "id": call.id,
+                "type": "function",
+                "function": {
+                    "name": call.name,
+                    "arguments": call.arguments,
+                },
+            }
+            for call in message.tool_calls
+        ]
+    if message.tool_call_id:  # a tool's answer to one call
+        payload["tool_call_id"] = message.tool_call_id
     return cast(ChatCompletionMessageParam, payload)
+
+
+def to_tool(spec: ToolSpec) -> ChatCompletionFunctionToolParam:
+    return {
+        "type": "function",
+        "function": {
+            "name": spec.name,
+            "description": spec.description,
+            "parameters": dict(spec.parameters),
+        },
+    }
+
+
+def calls_of(
+    calls: Sequence[object] | None,
+) -> tuple[ToolCall, ...]:
+    """Function calls in a response; Linnet offers no other kind."""
+    return tuple(
+        ToolCall(c.id, c.function.name, c.function.arguments)
+        for c in calls or ()
+        if isinstance(c, ChatCompletionMessageFunctionToolCall)
+    )
 
 
 class OpenAICompatible:
@@ -83,6 +134,17 @@ class OpenAICompatible:
             max_retries=0,  # the gateway owns every retry
             timeout=timeout,
         )
+        self._tools: tuple[ToolSpec, ...] = ()
+        self._choice: Choice = "auto"
+
+    def offering(
+        self, tools: Sequence[ToolSpec], choice: Choice
+    ) -> "OpenAICompatible":
+        """The same client, offering tools with every whole (not
+        streamed) request (Chapter 9)."""
+        bound = copy.copy(self)
+        bound._tools, bound._choice = tuple(tools), choice
+        return bound
 
     def stream(
         self, model: str, messages: Sequence[Message]
@@ -93,10 +155,14 @@ class OpenAICompatible:
         self, model: str, messages: Sequence[Message]
     ) -> Completion:
         chat = self._client.chat.completions.with_raw_response
+        tools = [to_tool(t) for t in self._tools] or openai.omit
+        choice = self._choice if self._tools else openai.omit
         try:
             raw = await chat.create(
                 model=model,
                 messages=[to_openai(m) for m in messages],
+                tools=tools,
+                tool_choice=choice,
             )
         except openai.APITimeoutError as exc:
             raise ProviderError(ErrorType.TIMEOUT) from exc
@@ -120,6 +186,9 @@ class OpenAICompatible:
             ),
             input_tokens=usage.prompt_tokens if usage else None,
             output_tokens=usage.completion_tokens if usage else None,
+            tool_calls=calls_of(
+                response.choices[0].message.tool_calls
+            ),
         )
 
     async def aclose(self) -> None:

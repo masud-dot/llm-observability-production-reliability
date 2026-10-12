@@ -3,7 +3,8 @@
   "title": "LLM gateway",
   "tags": [
     "wrenholt",
-    "chapter-5"
+    "chapter-5",
+    "chapter-9"
   ],
   "editable": false,
   "schemaVersion": 39,
@@ -67,7 +68,7 @@
             "uid": "prometheus"
           },
           "legendFormat": "{{gen_ai_provider_name}}",
-          "expr": "histogram_quantile(0.95, sum by (le, gen_ai_provider_name) (rate(gen_ai_client_operation_duration_seconds_bucket[5m])))"
+          "expr": "histogram_quantile(0.95, sum by (le, gen_ai_provider_name) (rate(gen_ai_client_operation_duration_seconds_bucket{gen_ai_operation_name=\"chat\"}[5m])))"
         }
       ]
     },
@@ -207,6 +208,116 @@
             "uid": "prometheus"
           },
           "expr": "sum(increase(gen_ai_client_operation_time_to_first_chunk_seconds_bucket{le=\"2.5\"}[1h])) / sum(increase(gen_ai_client_operation_time_to_first_chunk_seconds_count[1h]))"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Retrievals that found nothing, by index",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 8,
+        "h": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "{{wrenholt_index_version}}",
+          "expr": "sum by (wrenholt_index_version) (rate(wrenholt_retrieval_returned_bucket{le=\"0\"}[5m])) / sum by (wrenholt_index_version) (rate(wrenholt_retrieval_returned_count[5m]))"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Tool calls per invocation p95",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 20,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(gen_ai_invoke_agent_tool_calls_bucket[5m])))"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Agent invocations by stop reason (1 h)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 20,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "{{wrenholt_agent_stop_reason}}",
+          "expr": "sum by (wrenholt_agent_stop_reason) (increase(gen_ai_invoke_agent_duration_seconds_count[1h]))"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Refunds answered by a replay",
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "queryType": "traceql",
+          "limit": 20,
+          "query": "{ span.wrenholt.tool.replayed = true }"
         }
       ]
     }

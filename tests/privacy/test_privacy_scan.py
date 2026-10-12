@@ -87,3 +87,13 @@ def test_every_exported_key_has_a_data_class(
         *(runs[k].keys for k in ("designed", "protected", "streamed"))
     )
     assert keys - set(FIELDS) == set()
+
+
+def test_tool_calls_leak_nothing(runs: dict[str, Scan]) -> None:
+    # Chapter 9: every question names an order, so the agent
+    # passes it to lookup_order as a tool argument.
+    for name in ("designed", "streamed"):
+        scan = runs[name]
+        assert c.TOOL_NAME in scan.keys  # the tool ran
+        assert c.TOOL_FINGERPRINT in scan.keys
+        assert sum(scan.found.values()) == 0

@@ -5,7 +5,9 @@ telemetry off. Chapter 3 adds telemetry at the entry point, and only
 when an OTLP endpoint is configured. Since Chapter 4 every model
 call goes through the gateway; since Chapter 6 an order in the
 question is looked up, and every answer leaves a reproduction
-bundle. Since Chapter 8 an answer can be streamed.
+bundle. Since Chapter 8 an answer can be streamed. Since Chapter 9
+Linnet is an agent: it retrieves help-centre passages and calls
+tools, and the handlers call it exactly as before.
 """
 
 import json
@@ -28,9 +30,13 @@ from wrenholt.gateway import (
     Route,
     StreamResult,
 )
-from wrenholt.orchestrator.linnet import answer, stream_answer
+from wrenholt.orchestrator.guard import LoopGuard
+from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.orchestrator.prompts import SUPPORT
 from wrenholt.privacy.vault import Vault
+from wrenholt.rag.embed import EMBEDDERS
+from wrenholt.rag.index import index_as_of
+from wrenholt.rag.retriever import Retriever
 from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry.framework import FRAMEWORK_TELEMETRY_OFF
 from wrenholt.tools.orders import OrdersClient
@@ -51,6 +57,12 @@ class Settings(BaseSettings):
     content_capture: str = "off"
     vault_path: str = ":memory:"
     vault_ttl_s: float = 72 * 3600
+    # Chapter 9: the help-centre index, the embedder that built it,
+    # the one that embeds questions, and the loop guard's limit.
+    corpus_as_of: str = "2026-09-30"
+    index_embedder: str = "wrenholt-embed-1"
+    query_embedder: str = "wrenholt-embed-1"
+    agent_max_steps: int = 5
 
 
 def routes(cfg: Settings) -> dict[str, Route]:
@@ -86,6 +98,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     policy = RetryPolicy()
     gateway = Gateway(table, policy, pinned=PINNED)
     orders = OrdersClient(cfg.orders_url)
+    # Chapter 9: an index built by another embedder stops start-up
+    # here (FS-08), instead of answering every question emptily.
+    index = index_as_of(
+        cfg.corpus_as_of, EMBEDDERS[cfg.index_embedder]
+    )
+    retriever = Retriever(index, EMBEDDERS[cfg.query_embedder])
+    limit = cfg.agent_max_steps
+    linnet = Linnet(retriever, guard=lambda: LoopGuard(limit))
+    answer, stream_answer = linnet.answer, linnet.stream_answer
     vault = None
     if cfg.content_capture == "vault":
         vault = Vault(cfg.vault_path, cfg.vault_ttl_s)
@@ -122,6 +143,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             cfg.model,
             PINNED.get(cfg.model, ""),
             policy,
+            index_version=index.version,
         )
         repro.record_later(item, request)
         if vault is not None:

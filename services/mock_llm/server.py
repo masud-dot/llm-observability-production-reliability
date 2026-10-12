@@ -16,6 +16,7 @@ from services.mock_llm.headers import with_header_log
 from services.mock_llm.model_swap import with_model_swap
 from services.mock_llm.spend_cap import with_spend_cap
 from services.mock_llm.streaming import Schedule, Sent, Streaming
+from services.mock_llm.tool_loop import with_tool_loop
 
 
 @dataclass(frozen=True)
@@ -34,6 +35,7 @@ def running_provider(
     headers: list[dict[str, str]] | None = None,
     streaming: Schedule | None = None,
     sent: list[Sent] | None = None,
+    tool_loop: bool = False,
 ) -> Iterator[RunningProvider]:
     log = ProviderLog()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,6 +48,8 @@ def running_provider(
         app = with_model_swap(app, model_swap)
     if headers is not None:  # what reaches the provider (Chapter 6)
         app = with_header_log(app, headers)
+    if tool_loop:  # FS-06: the same lookup, again (Chapter 9)
+        app = with_tool_loop(app)
     served: Any = app
     wrapper = None
     if streaming is not None:  # SSE on a schedule (Chapter 8)

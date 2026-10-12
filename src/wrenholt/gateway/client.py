@@ -8,6 +8,7 @@ under each attempt.
 
 import asyncio
 import contextlib
+import copy
 import random
 import time
 from collections.abc import (
@@ -25,11 +26,15 @@ from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 
 from wrenholt.gateway.context import PROMPT
 from wrenholt.gateway.errors import ErrorType, ProviderError
-from wrenholt.gateway.openai_compat import Chunk, OpenAICompatible
+from wrenholt.gateway.openai_compat import (
+    Choice,
+    Chunk,
+    OpenAICompatible,
+)
 from wrenholt.gateway.policy import RetryPolicy
 from wrenholt.gateway.routing import Route
 from wrenholt.gateway.streaming import StreamClock
-from wrenholt.gateway.types import Completion, Message
+from wrenholt.gateway.types import Completion, Message, ToolSpec
 from wrenholt.telemetry import conventions as c
 
 Attrs = dict[str, str | bool | int | float | list[str]]
@@ -120,6 +125,20 @@ class Gateway:
             unit="{response}",
             description="Responses from a model other than the pin.",
         )
+
+    def with_tools(
+        self, tools: Sequence[ToolSpec], choice: Choice = "auto"
+    ) -> "Gateway":
+        """This gateway, offering tools with each chat request
+        (Chapter 9), as the SDK's with_options returns a client with
+        new options. Routes, retries and instruments are shared, so
+        close the gateway, never the view."""
+        view = copy.copy(self)
+        view._adapters = {
+            route: adapter.offering(tools, choice)
+            for route, adapter in self._adapters.items()
+        }
+        return view
 
     async def chat(
         self, model: str, messages: Sequence[Message]

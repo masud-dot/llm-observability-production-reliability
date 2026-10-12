@@ -58,6 +58,9 @@ _OPERATIONAL = {
 }  # fmt: skip
 _IDENTIFIER = {
     c.RESPONSE_ID, c.CONTENT_REF,
+    # Chapter 9: help-centre article IDs (public, not personal), the
+    # model's tool-call IDs, and keyed fingerprints of tool arguments
+    c.RETRIEVAL_DOCUMENTS, c.TOOL_CALL_ID, c.TOOL_FINGERPRINT,
     # the calling service; personal if the callers are people
     "client.address", "client.port", "network.peer.address",
     "network.peer.port", "user_agent.original",
@@ -73,6 +76,10 @@ FIELDS: dict[str, DataClass] = {
 NEVER_EXPORTED = {
     "question": DataClass.CONTENT,
     "answer": DataClass.CONTENT,
+    # Chapter 9: what retrieval found and what tools saw
+    "retrieved.passages": DataClass.CONTENT,
+    "tool.arguments": DataClass.CONTENT,
+    "tool.result": DataClass.CONTENT,
     "customer.name": DataClass.PERSONAL,
     "customer.email": DataClass.PERSONAL,
     "customer.phone": DataClass.PERSONAL,

@@ -98,11 +98,13 @@ def gateway_metrics() -> list[Metric]:
 
 def drill(on: bool) -> Outcome:
     with renamed(on) as registry:
-        _, labels = drift.produced(gateway_metrics())
+        series, labels = drift.produced(gateway_metrics())
         missing = []
         for board in BOARDS:
             for expr in drift.prometheus_queries(board):
-                _, grouped = drift.promql_names(expr)
+                used, grouped = drift.promql_names(expr)
+                if not used <= series:
+                    continue  # a panel the gateway does not feed
                 missing += sorted(grouped - labels)
         problems = drift.against_snapshot(
             registry, drift.load_snapshot()

@@ -10,11 +10,13 @@ import os
 import threading
 import time
 from dataclasses import asdict, dataclass
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from services.mock_llm.decide import decide, from_notes
 from services.mock_llm.faults import NO_FAULTS, FaultPlan
 
 # Requested model -> model the response reports (dated snapshot).
@@ -43,13 +45,18 @@ Reply = tuple[int, dict[str, object], dict[str, str]]
 
 class Message(BaseModel):
     role: str
-    content: str
+    content: str | None = None
+    # Chapter 9: tool calls and the tool turns that answer them.
+    tool_calls: list[dict[str, Any]] | None = None
+    tool_call_id: str | None = None
 
 
 class ChatRequest(BaseModel):
     model: str
     messages: list[Message]
     stream: bool = False
+    tools: list[dict[str, Any]] | None = None  # Chapter 9
+    tool_choice: Any = None
 
 
 @dataclass(frozen=True)
@@ -99,18 +106,34 @@ def count_tokens(text: str) -> int:
     return len(text.split())
 
 
+def reply_to(req: ChatRequest, arrival: int) -> dict[str, Any]:
+    """The assistant message: tool calls when tools are offered
+    (Chapter 9), else an answer, from Linnet's notes if any."""
+    if req.tools:
+        calls = decide(req.messages, arrival)
+        return {
+            "role": "assistant",
+            "content": None,
+            "tool_calls": calls,
+        }
+    question = req.messages[-1].content or ""
+    notes = [m.content or "" for m in req.messages[1:-1]]
+    text = from_notes(question, notes) or pick_answer(question)
+    return {"role": "assistant", "content": text}
+
+
 def completion(req: ChatRequest, arrival: int) -> dict[str, object]:
-    text = pick_answer(req.messages[-1].content)
-    prompt = sum(count_tokens(m.content) for m in req.messages)
-    output = count_tokens(text)
-    message = {"role": "assistant", "content": text}
+    message = reply_to(req, arrival)
+    prompt = sum(count_tokens(m.content or "") for m in req.messages)
+    output = count_tokens(message["content"] or "")
+    finish = "tool_calls" if message.get("tool_calls") else "stop"
     return {
         "id": f"chatcmpl-mock-{arrival:06d}",
         "object": "chat.completion",
         "created": 1790000000,
         "model": MODELS[req.model],
         "choices": [
-            {"index": 0, "finish_reason": "stop", "message": message}
+            {"index": 0, "finish_reason": finish, "message": message}
         ],
         "usage": {
             "prompt_tokens": prompt,

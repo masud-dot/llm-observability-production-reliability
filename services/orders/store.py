@@ -3,6 +3,9 @@
 The 5,000 orders are generated from a fixed seed, so every reader
 gets the same data. Names, emails, phone numbers and addresses are
 PII-shaped but invented, for the redaction tests in Chapter 7.
+Since Chapter 9 an order can be refunded item by item, up to its
+total, so only the idempotency key tells a retried refund from a
+second one.
 """
 
 import hashlib
@@ -25,6 +28,8 @@ STATUSES = (
     "cancelled",
 )
 WEIGHTS = (10, 15, 55, 8, 7, 5)
+# Chapter 9: refunds go item by item until the total is used up.
+REFUNDABLE = ("delivered", "part_refunded")
 FIRST = ("Ada", "Bram", "Cleo", "Dev", "Esme", "Finn", "Greta")
 LAST = ("Archer", "Brook", "Calloway", "Dunmore", "Ellery", "Fry")
 STREETS = ("Mill", "Church", "Station", "Orchard", "Willow")
@@ -159,9 +164,10 @@ class OrderStore:
             order = self._get(order_id)
             if order is None:
                 raise RefundError(404, "unknown order")
-            if order.status != "delivered":
+            if order.status not in REFUNDABLE:
                 raise RefundError(409, f"order is {order.status}")
-            if not 0 < amount <= order.total_minor:
+            left = order.total_minor - self._refunded(order_id)
+            if not 0 < amount <= left:
                 raise RefundError(422, "amount out of range")
             done = self._db.execute("SELECT COUNT(*) FROM refunds")
             refund_id = f"RF-{done.fetchone()[0] + 1:06d}"
@@ -169,10 +175,33 @@ class OrderStore:
                 "INSERT INTO refunds VALUES (?, ?, ?, ?)",
                 (key, refund_id, order_id, amount),
             )
+            status = "refunded" if amount == left else "part_refunded"
             self._db.execute(
-                "UPDATE orders SET status = 'refunded'"
-                " WHERE order_id = ?",
-                (order_id,),
+                "UPDATE orders SET status = ? WHERE order_id = ?",
+                (status, order_id),
             )
             self._db.commit()
             return Refund(refund_id, order_id, amount, replayed=False)
+
+    def _refunded(self, order_id: str) -> int:
+        row = self._db.execute(
+            "SELECT COALESCE(SUM(amount_minor), 0) FROM refunds"
+            " WHERE order_id = ?",
+            (order_id,),
+        ).fetchone()
+        return int(row[0])
+
+    def refunded(self, order_id: str) -> int:
+        """Pence refunded against an order so far."""
+        with self._lock:
+            return self._refunded(order_id)
+
+    def refunds_for(self, order_id: str) -> list[str]:
+        """Refund IDs issued against an order, oldest first."""
+        with self._lock:
+            rows = self._db.execute(
+                "SELECT refund_id FROM refunds WHERE order_id = ?"
+                " ORDER BY refund_id",
+                (order_id,),
+            ).fetchall()
+        return [str(r[0]) for r in rows]

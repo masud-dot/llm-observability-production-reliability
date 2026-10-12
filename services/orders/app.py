@@ -50,6 +50,8 @@ def create_app(
             done = store.refund(key, body.order_id, body.amount_minor)
         except RefundError as exc:
             raise HTTPException(exc.status, exc.detail) from exc
+        if not done.replayed:
+            inject.after_commit()  # FS-07 (Chapter 9)
         return JSONResponse(
             asdict(done), status_code=200 if done.replayed else 201
         )

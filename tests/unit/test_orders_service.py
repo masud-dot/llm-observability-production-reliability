@@ -1,6 +1,7 @@
 """Orders service: deterministic data, lookups, idempotent refunds."""
 
 import json
+import time
 import tomllib
 import urllib.error
 import urllib.request
@@ -57,8 +58,43 @@ def test_lookup_and_refund_rules() -> None:
         assert again[1]["replayed"] is True
         other = {"order_id": DELIVERED, "amount_minor": 600}
         assert call(f"{base}/refunds", other, key="k-1")[0] == 409
-        # A new key cannot refund the same order twice either.
-        assert call(f"{base}/refunds", refund, key="k-2")[0] == 409
+        # Since Chapter 9 refunds go item by item: a new key is a
+        # new refund, up to what is left of the order's total.
+        total = next(
+            o.total_minor for o in ORDERS if o.order_id == DELIVERED
+        )
+        second = call(f"{base}/refunds", refund, key="k-2")
+        assert second[0] == 201
+        assert second[1]["refund_id"] != first[1]["refund_id"]
+        assert call(f"{base}/orders/{DELIVERED}")[1]["status"] == (
+            "part_refunded"
+        )
+        rest = {"order_id": DELIVERED, "amount_minor": total - 1000}
+        too_much = {**rest, "amount_minor": total - 999}
+        assert call(f"{base}/refunds", too_much, key="k-3")[0] == 422
+        assert call(f"{base}/refunds", rest, key="k-4")[0] == 201
+        assert call(f"{base}/orders/{DELIVERED}")[1]["status"] == (
+            "refunded"
+        )
+        assert call(f"{base}/refunds", refund, key="k-5")[0] == 409
+
+
+def test_a_slow_commit_still_commits() -> None:
+    """FS-07's fault: the answer to a new refund is late, the
+    refund is not; a replay of the same key is answered at once."""
+    store = OrderStore(ORDERS)
+    app = create_app(store, Faults(slow_commit_s=0.3))
+    refund = {"order_id": DELIVERED, "amount_minor": 500}
+    with serve(app) as base:
+        start = time.monotonic()
+        first = call(f"{base}/refunds", refund, key="k-1")
+        slow = time.monotonic() - start
+        start = time.monotonic()
+        again = call(f"{base}/refunds", refund, key="k-1")
+        quick = time.monotonic() - start
+    assert (first[0], again[0]) == (201, 200)
+    assert slow >= 0.3 > quick
+    assert store.refunds_for(DELIVERED) == [first[1]["refund_id"]]
 
 
 def test_fault_injection_fails_every_nth_request() -> None:

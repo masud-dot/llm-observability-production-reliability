@@ -33,6 +33,25 @@ RESPONSE_TIME_TO_FIRST_CHUNK: Final = (
 )
 PROMPT_VERSION: Final = "gen_ai.prompt.version"
 CHAT: Final = "chat"
+# Chapter 9: retrieval, tools and agents. Operation names first,
+# then attributes and metrics.
+RETRIEVAL: Final = "retrieval"
+EMBEDDINGS: Final = "embeddings"
+EXECUTE_TOOL: Final = "execute_tool"
+INVOKE_AGENT: Final = "invoke_agent"
+DATA_SOURCE_ID: Final = "gen_ai.data_source.id"
+RETRIEVAL_TOP_K: Final = "gen_ai.retrieval.top_k"
+RETRIEVAL_DOCUMENTS: Final = "gen_ai.retrieval.documents"  # opt-in
+EMBEDDING_DIMENSIONS: Final = "gen_ai.embeddings.dimension.count"
+AGENT_NAME: Final = "gen_ai.agent.name"
+AGENT_DESCRIPTION: Final = "gen_ai.agent.description"
+TOOL_NAME: Final = "gen_ai.tool.name"
+TOOL_TYPE: Final = "gen_ai.tool.type"
+TOOL_CALL_ID: Final = "gen_ai.tool.call.id"
+AGENT_DURATION: Final = "gen_ai.invoke_agent.duration"
+AGENT_INFERENCE_CALLS: Final = "gen_ai.invoke_agent.inference_calls"
+AGENT_TOOL_CALLS: Final = "gen_ai.invoke_agent.tool_calls"
+TOOL_DURATION: Final = "gen_ai.execute_tool.duration"
 # Bucket boundaries the conventions advise for the duration.
 DURATION_BUCKETS: Final = (
     0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64,
@@ -45,6 +64,14 @@ DURATION_BUCKETS: Final = (
 CHUNK_BUCKETS: Final = DURATION_BUCKETS
 SLI_THRESHOLDS: Final = (2.5, 4.0)
 TTFC_BUCKETS: Final = tuple(sorted({*CHUNK_BUCKETS, *SLI_THRESHOLDS}))
+# Chapter 9: the boundaries the conventions advise for the agent's
+# duration and per-invocation counts; tool durations use the
+# operation duration's.
+AGENT_BUCKETS: Final = (
+    0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.4,
+    12.8, 25.6, 51.2, 102.4, 204.8, 409.6,
+)  # fmt: skip
+CALL_BUCKETS: Final = (1, 2, 4, 8, 16, 32, 64, 128)
 
 # General conventions (Stable)
 ERROR_TYPE: Final = "error.type"
@@ -78,6 +105,18 @@ CONTENT_REF: Final = "wrenholt.content.ref"
 REDACTIONS: Final = "wrenholt.privacy.redactions"  # counter
 PRIVACY_KIND: Final = "wrenholt.privacy.kind"
 PRIVACY_WHERE: Final = "wrenholt.privacy.where"
+# Chapter 9: which index answered, what the context kept, why the
+# loop ended, and what a tool call did, never its arguments.
+INDEX_VERSION: Final = "wrenholt.index.version"
+INDEX_EMBEDDER: Final = "wrenholt.index.embedder"
+RETURNED: Final = "wrenholt.retrieval.returned"  # histogram
+CONTEXT_BUDGET: Final = "wrenholt.context.budget"
+CONTEXT_TOKENS: Final = "wrenholt.context.tokens"
+CONTEXT_DROPPED: Final = "wrenholt.context.dropped"
+AGENT_STOP: Final = "wrenholt.agent.stop_reason"
+TOOL_FINGERPRINT: Final = "wrenholt.tool.call.fingerprint"
+TOOL_REPLAYED: Final = "wrenholt.tool.replayed"
+RETURNED_BUCKETS: Final = (0, 1, 2, 3)  # top_k is 3
 
 
 # The pinned specification the GenAI names come from.
@@ -90,6 +129,11 @@ CONTENT: Final = (
     "gen_ai.output.messages",
     "gen_ai.system_instructions",
     "gen_ai.tool.definitions",
+    # Chapter 9: what was searched for and what tools received and
+    # returned. Only the facts Linnet builds reach the model again.
+    "gen_ai.retrieval.query.text",
+    "gen_ai.tool.call.arguments",
+    "gen_ai.tool.call.result",
 )
 
 
@@ -137,4 +181,39 @@ REGISTRY: Final = (
     Name(STREAM_CHUNKS, "attribute", "book"),
     Name(STREAM_CANCELLED, "attribute", "book"),
     Name(RESPONSE_TIME_TO_FIRST_CHUNK, "attribute", "genai"),
+    # Chapter 9: retrieval, tools and the agent loop.
+    Name(DATA_SOURCE_ID, "attribute", "genai"),
+    Name(RETRIEVAL_TOP_K, "attribute", "genai"),
+    Name(RETRIEVAL_DOCUMENTS, "attribute", "genai"),
+    Name(EMBEDDING_DIMENSIONS, "attribute", "genai"),
+    Name(AGENT_NAME, "attribute", "genai"),
+    Name(AGENT_DESCRIPTION, "attribute", "genai"),
+    Name(TOOL_NAME, "attribute", "genai"),
+    Name(TOOL_TYPE, "attribute", "genai"),
+    Name(TOOL_CALL_ID, "attribute", "genai"),
+    Name(AGENT_DURATION, "metric", "genai", "histogram", "s"),
+    Name(
+        AGENT_INFERENCE_CALLS,
+        "metric",
+        "genai",
+        "histogram",
+        "{inference_call}",
+    ),
+    Name(
+        AGENT_TOOL_CALLS,
+        "metric",
+        "genai",
+        "histogram",
+        "{tool_call}",
+    ),
+    Name(TOOL_DURATION, "metric", "genai", "histogram", "s"),
+    Name(INDEX_VERSION, "attribute", "book"),
+    Name(INDEX_EMBEDDER, "attribute", "book"),
+    Name(RETURNED, "metric", "book", "histogram", "{document}"),
+    Name(CONTEXT_BUDGET, "attribute", "book"),
+    Name(CONTEXT_TOKENS, "attribute", "book"),
+    Name(CONTEXT_DROPPED, "attribute", "book"),
+    Name(AGENT_STOP, "attribute", "book"),
+    Name(TOOL_FINGERPRINT, "attribute", "book"),
+    Name(TOOL_REPLAYED, "attribute", "book"),
 )

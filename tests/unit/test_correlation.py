@@ -47,9 +47,11 @@ def test_spans_carry_the_resource_attributes(chat: Run) -> None:
 def test_the_provider_gets_trace_context_but_no_baggage(
     chat: Run,
 ) -> None:
-    (sent,) = chat.provider_headers
-    assert request_trace(chat) in sent["traceparent"]
-    assert "baggage" not in sent
+    # Since Chapter 9: two tool-loop decisions, then the answer.
+    assert len(chat.provider_headers) == 3
+    for sent in chat.provider_headers:
+        assert request_trace(chat) in sent["traceparent"]
+        assert "baggage" not in sent
 
 
 def test_logs_carry_the_trace_id_both_ways(chat: Run) -> None:
