@@ -1,0 +1,8 @@
+# Deterministic synthetic datasets. A test regenerates each one and
+# compares the hash, so a changed generator cannot go unnoticed.
+
+[orders]
+generator = "services/orders/store.py"
+seed = 20260930
+count = 5000
+sha256_16 = "722ade62ca223c77"

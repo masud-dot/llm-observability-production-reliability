@@ -12,10 +12,11 @@
 
 [meta]
 frozen_on = "2026-09-30"
-verified_on = "2026-09-30"
+verified_on = "2026-10-01"
+amended_on = "2026-10-01"  # decision 17: pyyaml, types-pyyaml
 lockfile = "uv.lock"
 lock_tool = "uv 0.11.7"
-locked_packages = 94
+locked_packages = 96
 python_requires = ">=3.12,<3.15"
 phase3 = "re-verify every entry with recheck = true"
 
@@ -129,6 +130,13 @@ released = "2026-08-07"
 status = "stable"
 recheck = true
 
+[packages.pyyaml]
+group = "runtime"
+version = "6.0.3"
+released = "2025-09-25"
+status = "stable; CPython 3.12-3.14 wheels; added 2026-10-01 (decision 17) for scenario, SLI and SLO files"
+recheck = true
+
 [packages.pytest]
 group = "dev"
 version = "9.1.1"
@@ -164,15 +172,22 @@ released = "2026-09-24"
 status = "pre-1.0; line-length 70"
 recheck = true
 
+[packages."types-pyyaml"]
+group = "dev"
+version = "6.0.12.20260906"
+released = "2026-09-06"
+status = "typeshed stubs for pyyaml, needed by mypy --strict; added 2026-10-01 (decision 17)"
+recheck = true
+
 [packages."opentelemetry-instrumentation-openai-v2"]
-group = "lab (Chapter 4 comparison only)"
+group = "lab (Chapter 1 and 4 comparison labs)"
 version = "2.4b0"
 released = "2026-05-01"
 status = "beta"
 recheck = true
 
 [packages."opentelemetry-util-genai"]
-group = "lab (Chapter 4 comparison only)"
+group = "lab (Chapter 1 and 4 comparison labs)"
 version = "0.4b0"
 released = "2026-05-01"
 status = "beta"
@@ -180,7 +195,7 @@ newer_available = "1.2b0 (not adopted: breaks openai-v2 2.4b0 in the Phase 1 spi
 recheck = true
 
 [packages.httpx]
-group = "lab (Chapter 4 comparison only)"
+group = "lab (Chapter 1 and 4 comparison labs)"
 version = "0.28.1"
 released = "2024-12-06"
 status = "stable"
@@ -255,7 +270,7 @@ recheck = true
 
 [components.python-base]
 image = "python:3.14.7-slim"
-status = "base image for smoke-app and webhook-sink"
+status = "base image for smoke-app, webhook-sink and the application plane (Chapter 3)"
 recheck = true
 
 [components.docker-compose]
@@ -307,3 +322,27 @@ setup_python = "v7.0.0 (main CI; not used by compose-smoke)"
 setup_uv = "v10.2.0 (main CI; not used by compose-smoke)"
 compose_smoke = "PASS: run 36845252895 (2026-10-01, commit 9b34e4a); run 36844415794 failed on the missing multi-arch Collector tag"
 compose_smoke_url = "https://github.com/masud-dot/llm-observability-production-reliability/actions/runs/36845252895"
+
+# Behaviours of pinned packages that the book relies on (Chapter 3).
+# Read from the installed source and confirmed by execution; Phase 3
+# re-checks each one before publication.
+[behaviours]
+fastapi_builtin_telemetry = "fastapi 0.142.1 adds its own OTLP exporters from OTEL_* variables at startup, beside any existing ones; Wrenholt passes telemetry with every feature off (decision 20)"
+uvicorn_sigterm = "uvicorn 0.54.0 re-raises SIGTERM after a graceful shutdown, so atexit hooks (the SDK's own flush) never run; Wrenholt flushes in the lifespan (decision 21)"
+otlp_http_timeout_units = "opentelemetry-exporter-otlp-proto-http 1.45.0 reads OTEL_EXPORTER_OTLP_TIMEOUT in seconds; the specification defines it in milliseconds (decision 21)"
+fastapi_instrumentation_semconv = "opentelemetry-instrumentation-fastapi 0.66b0 emits old HTTP names unless OTEL_SEMCONV_STABILITY_OPT_IN includes http (decision 19)"
+bsp_export_timeout = "opentelemetry-sdk 1.45.0 batch processors do not use OTEL_BSP_EXPORT_TIMEOUT; only the exporter timeout bounds an export"
+openai_sdk_retries = "openai 3.22.1 retries 408, 409, 429 and every 5xx without reading the error code, so spend and quota 429s are retried; backoff 0.5 s doubling to 8 s with up to 25 per cent jitter removed; retry-after honoured up to 120 s (decisions 22 and 25)"
+openai_v2_identity = "opentelemetry-instrumentation-openai-v2 2.4b0 with openai 3.22.1 reports gen_ai.provider.name openai from the client library and sets no server.address on the GenAI span (executed, Chapter 4 lab)"
+semconv_package_lag = "opentelemetry-semantic-conventions 0.66b0 ships 60 GenAI attribute names: 12 are gone from the specification at bcc7f9c (gen_ai.system and gen_ai.token.type among them) and 28 specification names are missing; its only token metric is gen_ai.client.token.usage (decision 28)"
+openai_v2_opt_in = "opentelemetry-instrumentation-openai-v2 2.4b0 emits gen_ai.system with OTEL_SEMCONV_STABILITY_OPT_IN unset and gen_ai.provider.name with gen_ai_latest_experimental; it emits gen_ai.client.token.usage with gen_ai.token.type either way (executed, Chapter 5 names lab)"
+otel_propagators_default = "opentelemetry-api 1.45.0: an unset OTEL_PROPAGATORS means tracecontext,baggage, so baggage received upstream is forwarded on every outbound call; Linnet sets trace context only (decision 29)"
+exemplar_filter_default = "opentelemetry-sdk 1.45.0: OTEL_METRICS_EXEMPLAR_FILTER defaults to trace_based, so measurements inside a sampled span carry exemplars (decision 32)"
+prometheus_exemplar_storage = "Prometheus 3.15.0 stores exemplars received over OTLP only with --enable-feature=exemplar-storage (native run, Chapter 6; decision 32)"
+redaction_processor = "otelcol-contrib 0.162.0 redaction processor: Beta for traces, Alpha for logs and metrics; masks matches in string log bodies and url attributes with hmac-sha256 and adds audit attributes (native run, Chapter 7; decision 38)"
+redaction_hmac_key_length = "otelcol-contrib 0.162.0 refuses an hmac-sha256 key shorter than 32 bytes at validate time (Chapter 7)"
+asgi_url_path_after_start = "opentelemetry-instrumentation-asgi 0.66b0 sets url.path after the server span starts, so start-time span processors miss it (Chapter 7; decision 35)"
+openai_stream_errors = "openai 3.22.1 AsyncStream raises APIError for an event whose data carries an error object, and ends iteration without an exception when the body ends without [DONE]; only a finish reason marks a complete stream (Chapter 8; decision 41)"
+uvicorn_asgi_spec_version = "uvicorn 0.54.0 declares ASGI spec_version 2.3 for every HTTP protocol, so Starlette 1.7.0 StreamingResponse runs the body beside an http.disconnect listener and cancels it when the client leaves (Chapter 8; decision 43)"
+prometheus_le_format = "Prometheus 3.15.0 stores OTLP histogram bounds 2.5 and 4.0 as le=\"2.5\" and le=\"4\"; increase() cannot count a new series' first sample (native run, Chapter 8; decision 40)"
+async_generator_context = "CPython 3.14.4 with opentelemetry-api 1.45.0: a context variable set in an async generator reaches its caller, and a span attached across a yield fails to detach when another task finishes the generator (tests, Chapter 8; decision 44)"

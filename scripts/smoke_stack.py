@@ -26,9 +26,7 @@ def env(name: str, default: str) -> str:
 
 APP = env("SMOKE_APP", "http://localhost:8000")
 HEALTH = env("SMOKE_COLLECTOR_HEALTH", "http://localhost:13133/")
-SELF = env(
-    "SMOKE_COLLECTOR_METRICS", "http://localhost:8888/metrics"
-)
+SELF = env("SMOKE_COLLECTOR_METRICS", "http://localhost:8888/metrics")
 TEMPO = env("SMOKE_TEMPO", "http://localhost:3200")
 PROM = env("SMOKE_PROMETHEUS", "http://localhost:9090")
 LOKI = env("SMOKE_LOKI", "http://localhost:3100")

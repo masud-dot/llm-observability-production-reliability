@@ -1,0 +1,64 @@
+# Anatomy of a Wrenholt request: the refund journey, end to end.
+# One absolute deadline is set at the API and every step checks
+# the time left. Budgets are candidates: Chapter 16 enforces
+# deadlines and Chapter 12 sets objectives.
+journey: refund_request
+request_class: critical_action
+deadline_s: 10.0
+first_chunk_after: model_first_chunk
+
+steps:
+  - id: api
+    component: Support API (POST /chat, streamed)
+    layers: [L1]
+    budget_s: 0.1
+  - id: retrieval
+    component: Policy retriever
+    layers: [L1, L3]
+    budget_s: 0.6
+    depends_on: [policy_index]
+  - id: order_lookup
+    component: Order lookup tool
+    layers: [L1, L3]
+    budget_s: 0.8
+    depends_on: [orders_service]
+  - id: model_first_chunk
+    component: LLM gateway to first chunk
+    layers: [L1, L2]
+    budget_s: 2.5
+    depends_on: [model_providers]
+  - id: decision_check
+    component: Refund decision check
+    layers: [L2]
+    budget_s: 0.2
+  - id: refund_write
+    component: Refund tool (idempotent write)
+    layers: [L1, L3, L4]
+    budget_s: 1.0
+    depends_on: [orders_service]
+  - id: stream_rest
+    component: Rest of the streamed answer
+    layers: [L1]
+    budget_s: 4.0
+    depends_on: [model_providers]
+  - id: outcome
+    component: Conversation outcome
+    layers: [L4]
+    budget_s: 0.0
+
+dependencies:
+  - id: policy_index
+    component: Policy index (versioned corpus)
+    critical: true
+  - id: orders_service
+    component: Orders service
+    critical: true
+  - id: model_providers
+    component: Provider A, fallback provider B
+    critical: true
+  - id: telemetry
+    component: OpenTelemetry Collector
+    critical: false
+  - id: evaluation
+    component: Evaluator results (sampled, asynchronous)
+    critical: false

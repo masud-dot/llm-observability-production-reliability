@@ -19,6 +19,18 @@ processors:
     spike_limit_mib: 100
   batch:
     timeout: 1s
+  # Chapter 7, defence in depth: services redact before export; this
+  # catches what one without that code would send. Beta for traces,
+  # Alpha for logs at this version.
+  redaction:
+    allow_all_keys: true
+    blocked_values:
+      - "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+      - "\\+\\d{1,3}(?:[ -]?\\d){7,12}"
+      - "WG-\\d{6}"
+    hash_function: hmac-sha256
+    hmac_key: ${env:REDACTION_HMAC_KEY}
+    summary: info
 
 exporters:
   otlphttp/tempo:
@@ -41,7 +53,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, redaction, batch]
       exporters: [otlphttp/tempo]
     metrics:
       receivers: [otlp]
@@ -49,5 +61,5 @@ service:
       exporters: [otlphttp/prometheus]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, redaction, batch]
       exporters: [otlphttp/loki]

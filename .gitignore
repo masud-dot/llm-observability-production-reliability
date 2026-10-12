@@ -1,0 +1,9 @@
+# Local environment and tool caches
+.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Binaries downloaded by scripts/native_smoke.sh
+.native/
