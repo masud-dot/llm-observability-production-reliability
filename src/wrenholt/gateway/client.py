@@ -312,7 +312,12 @@ class Gateway:
                 finished = False
                 while True:
                     try:  # attached to read, never across a yield
-                        with trace.use_span(tries, end_on_exit=False):
+                        with trace.use_span(
+                            tries,
+                            end_on_exit=False,
+                            record_exception=False,
+                            set_status_on_exception=False,
+                        ):
                             chunk = await anext(reply)
                     except StopAsyncIteration:
                         break

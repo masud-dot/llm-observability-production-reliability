@@ -1,5 +1,8 @@
-# OpenTelemetry Collector (contrib v0.162.0), Phase 1.5 smoke.
-# Only Stable/Beta components; exporters take endpoints from env.
+# OpenTelemetry Collector (contrib v0.162.0), development profile.
+# Stable and Beta components, except the health_check extension
+# (Alpha); exporters take endpoints from env. Chapter 10 renamed
+# the exporters from the deprecated otlphttp alias to otlp_http and
+# added config.production.yaml, the production-like profile.
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
@@ -33,11 +36,11 @@ processors:
     summary: info
 
 exporters:
-  otlphttp/tempo:
+  otlp_http/tempo:
     endpoint: ${env:TEMPO_OTLP_HTTP}
-  otlphttp/prometheus:
+  otlp_http/prometheus:
     endpoint: ${env:PROM_OTLP_HTTP}
-  otlphttp/loki:
+  otlp_http/loki:
     endpoint: ${env:LOKI_OTLP_HTTP}
 
 service:
@@ -54,12 +57,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, redaction, batch]
-      exporters: [otlphttp/tempo]
+      exporters: [otlp_http/tempo]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlphttp/prometheus]
+      exporters: [otlp_http/prometheus]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, redaction, batch]
-      exporters: [otlphttp/loki]
+      exporters: [otlp_http/loki]

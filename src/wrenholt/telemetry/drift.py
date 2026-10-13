@@ -34,6 +34,22 @@ def load_snapshot(path: Path = SNAPSHOT) -> dict[str, Any]:
     return data
 
 
+# Chapter 10: the Collector's own metrics, as Prometheus stored them
+# from the pinned otelcol-contrib in the chapter's native runs. Their
+# names are not conventions Wrenholt registers, and several are in
+# Development, so the pipeline dashboard is linted against this
+# snapshot, and an upgrade of the Collector means a new capture.
+OTELCOL_SNAPSHOT = Path(__file__).with_name("otelcol_snapshot.json")
+
+
+def load_collector_snapshot(
+    path: Path = OTELCOL_SNAPSHOT,
+) -> dict[str, set[str]]:
+    """Each Collector metric name and the label keys it carries."""
+    data = json.loads(path.read_text())
+    return {name: set(keys) for name, keys in data["metrics"].items()}
+
+
 def against_snapshot(
     registry: Iterable[Name], snapshot: dict[str, Any]
 ) -> list[str]:
@@ -152,10 +168,13 @@ def prometheus_queries(path: Path) -> list[str]:
 
 
 def lint_dashboards(
-    paths: Iterable[Path], registry: Iterable[Name]
+    paths: Iterable[Path],
+    registry: Iterable[Name],
+    collector: dict[str, set[str]] | None = None,
 ) -> list[str]:
     """Every name a dashboard query uses must come from a
-    registered name, as Prometheus or Tempo stores it."""
+    registered name, as Prometheus or Tempo stores it, or, from
+    Chapter 10, from the Collector's own metrics in its snapshot."""
     names = list(registry)
     attributes = {n.name for n in names if n.kind == "attribute"}
     series = set().union(
@@ -166,6 +185,9 @@ def lint_dashboards(
         )
     )
     labels = {promnames.label(a) for a in attributes} | LABELS_ALWAYS
+    for name, keys in (collector or {}).items():
+        series.add(name)
+        labels |= keys
     found = []
     for path in paths:
         board = json.loads(path.read_text())

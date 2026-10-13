@@ -217,3 +217,97 @@ REGISTRY: Final = (
     Name(TOOL_FINGERPRINT, "attribute", "book"),
     Name(TOOL_REPLAYED, "attribute", "book"),
 )
+
+
+# Chapter 10: the cardinality budget. A metric may carry only the
+# attributes its budget lists, and their values may combine in at
+# most `combinations` ways in one service instance. Identifiers never
+# appear: they belong on spans. The guard in budget.py enforces the
+# attribute lists at record time; the drift tests check the code
+# against them before it ships.
+@dataclass(frozen=True)
+class Budget:
+    metric: str
+    attributes: tuple[str, ...]
+    combinations: int
+    buckets: tuple[float, ...] = ()  # histograms only
+
+    @property
+    def series(self) -> int:
+        """Series Prometheus stores: one per combination for a
+        counter; for a histogram, a bucket per boundary, the +Inf
+        bucket, the sum and the count."""
+        per = len(self.buckets) + 3 if self.buckets else 1
+        return self.combinations * per
+
+
+OTHER: Final = "_OTHER"  # what a value outside a closed set becomes
+# Tool names come from the model's output (Chapter 9). On metrics,
+# any name but those Linnet offers becomes OTHER.
+TOOLS: Final = ("lookup_order", "issue_refund", "finish")
+CLOSED: Final = {TOOL_NAME: TOOLS}
+ROUTE: Final = (
+    PROVIDER_NAME,
+    REQUEST_MODEL,
+    SERVER_ADDRESS,
+    SERVER_PORT,
+)
+OUTCOME: Final = (RESPONSE_MODEL, ERROR_TYPE)
+SERIES_BUDGET: Final = 2000  # per service instance
+
+BUDGET: Final = (
+    # chat: 3 routes x (2 response models, 8 errors, or 2 models with
+    # stream_interrupted); retrieval 1; embeddings 2 embedders
+    Budget(
+        OPERATION_DURATION,
+        (OPERATION_NAME, *ROUTE, *OUTCOME),
+        39,
+        DURATION_BUCKETS,
+    ),
+    # 3 routes x 2 response models
+    Budget(
+        TIME_TO_FIRST_CHUNK,
+        (OPERATION_NAME, *ROUTE, RESPONSE_MODEL),
+        6,
+        TTFC_BUCKETS,
+    ),
+    Budget(
+        TIME_PER_OUTPUT_CHUNK,
+        (OPERATION_NAME, *ROUTE, RESPONSE_MODEL),
+        6,
+        CHUNK_BUCKETS,
+    ),
+    # 3 routes x (success or 8 errors)
+    Budget(ATTEMPTS, (PROVIDER_NAME, REQUEST_MODEL, ERROR_TYPE), 27),
+    # 3 routes x 1 substitute model
+    Budget(
+        MODEL_MISMATCHES,
+        (PROVIDER_NAME, REQUEST_MODEL, RESPONSE_MODEL),
+        3,
+    ),
+    # 5 kinds x 2 places (span, log)
+    Budget(REDACTIONS, (PRIVACY_KIND, PRIVACY_WHERE), 10),
+    # 4 stop reasons x (success or 8 errors)
+    Budget(
+        AGENT_DURATION,
+        (AGENT_NAME, AGENT_STOP, ERROR_TYPE),
+        36,
+        AGENT_BUCKETS,
+    ),
+    Budget(AGENT_INFERENCE_CALLS, (AGENT_NAME,), 1, CALL_BUCKETS),
+    Budget(AGENT_TOOL_CALLS, (AGENT_NAME,), 1, CALL_BUCKETS),
+    # 4 names (3 tools and OTHER) x (success or 4 tool errors)
+    Budget(
+        TOOL_DURATION,
+        (TOOL_NAME, TOOL_TYPE, AGENT_NAME, ERROR_TYPE),
+        20,
+        DURATION_BUCKETS,
+    ),
+    # 1 data source x 2 index builds (old and new during a swap)
+    Budget(
+        RETURNED,
+        (DATA_SOURCE_ID, INDEX_VERSION),
+        2,
+        RETURNED_BUCKETS,
+    ),
+)

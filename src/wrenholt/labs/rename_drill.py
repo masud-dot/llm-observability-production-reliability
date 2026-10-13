@@ -109,7 +109,10 @@ def drill(on: bool) -> Outcome:
         problems = drift.against_snapshot(
             registry, drift.load_snapshot()
         )
-        problems += drift.lint_dashboards(BOARDS, registry)
+        # Chapter 10: the pipeline dashboard reads the Collector's
+        # own names, which its snapshot lists.
+        collector = drift.load_collector_snapshot()
+        problems += drift.lint_dashboards(BOARDS, registry, collector)
     return Outcome(sorted(set(missing)), problems)
 
 

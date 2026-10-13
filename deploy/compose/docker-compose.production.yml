@@ -1,0 +1,15 @@
+# Production-like Collector profile (Chapter 10). From this folder:
+#   docker compose -f docker-compose.yml \
+#     -f docker-compose.production.yml up -d
+services:
+  otel-collector:
+    command: ["--config=/etc/otelcol/config.production.yaml"]
+    volumes:
+      - type: bind
+        source: ./otelcol/config.production.yaml
+        target: /etc/otelcol/config.production.yaml
+        read_only: true
+    environment:
+      # 80 per cent of memory_limiter's 400 MiB limit, as the memory
+      # limiter's documentation recommends.
+      GOMEMLIMIT: 320MiB

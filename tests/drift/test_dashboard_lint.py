@@ -1,7 +1,9 @@
 """Dashboard-query lint against the conventions module."""
 
+import json
 import shutil
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -14,18 +16,25 @@ ROOT = Path(__file__).resolve().parents[2]
 GRAFANA = ROOT / "deploy" / "compose" / "grafana" / "provisioning"
 BOARDS = sorted((GRAFANA / "dashboards").glob("*.json"))
 PROMTOOL = shutil.which("promtool")
+VERSIONS = tomllib.loads((ROOT / "versions.toml").read_text())
 Emitted = tuple[set[str], list[tuple[str, str, str, set[str]]]]
 
 
 def test_dashboard_queries_use_registered_names() -> None:
     assert BOARDS
-    assert drift.lint_dashboards(BOARDS, c.REGISTRY) == []
+    collector = drift.load_collector_snapshot()  # Chapter 10
+    found = drift.lint_dashboards(BOARDS, c.REGISTRY, collector)
+    assert found == []
 
 
 def test_dashboard_names_come_from_a_real_run(
     emitted: Emitted,
 ) -> None:
     series, labels = drift.produced(emitted[1])
+    # Chapter 10: the Collector's names come from its own real runs.
+    for name, keys in drift.load_collector_snapshot().items():
+        series.add(name)
+        labels |= keys
     for board in BOARDS:
         for expr in drift.prometheus_queries(board):
             used, grouped = drift.promql_names(expr)
@@ -115,3 +124,22 @@ def test_grouping_by_a_missing_label_fails_silently(
     path.write_text(yaml.safe_dump(silent_test()))
     run = [str(PROMTOOL), "test", "rules", str(path)]
     subprocess.run(run, check=True, capture_output=True)
+
+
+def test_the_snapshot_is_of_the_pinned_collector() -> None:
+    """Chapter 10: a Collector upgrade needs a new capture."""
+    snapshot = json.loads(drift.OTELCOL_SNAPSHOT.read_text())
+    version = snapshot["collector"].split()[-1]
+    image = VERSIONS["components"]["otel-collector-contrib"]["image"]
+    assert image.endswith(f":{version}-amd64")
+
+
+def test_the_pipeline_dashboard_reads_only_the_collector() -> None:
+    board = GRAFANA / "dashboards" / "telemetry-pipeline.json"
+    collector = drift.load_collector_snapshot()
+    used: set[str] = set()
+    for expr in drift.prometheus_queries(board):
+        names, keys = drift.promql_names(expr)
+        used |= names
+        assert keys <= set().union(*collector.values()), expr
+    assert used and used <= set(collector)

@@ -509,3 +509,120 @@ Same run, other checks:
   of the guard's checks, and Table 9.1 come from the same script;
   the table takes each name's source from the compatibility module
   and its data class from the privacy contract.
+
+## Chapter 10: Metrics, Cardinality and the Telemetry Pipeline
+
+- Command: `make verify-ch10` (or the commands under that target);
+  `scripts/fetch_collector.sh` installs the pinned Collector first
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages); `tests/lab` needs
+  the `lab` group; the Collector labs need otelcol-contrib 0.162.0
+- Date: 2026-10-13
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L10-01 | Tail sampling | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (policies against `sampling.POLICIES`, thresholds, sizing); `otelcol-contrib validate`; FS-15 lab; native runs | pass | pending |
+| L10-02 | The coverage map | `src/wrenholt/telemetry/sampling.py` | `tests/unit/test_pipeline_config.py` (every gateway panel names a policy) | pass | pending |
+| L10-03 | Export queues | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (the queues hold what the comment says); native run (capacity reported in items) | pass | pending |
+| L10-04 | The budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py`; `tests/drift/test_budget_drift.py`; native run (221 series, none outside the budget) | pass | pending |
+| L10-05 | The guard | `src/wrenholt/telemetry/budget.py` | `tests/unit/test_cardinality.py` | pass | pending |
+| L10-06 | The first tier | `deploy/compose/otelcol/loadbalancing.yaml` | `otelcol-contrib validate`; `tests/unit/test_pipeline_config.py`; not run (decisions 4 and 8) | pass (validated) | pending |
+| L10-07 | Pipeline queries | `deploy/compose/grafana/provisioning/dashboards/telemetry-pipeline.json` (the same expressions on one line) | `promtool check rules` on the four wrapped expressions; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
+| L10-08 | FS-15 lab | `scripts/fs15_sampling_blind_spot.py` | run command (2026-10-13 03:17 UTC, identical to the earlier run); `tests/resilience/test_collector_pipeline.py` asserts every line | pass (SIMULATED) | pending |
+| L10-09 | Collector overload lab | `scripts/collector_overload.py` | run command (2026-10-13 04:11 UTC); `tests/resilience/test_collector_pipeline.py` asserts the counts | pass (SIMULATED); waiting times vary | pending |
+| L10-10 | Sizing tests | `tests/unit/test_pipeline_config.py` | itself | pass | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `.native/bin` (otelcol-contrib, promtool) on
+  `PATH` and `SEMCONV_GENAI_DIR` set: 198 passed. `pytest tests/lab`:
+  8 passed. 206 tests: unit 141, slo 17, resilience 5, drift 21,
+  lab 8, privacy 14. Without the Collector, four skip.
+- `ruff check`, `ruff format --check` and `mypy --strict` with the
+  lab group (155 source files): clean. `uv lock --check`: 96 packages.
+  `otelcol-contrib validate` accepted `config.yaml`,
+  `config.production.yaml` and `loadbalancing.yaml`. `docker compose
+  config` was not run here (no Docker), so the production override
+  is checked only by `tests/unit/test_pipeline_config.py`.
+- Every source listing in Chapters 1 to 10 is verbatim in the
+  repository (56 checked; 23 captured outputs and queries skipped).
+- L08-02 changed with the author's approval (13 Oct 2026, decision
+  60): the stream reader passes `record_exception=False` and
+  `set_status_on_exception=False` to `use_span`, because
+  `StopAsyncIteration` ended every completed attempt as ERROR. The
+  new `test_a_completed_attempt_is_not_an_error` fails without the
+  change. The Chapter 8 doc's listing and paragraph were updated, and
+  the check above uses the new L08-02.
+- Earlier tests changed: the dashboard lint and the rename drill take
+  the Collector snapshot, so the pipeline dashboard's names are known;
+  the drift fixture is unchanged and now also feeds the budget test.
+  Running `tests/lab` and the unit tests in one process fails eleven
+  streaming tests: opentelemetry-instrumentation-openai-v2 2.4b0 wraps
+  a stream in an object whose `close()` is synchronous, so Wrenholt's
+  `await events.close()` fails while that instrumentation is active.
+  The verify targets have run `tests/lab` in its own process since
+  Chapter 3.
+- Earlier labs rerun on the Chapter 10 code (04:27 UTC): FS-04, FS-07,
+  FS-08, FS-09, FS-11, FS-14, the names lab and the rename drill print
+  their outputs unchanged (the rename drill still reports three
+  problems, as in Chapters 8 and 9; L05-04 shows Chapter 5's two).
+  FS-01, FS-02, FS-06, the gateway lab, the hash lab and the outage
+  lab differ only in timings (the outage lab's SDK warnings, 17 and
+  12, follow its timings). The correlation lab differs in trace IDs
+  and `service.version` ch10.
+- Native runs, 2026-10-13 03:35, 03:58 and 04:07 UTC: Collector
+  0.162.0 with `config.production.yaml` and `GOMEMLIMIT=320MiB`,
+  Prometheus 3.15.0 (OTLP receiver, exemplar storage, Collector
+  scraped every 5 s), Tempo 3.1.0 and Loki 3.7.8; Linnet, the orders
+  service and the mock. Each run sent 33 answers: a warm-up; 6 policy
+  answers, 3 order lookups, 3 refunds and 3 streamed answers with
+  nothing wrong; then 8 policy answers under `MOCK_LLM_PLAN=fs15`, 3
+  streamed under `fs02`, 3 under `fs11`, 2 order lookups under
+  `fs06`, and a refund with `ORDERS_SLOW_COMMIT_MS=2500`. Per answer:
+  2 traces in every journey (the request and the reproduction
+  bundle) and 9, 18, 24 and 9 spans for policy, order, refund and
+  streamed answers; 2 log records. Kept by the production profile:
+  all 11 quiet failures in every run; healthy answers 2, 2 and 1 of
+  22; in the second run 15 of 66 traces, votes baseline 5, errors 3,
+  slow-first-chunk 3, model-mismatch 3, loop-stopped 2,
+  replayed-write 1, none dropped too early. Exemplars (second run):
+  155 pointing at 23 traces; all 9 quiet-failure traces resolved, 13
+  of 14 healthy ones did not. Prometheus stored 221 Wrenholt series,
+  each metric within its budget and none outside it; the Collector's
+  45 metric names as exposed, without `_total`. Collector memory:
+  RSS 212 MB, Go heap 31 MB. Every pipeline panel returned data except
+  the two failure panels. Tempo answered 200 with no spans for traces
+  it never stored, so the runs counted spans. The first run used the
+  traces queue of 30,000 the profile had before its final sizing; the
+  sampling settings were the same in all three. Details:
+  `native_ch10_*.json` in the figures archive.
+- Failure capture, 2026-10-13 03:47 UTC: the production profile with
+  every backend at an unreachable address, queues of 200 items and
+  retries ending after 3 s, fed traces, metrics and logs from the
+  Python SDK; Prometheus stored the six failure counters
+  (`otelcol_exporter_enqueue_failed_*`, `otelcol_exporter_send_failed_*`)
+  that complete `src/wrenholt/telemetry/otelcol_snapshot.json` (51
+  names). With queues of 5 items every request was refused at once
+  ("element size too large").
+- NHCB check, 2026-10-13: two Prometheus 3.15.0 instances, one with
+  `otlp.convert_histograms_to_nhcb: true`, received the same
+  time-to-first-chunk histogram for two routes: 38 series against 2;
+  the `le="2.5"` ratio returned nothing on the converted copy;
+  `histogram_fraction(0, 2.5, ...)` and the classic ratio both
+  returned 0.75; the p95s matched (3.712 s).
+- `scripts/fetch_collector.sh`: the four archives were streamed from
+  the v0.162.0 release to record their SHA-256; the script installed
+  a binary byte-identical to `.native/bin/otelcol-contrib`, and a
+  copy with an altered hash refused the archive and installed nothing.
+- Read 2026-10-13 at the v0.162.0 tags: the tail sampling processor
+  (README, metadata, documentation, `numeric_tag_filter.go`), the
+  exporter helper (README, metadata), the memory limiter, batch
+  processor, otlp_http and load-balancing exporter READMEs, and the
+  core CHANGELOG (the `otlp_http` rename in v0.146.0); Prometheus
+  v3.15.0 configuration docs; installed sources of opentelemetry-sdk
+  1.45.0 (Views, `BatchSpanProcessor`), opentelemetry-api 1.45.0
+  (`use_span`) and opentelemetry-instrumentation-openai-v2 2.4b0.
+- Figures 10.1 and 10.2 are diagrams drawn by `figures_ch10.py`, which
+  also builds Table 10.1 from `otelcol-contrib components` and Table
+  10.2 from `conventions.BUDGET`.

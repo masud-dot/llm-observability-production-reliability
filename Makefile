@@ -1,6 +1,6 @@
 # Chapter verification targets. Without make (for example in Git
 # Bash on Windows), run the commands under a target one by one.
-.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08
+.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08 verify-ch10 fetch-collector fs15 overload
 
 verify-ch01:
 	uv sync --group dev --group lab
@@ -137,3 +137,23 @@ fs07:
 
 fs08:
 	uv run python scripts/fs08_empty_retrieval.py
+
+verify-ch10:
+	uv sync --group dev --group lab
+	scripts/fetch_collector.sh
+	uv run ruff check src services scripts tests
+	uv run ruff format --check src services scripts tests
+	uv run --group lab mypy src services scripts tests
+	uv run pytest tests/unit tests/slo tests/resilience tests/drift tests/privacy
+	uv run --group lab pytest tests/lab
+	uv run python scripts/fs15_sampling_blind_spot.py
+	uv run python scripts/collector_overload.py
+
+fetch-collector:
+	scripts/fetch_collector.sh
+
+fs15:
+	uv run python scripts/fs15_sampling_blind_spot.py
+
+overload:
+	uv run python scripts/collector_overload.py

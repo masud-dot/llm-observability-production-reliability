@@ -1,0 +1,169 @@
+{
+  "collector": "otelcol-contrib 0.162.0",
+  "prometheus": "3.15.0",
+  "captured_on": "2026-10-13",
+  "how": "Series names and label keys Prometheus stored from the Collector's own metrics in Chapter 10's native runs: the production profile under Linnet's traffic, and the same profile with every backend unreachable.",
+  "metrics": {
+    "otelcol_exporter_enqueue_failed_log_records": [
+      "exporter"
+    ],
+    "otelcol_exporter_enqueue_failed_metric_points": [
+      "exporter"
+    ],
+    "otelcol_exporter_enqueue_failed_spans": [
+      "exporter"
+    ],
+    "otelcol_exporter_in_flight_requests": [
+      "data_type",
+      "exporter"
+    ],
+    "otelcol_exporter_queue_capacity": [
+      "data_type",
+      "exporter"
+    ],
+    "otelcol_exporter_queue_size": [
+      "data_type",
+      "exporter"
+    ],
+    "otelcol_exporter_send_failed_log_records": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_exporter_send_failed_metric_points": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_exporter_send_failed_spans": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_exporter_sent_log_records": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_exporter_sent_metric_points": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_exporter_sent_spans": [
+      "exporter",
+      "server.address",
+      "server.port",
+      "url.path"
+    ],
+    "otelcol_process_cpu_seconds": [],
+    "otelcol_process_memory_rss": [],
+    "otelcol_process_runtime_heap_alloc_bytes": [],
+    "otelcol_process_runtime_total_alloc_bytes": [],
+    "otelcol_process_runtime_total_sys_memory_bytes": [],
+    "otelcol_process_uptime": [],
+    "otelcol_processor_batch_batch_send_size_bucket": [
+      "le",
+      "processor"
+    ],
+    "otelcol_processor_batch_batch_send_size_count": [
+      "processor"
+    ],
+    "otelcol_processor_batch_batch_send_size_sum": [
+      "processor"
+    ],
+    "otelcol_processor_batch_metadata_cardinality": [
+      "processor"
+    ],
+    "otelcol_processor_batch_timeout_trigger_send": [
+      "processor"
+    ],
+    "otelcol_processor_incoming_items": [
+      "otel.signal",
+      "processor"
+    ],
+    "otelcol_processor_memory_limiter_accepted_log_records": [
+      "processor"
+    ],
+    "otelcol_processor_memory_limiter_accepted_metric_points": [
+      "processor"
+    ],
+    "otelcol_processor_memory_limiter_accepted_spans": [
+      "processor"
+    ],
+    "otelcol_processor_outgoing_items": [
+      "otel.signal",
+      "processor"
+    ],
+    "otelcol_processor_tail_sampling_count_traces_sampled": [
+      "decision",
+      "policy",
+      "sampled"
+    ],
+    "otelcol_processor_tail_sampling_global_count_traces_sampled": [
+      "decision",
+      "sampled"
+    ],
+    "otelcol_processor_tail_sampling_new_trace_id_received": [],
+    "otelcol_processor_tail_sampling_sampling_decision_timer_latency_bucket": [
+      "le"
+    ],
+    "otelcol_processor_tail_sampling_sampling_decision_timer_latency_count": [],
+    "otelcol_processor_tail_sampling_sampling_decision_timer_latency_sum": [],
+    "otelcol_processor_tail_sampling_sampling_policy_evaluation_error": [],
+    "otelcol_processor_tail_sampling_sampling_policy_execution_count": [
+      "policy"
+    ],
+    "otelcol_processor_tail_sampling_sampling_policy_execution_time_sum": [
+      "policy"
+    ],
+    "otelcol_processor_tail_sampling_sampling_trace_dropped_too_early": [],
+    "otelcol_processor_tail_sampling_sampling_trace_removal_age_bucket": [
+      "le"
+    ],
+    "otelcol_processor_tail_sampling_sampling_trace_removal_age_count": [],
+    "otelcol_processor_tail_sampling_sampling_trace_removal_age_sum": [],
+    "otelcol_processor_tail_sampling_sampling_traces_on_memory": [],
+    "otelcol_receiver_accepted_log_records": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_accepted_metric_points": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_accepted_spans": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_failed_log_records": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_failed_metric_points": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_failed_spans": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_refused_log_records": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_refused_metric_points": [
+      "receiver",
+      "transport"
+    ],
+    "otelcol_receiver_refused_spans": [
+      "receiver",
+      "transport"
+    ]
+  }
+}

@@ -228,8 +228,18 @@ recheck = true
 [components.otel-collector-contrib]
 image = "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0-amd64"
 released = "2026-09-29"
-status = "used: otlp receiver, otlphttp exporter (Stable); batch, memory_limiter (Beta); health_check (in v0.162.0 contrib manifest)"
+status = "used: otlp receiver, otlp_http exporter (Stable); batch, memory_limiter, tail_sampling for traces (Beta); redaction (Beta traces, Alpha logs); load_balancing for traces (Beta; validated, not run); health_check (Alpha). Chapter 10 renamed otlphttp, a deprecated alias (decision 59)"
 notes = "Upstream published per-architecture tags only for 0.162.0 (no multi-arch tag on Docker Hub or GHCR). CI uses the amd64 tag; ARM hosts need emulation or the 0.162.0-arm64 tag."
+recheck = true
+
+[components.otelcol-contrib-binary]
+version = "0.162.0"
+source = "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.162.0"
+sha256_linux_amd64 = "fcc063749f730f8c21fe29f2d340ff174f5f1c5885bd3156fb6c985a3036fcc3"
+sha256_linux_arm64 = "ecf6a917e2b53beb1703b19a84bc4e112a2fcaba549639cf6b0ba58446bfd7d2"
+sha256_darwin_amd64 = "91a6e7a0f5e1981986c897db4535de5ba8d7fc45d4205809aecb9ebebf68c71c"
+sha256_darwin_arm64 = "d5e11974d2e4adac3cc001a25137aad52f6e77ec3034ba7735cac7c219a5f97a"
+notes = "The native binary the Chapter 10 labs run, installed by scripts/fetch_collector.sh. Hashes computed from the release archives on 2026-10-13; no upstream checksums file was found under the names tried (decision 63)."
 recheck = true
 
 [components.prometheus]
@@ -351,3 +361,14 @@ openai_tool_call_arguments = "openai 3.22.1 documents a function call's argument
 starlette_middleware_body = "Starlette 1.7.0 BaseHTTPMiddleware caches a body read with request.body() before call_next and replays it to the app, so the FS-06 wrapper reads the request first (Chapter 9)"
 tempo_search_lag = "Tempo 3.1.0, monolithic with local storage: a fresh trace could be fetched by ID before TraceQL search returned it (native run, Chapter 9)"
 prometheus_le_zero = "Prometheus 3.15.0 stores an OTLP histogram bound of 0 as le=\"0\", so the share of empty retrievals reads one bucket (native run, Chapter 9; decision 47)"
+otlp_http_alias = "otelcol-contrib 0.162.0: otlphttp is a deprecated alias of otlp_http (renamed in v0.146.0) and the Collector logs a warning for it; loadbalancing is a deprecated alias of load_balancing (Chapter 10; decision 59)"
+tail_sampling_policies = "otelcol-contrib 0.162.0 tail sampling: status_code keeps a trace if any span has the status; numeric_attribute reads values as integers, so a double attribute needs ottl_condition; probabilistic hashes the trace ID; every internal metric is Development (Chapter 10; decision 54)"
+batch_accepts_then_drops = "otelcol-contrib 0.162.0: behind the batch processor the receiver answers 200, and data that cannot enter a full sending queue is dropped and counted only in otelcol_exporter_enqueue_failed_*; without it the receiver answers 503 and the SDK retries (overload lab, Chapter 10)"
+items_queue_request_too_large = "otelcol-contrib 0.162.0: with sizer items, a request larger than the whole sending queue is refused at once (element size too large) (native run, Chapter 10)"
+collector_self_metric_names = "otelcol-contrib 0.162.0 exposes its own counters without a _total suffix and Prometheus 3.15.0 stores them as exposed; failure counters (enqueue_failed, send_failed) appear only after a failure; queue_capacity reports items under sizer items (native runs, Chapter 10; decision 62)"
+load_balancing_port_string = "otelcol-contrib 0.162.0 load_balancing DNS resolver: port must be a string; a number fails validation (Chapter 10; decision 61)"
+sdk_no_cardinality_limit = "opentelemetry-sdk 1.45.0 has no metric cardinality limit; a View keeps attribute keys but cannot rewrite a value (Chapter 10; decision 57)"
+use_span_stop_async_iteration = "opentelemetry-api 1.45.0: trace.use_span records any Exception raised inside it, StopAsyncIteration included, and sets ERROR unless record_exception and set_status_on_exception are both False (Chapter 10; decision 60)"
+prometheus_nhcb = "Prometheus 3.15.0 otlp.convert_histograms_to_nhcb stores an OTLP explicit-bucket histogram as one native series per combination; a _bucket query by le then returns nothing, and histogram_fraction gives the classic ratios (native check, Chapter 10; decision 58)"
+tempo_missing_trace = "Tempo 3.1.0 /api/v2/traces/<id> answers 200 with no spans for a trace it never stored (native run, Chapter 10)"
+openai_v2_stream_close = "opentelemetry-instrumentation-openai-v2 2.4b0 wraps an AsyncStream in an object whose close() is synchronous and does not await the stream's close, so awaiting close() raises TypeError; tests/lab runs in its own process (Chapter 10, cross-chapter)"

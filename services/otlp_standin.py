@@ -80,6 +80,8 @@ class StandIn:
     def __init__(self, port: int) -> None:
         self.port = port
         self.mode = "down"
+        # Chapter 10: a slow backend answers each request this late.
+        self.delay_s = 0.0
         self._lock = threading.Lock()
         self._spans: list[tuple[int, int, str]] = []
         self._records: list[SpanRecord] = []
@@ -245,6 +247,8 @@ def _handler(standin: StandIn) -> type[BaseHTTPRequestHandler]:
             )
             if self.headers.get("Content-Encoding") == "gzip":
                 body = gzip.decompress(body)
+            if standin.delay_s:
+                time.sleep(standin.delay_s)
             if self.path == "/v1/traces":
                 standin._record(body)
             if self.path == "/v1/logs":

@@ -33,4 +33,23 @@ FS01_HIDDEN_RETRY_STORM = FaultPlan(
     retry_after_s=1,
 )
 
-PLANS = {"none": NO_FAULTS, "fs01": FS01_HIDDEN_RETRY_STORM}
+
+@dataclass(frozen=True)
+class RateWave(FaultPlan):
+    """FS-15 (Chapter 10): one attempt in every N is rate limited,
+    as in a provider's busy hour. Sent one at a time, every retry
+    lands on an arrival that is served."""
+
+    every: int = 4
+
+    def rate_limits(self, arrival: int) -> bool:
+        return arrival % self.every == self.every - 1
+
+
+FS15_RATE_WAVE = RateWave(retry_after_s=1, every=4)
+
+PLANS = {
+    "none": NO_FAULTS,
+    "fs01": FS01_HIDDEN_RETRY_STORM,
+    "fs15": FS15_RATE_WAVE,
+}

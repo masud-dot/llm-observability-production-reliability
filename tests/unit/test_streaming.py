@@ -14,6 +14,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
 )
+from opentelemetry.trace import StatusCode
 
 from services.mock_llm.server import running_provider
 from services.mock_llm.streaming import Schedule, Sent
@@ -172,3 +173,13 @@ def test_a_departure_cancels_and_stops_the_provider() -> None:
     (sent,) = run.sent
     assert sent.outcome == "client_gone"
     assert sent.chunks < sent.planned
+
+
+def test_a_completed_attempt_is_not_an_error() -> None:
+    # Chapter 10: a stream ends with StopAsyncIteration, which the
+    # attempt span must neither record nor treat as a failure.
+    run = stream(Schedule(**FAST, cut_after=0, faulty=1))
+    first, second = run.attempts
+    assert first.status.status_code is StatusCode.ERROR
+    assert second.status.status_code is StatusCode.UNSET
+    assert not second.events

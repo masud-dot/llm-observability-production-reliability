@@ -32,7 +32,6 @@ from opentelemetry.instrumentation.httpx import (
 )
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     PeriodicExportingMetricReader,
 )
@@ -45,6 +44,9 @@ from opentelemetry.trace.propagation.tracecontext import (
 
 from wrenholt import __version__
 from wrenholt.telemetry import conventions as c
+
+# Chapter 10: the SDK's MeterProvider with the cardinality guard.
+from wrenholt.telemetry.budget import MeterProvider
 
 
 @dataclass(frozen=True)

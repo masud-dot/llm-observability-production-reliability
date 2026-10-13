@@ -9,6 +9,7 @@ MOCK_LLM_PLAN=fs11 silently changes the model version (Chapter 6).
 Streamed requests are answered on a schedule (Chapter 8):
 MOCK_LLM_PLAN=fs02 delays the first chunk, fs04 cuts the stream.
 MOCK_LLM_PLAN=fs06 repeats the order lookup (Chapter 9).
+MOCK_LLM_PLAN=fs15 rate-limits one attempt in four (Chapter 10).
 """
 
 import os

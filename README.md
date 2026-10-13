@@ -185,3 +185,41 @@ written.
   `uv run python scripts/fs07_duplicate_refund.py` and
   `uv run python scripts/fs08_empty_retrieval.py`.
 - Checks: `make verify-ch09`.
+
+## Chapter 10: Metrics, Cardinality and the Telemetry Pipeline
+
+- `deploy/compose/otelcol/config.production.yaml`, the
+  production-like profile: tail sampling keeps every trace with an
+  error, a first chunk after 2.5 s, a request past the 10 s
+  deadline, a loop the guard stopped, a replayed write or an
+  unpinned model, and one in ten of the rest. Export queues are
+  sized in items from a planning figure: 40 answers a second, each
+  two traces and 15 spans. From `deploy/compose`:
+  `docker compose -f docker-compose.yml -f docker-compose.production.yml up -d`.
+- `src/wrenholt/telemetry/sampling.py` names, for each panel of the
+  LLM gateway dashboard, the policy that keeps the traces behind it;
+  a test compares it with the profile and the dashboard.
+- `deploy/compose/otelcol/loadbalancing.yaml`: the first tier in
+  front of several sampling Collectors, routing whole traces by
+  trace ID (validated, not run).
+- The cardinality budget (`BUDGET` in the conventions module): the
+  attributes each metric may carry and how many ways their values
+  may combine, 1,871 series per instance against 2,000. Wrenholt's
+  `MeterProvider` (`src/wrenholt/telemetry/budget.py`) drops an
+  unbudgeted attribute and turns a tool name outside Linnet's tools
+  into `_OTHER`.
+- The exporters are `otlp_http`; `otlphttp` is a deprecated alias
+  in 0.162.0.
+- The telemetry pipeline dashboard: spans accepted and refused,
+  queue fill, drops at a full queue, failed sends, traces kept by
+  policy, the share kept, traces dropped undecided and Collector
+  memory. Its queries are linted against
+  `src/wrenholt/telemetry/otelcol_snapshot.json`, the Collector's
+  own metric names as Prometheus stored them.
+- `scripts/fetch_collector.sh` downloads otelcol-contrib 0.162.0
+  into `.native/bin` and checks its SHA-256 (Linux and macOS, amd64
+  and arm64). The labs need it; their tests skip without it.
+- Labs: `uv run python scripts/fs15_sampling_blind_spot.py` and
+  `uv run python scripts/collector_overload.py`.
+  `MOCK_LLM_PLAN=fs15` rate-limits one attempt in four (SIMULATED).
+- Checks: `make verify-ch10`.
