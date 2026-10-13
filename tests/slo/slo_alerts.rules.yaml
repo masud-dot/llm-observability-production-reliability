@@ -1,0 +1,273 @@
+# Generated from src/wrenholt/slo/objectives.yaml by
+# scripts/slo_alerts.py. Do not edit by hand.
+groups:
+- name: slo-alerts-availability
+  interval: 1m
+  rules:
+  - alert: slo_burn_availability_page_1h
+    expr: |-
+      slo:sli_error:ratio_rate1h{slo="availability"}
+        > 0.0144
+      and slo:sli_error:ratio_rate5m{slo="availability"}
+        > 0.0144
+      and slo:sli_error:ratio_rate1h{slo="availability"}
+        * slo:valid_events:increase1h{slo="availability"}
+        >= 2
+    labels:
+      severity: page
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 1h
+  - alert: slo_burn_availability_page_6h
+    expr: |-
+      slo:sli_error:ratio_rate6h{slo="availability"}
+        > 0.006
+      and slo:sli_error:ratio_rate30m{slo="availability"}
+        > 0.006
+      and slo:sli_error:ratio_rate6h{slo="availability"}
+        * slo:valid_events:increase6h{slo="availability"}
+        >= 2
+    labels:
+      severity: page
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 6h
+  - alert: slo_burn_availability_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="availability"}
+        > 0.001
+      and slo:sli_error:ratio_rate6h{slo="availability"}
+        > 0.001
+    labels:
+      severity: ticket
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 3d
+- name: slo-alerts-ttfc_interactive
+  interval: 1m
+  rules:
+  - alert: slo_burn_ttfc_interactive_page_1h
+    expr: |-
+      slo:sli_error:ratio_rate1h{slo="ttfc_interactive"}
+        > 0.144
+      and slo:sli_error:ratio_rate5m{slo="ttfc_interactive"}
+        > 0.144
+      and slo:sli_error:ratio_rate1h{slo="ttfc_interactive"}
+        * slo:valid_events:increase1h{slo="ttfc_interactive"}
+        >= 2
+    labels:
+      severity: page
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 1h
+  - alert: slo_burn_ttfc_interactive_page_6h
+    expr: |-
+      slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+        > 0.06
+      and slo:sli_error:ratio_rate30m{slo="ttfc_interactive"}
+        > 0.06
+      and slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+        * slo:valid_events:increase6h{slo="ttfc_interactive"}
+        >= 2
+    labels:
+      severity: page
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 6h
+  - alert: slo_burn_ttfc_interactive_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="ttfc_interactive"}
+        > 0.01
+      and slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+        > 0.01
+    labels:
+      severity: ticket
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 3d
+- name: slo-alerts-ttfc_critical_action
+  interval: 1m
+  rules:
+  - alert: slo_burn_ttfc_critical_action_page_1h
+    expr: |-
+      slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+        > 0.144
+      and slo:sli_error:ratio_rate5m{slo="ttfc_critical_action"}
+        > 0.144
+      and slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+        * slo:valid_events:increase1h{slo="ttfc_critical_action"}
+        >= 2
+    labels:
+      severity: page
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 1h
+  - alert: slo_burn_ttfc_critical_action_page_6h
+    expr: |-
+      slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+        > 0.06
+      and slo:sli_error:ratio_rate30m{slo="ttfc_critical_action"}
+        > 0.06
+      and slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+        * slo:valid_events:increase6h{slo="ttfc_critical_action"}
+        >= 2
+    labels:
+      severity: page
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 6h
+  - alert: slo_burn_ttfc_critical_action_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="ttfc_critical_action"}
+        > 0.01
+      and slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+        > 0.01
+    labels:
+      severity: ticket
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 3d
+- name: slo-alerts-decision_validity
+  interval: 1m
+  rules:
+  - alert: slo_burn_decision_validity_page_1h
+    expr: |-
+      slo:sli_error:ratio_rate1h{slo="decision_validity"}
+        > 0.0144
+      and slo:sli_error:ratio_rate5m{slo="decision_validity"}
+        > 0.0144
+      and slo:sli_error:ratio_rate1h{slo="decision_validity"}
+        * slo:valid_events:increase1h{slo="decision_validity"}
+        >= 2
+    labels:
+      severity: page
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 1h
+  - alert: slo_burn_decision_validity_page_6h
+    expr: |-
+      slo:sli_error:ratio_rate6h{slo="decision_validity"}
+        > 0.006
+      and slo:sli_error:ratio_rate30m{slo="decision_validity"}
+        > 0.006
+      and slo:sli_error:ratio_rate6h{slo="decision_validity"}
+        * slo:valid_events:increase6h{slo="decision_validity"}
+        >= 2
+    labels:
+      severity: page
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 6h
+  - alert: slo_burn_decision_validity_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="decision_validity"}
+        > 0.001
+      and slo:sli_error:ratio_rate6h{slo="decision_validity"}
+        > 0.001
+    labels:
+      severity: ticket
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 3d
+- name: slo-alerts-not_refused
+  interval: 1m
+  rules:
+  - alert: slo_burn_not_refused_page_1h
+    expr: |-
+      slo:sli_error:ratio_rate1h{slo="not_refused"}
+        > 0.072
+      and slo:sli_error:ratio_rate5m{slo="not_refused"}
+        > 0.072
+      and slo:sli_error:ratio_rate1h{slo="not_refused"}
+        * slo:valid_events:increase1h{slo="not_refused"}
+        >= 2
+    labels:
+      severity: page
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 1h
+  - alert: slo_burn_not_refused_page_6h
+    expr: |-
+      slo:sli_error:ratio_rate6h{slo="not_refused"}
+        > 0.03
+      and slo:sli_error:ratio_rate30m{slo="not_refused"}
+        > 0.03
+      and slo:sli_error:ratio_rate6h{slo="not_refused"}
+        * slo:valid_events:increase6h{slo="not_refused"}
+        >= 2
+    labels:
+      severity: page
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 6h
+  - alert: slo_burn_not_refused_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="not_refused"}
+        > 0.005
+      and slo:sli_error:ratio_rate6h{slo="not_refused"}
+        > 0.005
+    labels:
+      severity: ticket
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 3d
+- name: slo-alerts-groundedness
+  interval: 1m
+  rules:
+  - alert: slo_burn_groundedness_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="groundedness"}
+        > 0.01
+      and slo:sli_error:ratio_rate6h{slo="groundedness"}
+        > 0.01
+    labels:
+      severity: ticket
+      slo: groundedness
+      layer: L2
+      owner: assistant
+      window: 3d
+- name: slo-alerts-policy_freshness
+  interval: 1m
+  rules:
+  - alert: slo_burn_policy_freshness_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="policy_freshness"}
+        > 0.01
+      and slo:sli_error:ratio_rate6h{slo="policy_freshness"}
+        > 0.01
+    labels:
+      severity: ticket
+      slo: policy_freshness
+      layer: L3
+      owner: help-centre
+      window: 3d
+- name: slo-alerts-answer_cost
+  interval: 1m
+  rules:
+  - alert: slo_burn_answer_cost_ticket_3d
+    expr: |-
+      slo:sli_error:ratio_rate3d{slo="answer_cost"}
+        > 0.01
+      and slo:sli_error:ratio_rate6h{slo="answer_cost"}
+        > 0.01
+    labels:
+      severity: ticket
+      slo: answer_cost
+      layer: L4
+      owner: platform
+      window: 3d

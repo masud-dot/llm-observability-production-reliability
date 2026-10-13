@@ -46,6 +46,12 @@ groups:
       slo: availability
       sli: availability
       layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[6h]))
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
   - record: slo:objective:ratio
     expr: vector(0.999)
     labels:
@@ -99,6 +105,12 @@ groups:
       layer: L1
   - record: slo:valid_events:increase1h
     expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[1h]))
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[6h]))
     labels:
       slo: ttfc_interactive
       sli: ttfc
@@ -160,6 +172,12 @@ groups:
       slo: ttfc_critical_action
       sli: ttfc
       layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[6h]))
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
   - record: slo:objective:ratio
     expr: vector(0.99)
     labels:
@@ -213,6 +231,12 @@ groups:
       layer: L2
   - record: slo:valid_events:increase1h
     expr: sum(increase(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[1h]))
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[6h]))
     labels:
       slo: decision_validity
       sli: decision_validity
@@ -274,6 +298,12 @@ groups:
       slo: not_refused
       sli: not_refused
       layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[6h]))
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
   - record: slo:objective:ratio
     expr: vector(0.995)
     labels:
@@ -327,6 +357,12 @@ groups:
       layer: L2
   - record: slo:valid_events:increase1h
     expr: sum(increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[1h]))
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[6h]))
     labels:
       slo: groundedness
       sli: groundedness
@@ -388,6 +424,12 @@ groups:
       slo: policy_freshness
       sli: policy_freshness
       layer: L3
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[6h]))
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
   - record: slo:objective:ratio
     expr: vector(0.99)
     labels:
@@ -441,6 +483,12 @@ groups:
       layer: L4
   - record: slo:valid_events:increase1h
     expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[1h]))
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[6h]))
     labels:
       slo: answer_cost
       sli: answer_cost
@@ -502,6 +550,12 @@ groups:
       slo: resolution
       sli: resolution
       layer: L4
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[6h]))
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
 - name: slo-provider_attempts
   interval: 1m
   rules:
@@ -543,6 +597,12 @@ groups:
       layer: L1
   - record: slo:valid_events:increase1h
     expr: sum(increase(wrenholt_gateway_attempts_total[1h]))
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_gateway_attempts_total[6h]))
     labels:
       slo: provider_attempts
       sli: provider_attempts

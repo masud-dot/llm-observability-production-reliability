@@ -62,11 +62,23 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: smoke-only-password
       GF_ANALYTICS_REPORTING_ENABLED: "false"
+      # Chapter 14: where SLO alerts go. Until Chapter 19's incident
+      # service, a sink that records each notification.
+      WRENHOLT_INCIDENT_WEBHOOK: >-
+        ${WRENHOLT_INCIDENT_WEBHOOK:-http://webhook-sink:8099/alert}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3000:3000"
-    depends_on: [prometheus, tempo, loki]
+    depends_on: [prometheus, tempo, loki, webhook-sink]
+
+  webhook-sink:
+    image: python:3.14.7-slim
+    command: ["python", "/sink/sink.py"]
+    volumes:
+      - ../../services/webhook_sink:/sink:ro
+    ports:
+      - "8099:8099"
 
   smoke-app:
     build: ../../services/smoke_app

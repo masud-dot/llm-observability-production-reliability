@@ -4,10 +4,10 @@
 
 For every SLO counted in Prometheus the rules record its error ratio
 over Chapter 14's alert windows and over the SLO window, and its
-valid events in the last hour; where there is an objective, also the
-objective and the share of the budget left. Metric and label names
-come from the conventions module, as Prometheus stores them, so a
-rename there reaches the rules.
+valid events in the last hour and the last 6 hours; where there is
+an objective, also the objective and the share of the budget left.
+Metric and label names come from the conventions module, as
+Prometheus stores them, so a rename there reaches the rules.
 """
 
 from dataclasses import dataclass
@@ -22,6 +22,7 @@ from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry.promnames import label, series
 
 ALERT_WINDOWS = ("5m", "30m", "1h", "6h", "3d")  # Chapter 14
+VALID_WINDOWS = ("1h", "6h")  # Chapter 14: a page's long windows
 RULES_PATH = (
     Path(__file__).resolve().parents[3]
     / "deploy/compose/prometheus/rules/slo.rules.yaml"
@@ -116,13 +117,14 @@ def rules_for(s: Slo, window: str) -> list[dict[str, Any]]:
         }
         for w in (*ALERT_WINDOWS, window)
     ]
-    rules.append(
+    rules += [
         {
-            "record": "slo:valid_events:increase1h",
-            "expr": f"sum(increase({k.valid}[1h]))",
+            "record": f"slo:valid_events:increase{w}",
+            "expr": f"sum(increase({k.valid}[{w}]))",
             "labels": dict(labels),
         }
-    )
+        for w in VALID_WINDOWS
+    ]
     if s.objective is not None:
         ratio = f'slo:sli_error:ratio_rate{window}{{slo="{s.slo}"}}'
         rules += [

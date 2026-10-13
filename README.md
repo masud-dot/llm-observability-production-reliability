@@ -320,3 +320,28 @@ written.
   `uv run python scripts/fs09_index_swap.py` and
   `uv run python scripts/fs16_intent_drift.py`.
 - Checks: `make verify-ch13`.
+
+## Chapter 14: Alerting on Burn Rates and Symptoms
+
+- `src/wrenholt/slo/alerts.py`: multiwindow, multi-burn-rate alerts
+  from the SLO file, with the SRE Workbook's starting parameters: a
+  page at 14.4 over 1h and 5m, a page at 6 over 6h and 30m, a ticket
+  at 1 over 3d and 6h. A page also needs two bad events in its long
+  window. L1 and L2 SLOs page; groundedness, policy freshness and
+  answer cost open tickets only.
+- `scripts/slo_alerts.py` writes
+  `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml`:
+  18 Grafana-managed rules, the incident webhook contact point and a
+  notification policy by severity. Grafana fills the webhook from
+  `WRENHOLT_INCIDENT_WEBHOOK`; compose points it at the webhook sink
+  until Chapter 19. The same expressions go to
+  `tests/slo/slo_alerts.rules.yaml` for promtool.
+- The SLO recording rules add valid events over 6 hours: 96 rules
+  in 10 groups.
+- `docs/runbooks.md`: one runbook for each SLO that alerts; every
+  alert links to its section.
+- `promtool test rules tests/slo/slo_alerts.test.yaml` (from
+  `tests/slo`): FS-03, FS-02, a five-minute brownout and one failure
+  at ten answers an hour, through the recording rules.
+- Lab: `uv run python scripts/fs02_fs03_paging.py`.
+- Checks: `make verify-ch14`.

@@ -47,7 +47,11 @@ def test_each_slo_gets_its_rules() -> None:
         "slo:error_budget_remaining:ratio",
     ]
     window = [*WINDOWS, "slo:sli_error:ratio_rate28d"]
-    measured = [*window, "slo:valid_events:increase1h"]
+    measured = [
+        *window,
+        "slo:valid_events:increase1h",
+        "slo:valid_events:increase6h",  # Chapter 14: pages
+    ]
     budgeted = [
         *measured,
         "slo:objective:ratio",
@@ -56,7 +60,8 @@ def test_each_slo_gets_its_rules() -> None:
     assert found["slo-availability"] == budgeted
     assert found["slo-resolution"] == measured  # no objective
     assert len(found) == 10
-    assert sum(len(r) for r in found.values()) == 8 * 9 + 2 * 7 == 86
+    total = sum(len(r) for r in found.values())
+    assert total == 8 * 10 + 2 * 8 == 96
 
 
 def test_thresholds_are_written_as_prometheus_stores_them() -> None:

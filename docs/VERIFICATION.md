@@ -825,3 +825,61 @@ Same run, other checks:
   semantic-conventions-genai `bcc7f9c` (pinned checkout); the
   installed opentelemetry-api 1.45.0 (`Logger.emit` signature; no
   events module); Zheng et al., NeurIPS 2023 (poster page).
+
+## Chapter 14: Alerting on Burn Rates and Symptoms
+
+- Command: `make verify-ch14` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-13
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L14-01 | The three tiers | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (windows, burn rates, a short window a twelfth of the long one) | pass | pending |
+| L14-02 | Which tiers an SLO gets | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.2; 18 alerts) | pass | pending |
+| L14-03 | The alert expression | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (exact lines; thresholds; recorded series only); promtool | pass | pending |
+| L14-04 | Detection time and budget spent | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.1; Section 14.3.3) | pass | pending |
+| L14-05 | A generated Grafana rule | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (committed equals generated; structure). Grafana not run | pass (format per v13.2.3 docs) | pending |
+| L14-06 | Contact point and notification policy | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (webhook setting; routes). Grafana not run | pass (format per v13.2.3 docs) | pending |
+| L14-07 | FS-03's promtool test | `tests/slo/slo_alerts.test.yaml` | promtool 3.15.0 `test rules` (4 cases), run by `tests/slo/test_alerts.py` | pass | pending |
+| L14-08 | The availability runbook | `docs/runbooks.md` | `tests/slo/test_alerts.py` (every alert's link has a section) | pass | pending |
+| L14-09 | The lab's alert question | `src/wrenholt/labs/paging_lab.py` | `tests/slo/test_paging_lab.py` | pass (SIMULATED) | pending |
+| L14-10 | Paging lab | `scripts/fs02_fs03_paging.py` | run command (2026-10-13); `tests/slo/test_paging_lab.py` asserts every number | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `.native/bin` (otelcol-contrib, promtool) on
+  `PATH` and `SEMCONV_GENAI_DIR` set: 298 passed. `pytest tests/lab`:
+  8 passed. 306 tests: unit 191, slo 65, resilience 5, drift 23,
+  lab 8, privacy 14. Fourteen are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (207
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 14 is in the repository (93
+  checked; 33 captured outputs and queries skipped), except L10-03
+  and L11-08, superseded as approved. No Chapter 14 change
+  supersedes a listing.
+- `promtool test rules tests/slo/slo_alerts.test.yaml` (promtool
+  3.15.0, from `tests/slo`): 4 cases pass through the generated
+  recording rules. FS-03: fast page at 6h1m, slow page at 6h3m, fast
+  page firing at 6h33m and reset at 6h34m (the last failures were
+  sampled at 6h30m). FS-02: 6h9m and 6h22m. A five-minute brownout:
+  no page, the 5-minute ratio alone over 0.144. One failure at ten
+  answers an hour: both page tiers' windows over their thresholds,
+  no page. With only the recording groups in `group_eval_order`, two
+  runs of the same test disagreed; every group is listed now, and
+  repeated runs agree.
+- The generated files regenerate byte for byte; `promtool check
+  rules` accepts both rule files (96 recording rules, 18 alerting
+  rules).
+- Chapter 12's rule test counts 96 rules in 10 groups (valid events
+  over 6 hours added for the slow page's minimum).
+- The paging lab printed exactly Listing L14-10.
+- Grafana was not run: its 13.2.3 release is downloaded from
+  dl.grafana.com, which this environment's proxy refuses (HTTP 403).
+  The provisioning file follows the v13.2.3 documentation and the
+  shape the Phase 1.5 alert smoke used; the CI stack job provisions
+  it after the push. No native run for Chapter 14.
+- Sources read: SRE Workbook chapter 5 (re-read 2026-10-13); Grafana
+  v13.2.3 alert file provisioning (fetched at the tag); Prometheus
+  v3.15.0 docs (querying basics, unit testing for rules).
