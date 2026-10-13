@@ -3,7 +3,9 @@
 One CLIENT span covers each logical request, retries included, as
 the GenAI conventions ask; one INTERNAL child span records each
 attempt; the HTTP client instrumentation, when on, adds a span
-under each attempt.
+under each attempt. Since Chapter 11 the gateway also meters what
+each call used and cost, and refuses a tenant's calls at its spend
+limit, before any attempt.
 """
 
 import asyncio
@@ -22,10 +24,13 @@ from dataclasses import dataclass
 
 from opentelemetry import metrics, trace
 from opentelemetry.context import Context
+from opentelemetry.metrics import CallbackOptions, Observation
 from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 
-from wrenholt.gateway.context import PROMPT
+from wrenholt.gateway.context import PROMPT, SPEND, Spend
+from wrenholt.gateway.cost import CostMeter, PriceTable
 from wrenholt.gateway.errors import ErrorType, ProviderError
+from wrenholt.gateway.limits import Ledger, LimitExceeded
 from wrenholt.gateway.openai_compat import (
     Choice,
     Chunk,
@@ -34,7 +39,12 @@ from wrenholt.gateway.openai_compat import (
 from wrenholt.gateway.policy import RetryPolicy
 from wrenholt.gateway.routing import Route
 from wrenholt.gateway.streaming import StreamClock
-from wrenholt.gateway.types import Completion, Message, ToolSpec
+from wrenholt.gateway.types import (
+    Completion,
+    Message,
+    ToolSpec,
+    Usage,
+)
 from wrenholt.telemetry import conventions as c
 
 Attrs = dict[str, str | bool | int | float | list[str]]
@@ -80,13 +90,20 @@ class Gateway:
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         jitter: Callable[[], float] = random.random,
         pinned: Mapping[str, str] | None = None,
+        prices: PriceTable | None = None,
+        ledger: Ledger | None = None,
+        max_tokens: Mapping[str, int] | None = None,
+        tenant: str = "wrenholt",
     ) -> None:
         self._routes = dict(routes)
         # Chapter 6: the response model each requested model should
         # return; anything else is a silent model change (FS-11).
         self._pinned = dict(pinned or {})
+        # Chapter 11: the most tokens a call to each model may write.
+        self._caps = dict(max_tokens or {})
         self._adapters = {
-            r: OpenAICompatible(r) for r in set(routes.values())
+            r: OpenAICompatible(r, caps=self._caps)
+            for r in set(routes.values())
         }
         self._policy = policy or RetryPolicy()
         self._sleep, self._jitter = sleep, jitter
@@ -125,6 +142,33 @@ class Gateway:
             unit="{response}",
             description="Responses from a model other than the pin.",
         )
+        # Chapter 11: tokens and cost, and the tenant charged when no
+        # answer's bill is open (labs, scripts).
+        self._cost = CostMeter(meter, prices)
+        self._ledger, self._tenant = ledger, tenant
+        self._limited = meter.create_counter(
+            c.LIMITED,
+            unit="{call}",
+            description="Calls refused at a tenant's spend limit.",
+        )
+        if ledger is not None:
+            # Observed at every export: an API builds its gateway
+            # before telemetry starts (Chapter 3), and a value set
+            # then would be lost.
+            limits = dict(ledger.limits)
+
+            def observe(_: CallbackOptions) -> list[Observation]:
+                return [
+                    Observation(float(value), {c.TENANT: name})
+                    for name, value in limits.items()
+                ]
+
+            meter.create_observable_gauge(
+                c.SPEND_LIMIT,
+                callbacks=[observe],
+                unit="{USD}",
+                description="Each tenant's spend limit per hour.",
+            )
 
     def with_tools(
         self, tools: Sequence[ToolSpec], choice: Choice = "auto"
@@ -188,6 +232,8 @@ class Gateway:
         number: int,
         delay: float,
     ) -> Completion:
+        if number == 1:  # Chapter 11: refused before any attempt
+            self._admit(trace.get_current_span(), model)
         address, port = route.server
         attrs: Attrs = {
             c.PROVIDER_NAME: route.provider,
@@ -259,6 +305,16 @@ class Gateway:
             span.set_attributes(done)
             measured[c.RESPONSE_MODEL] = result.response_model
             self._check_pin(span, base, result.response_model)
+            if result.usage is not None:  # Chapter 11
+                version = used[1] if used is not None else None
+                self._charge(
+                    span,
+                    base,
+                    result.response_model,
+                    result.usage,
+                    version,
+                    SPEND.get(),
+                )
         if err is not None:
             span.set_attribute(c.ERROR_TYPE, err.error_type.value)
             span.set_status(Status(StatusCode.ERROR))
@@ -298,6 +354,15 @@ class Gateway:
                     c.PROMPT_VERSION: prompt[1],
                 }
             )
+        # Chapter 11: refused before any attempt; the bill is read
+        # once, since the stream outlives the caller's context.
+        spend = SPEND.get()
+        try:
+            self._admit(span, model)
+        except LimitExceeded:
+            span.end()
+            raise
+        reported: list[Usage] = []  # by each attempt that finished
         parent = trace.set_span_in_context(span)
         measured = dict(base)
         attempt, delay = 0, 0.0
@@ -307,7 +372,9 @@ class Gateway:
             while True:
                 attempt += 1
                 tries = self._open(route, parent, attempt, delay)
-                reply = self._adapters[route].stream(model, messages)
+                reply = self._adapters[route].stream(
+                    model, messages, reported.append
+                )
                 failed: ProviderError | None = None
                 finished = False
                 while True:
@@ -385,6 +452,15 @@ class Gateway:
                     },
                 )
                 tries.end()
+            for usage in reported:  # Chapter 11
+                self._charge(
+                    span,
+                    base,
+                    done.response_model or model,
+                    usage,
+                    None if prompt is None else prompt[1],
+                    spend,
+                )
             self._end_stream(span, measured, clock, attempt, done)
 
     def _open(
@@ -468,6 +544,58 @@ class Gateway:
         done.duration_s = clock.total(now)
         self._duration.record(done.duration_s, measured)
         span.end()
+
+    def _admit(self, span: Span, model: str) -> None:
+        """Refuse a call whose tenant is at its spend limit, or has
+        none (Chapter 11). The span says why; no attempt is made."""
+        spend = SPEND.get()
+        tenant = spend.tenant if spend is not None else self._tenant
+        cap = self._caps.get(model)
+        if cap is not None:
+            span.set_attribute(c.REQUEST_MAX_TOKENS, cap)
+        if self._ledger is None:
+            return
+        try:
+            self._ledger.admit(tenant)
+        except LimitExceeded:
+            known = tenant in self._ledger.limits
+            self._limited.add(
+                1, {c.TENANT: tenant if known else c.OTHER}
+            )
+            span.set_attributes(
+                {c.TENANT: tenant, c.ERROR_TYPE: c.CONSUMPTION_LIMIT}
+            )
+            span.set_status(Status(StatusCode.ERROR))
+            raise
+
+    def _charge(
+        self,
+        span: Span,
+        base: Attrs,
+        model: str,
+        usage: Usage,
+        version: str | None,
+        spend: Spend | None,
+    ) -> None:
+        """Meter one billed call, and charge it to its tenant and to
+        the answer's bill (Chapter 11)."""
+        tenant = spend.tenant if spend is not None else self._tenant
+        span.set_attribute(c.TENANT, tenant)
+        if usage.cache_read is not None:
+            span.set_attribute(c.CACHE_READ_TOKENS, usage.cache_read)
+        cost = self._cost.record(base, model, usage, tenant, version)
+        if cost is None or self._cost.table is None:
+            return
+        span.set_attributes(
+            {
+                c.CALL_COST: float(cost),
+                c.PRICE_TABLE: self._cost.table.version,
+            }
+        )
+        if self._ledger is not None:
+            self._ledger.charge(tenant, cost)
+        if spend is not None:
+            spend.charge(cost, usage)
 
     def _check_pin(self, span: Span, base: Attrs, got: str) -> None:
         requested = str(base[c.REQUEST_MODEL])

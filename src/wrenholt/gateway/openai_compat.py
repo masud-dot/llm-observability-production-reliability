@@ -3,17 +3,26 @@
 Classification follows OpenAI's error-code guide: billing, spend
 and usage limits arrive as 429 with their own error.code, and
 retrying them cannot restore access, so they map to
-quota_exhausted. Every other 429 is a rate limit.
+quota_exhausted. Every other 429 is a rate limit. Since Chapter 11
+the adapter caps each call's output when the gateway says so, as
+max_completion_tokens (the SDK marks max_tokens deprecated), and
+reports usage for streams too, cached input tokens included.
 """
 
 import copy
 import math
-from collections.abc import AsyncGenerator, Mapping, Sequence
+from collections.abc import (
+    AsyncGenerator,
+    Callable,
+    Mapping,
+    Sequence,
+)
 from dataclasses import dataclass
 from typing import Literal, cast
 
 import httpx2
 import openai
+from openai.types import CompletionUsage
 from openai.types.chat import (
     ChatCompletionFunctionToolParam,
     ChatCompletionMessageFunctionToolCall,
@@ -27,8 +36,10 @@ from wrenholt.gateway.types import (
     Message,
     ToolCall,
     ToolSpec,
+    Usage,
 )
 
+Report = Callable[[Usage], None]
 Choice = Literal["auto", "required"]
 
 QUOTA_CODES = frozenset(
@@ -126,8 +137,23 @@ def calls_of(
     )
 
 
+def usage_of(usage: CompletionUsage) -> Usage:
+    """The provider's usage report (Chapter 11). Cached tokens are
+    None when the provider gives no breakdown."""
+    details = usage.prompt_tokens_details
+    cached = details.cached_tokens if details is not None else None
+    return Usage(usage.prompt_tokens, usage.completion_tokens, cached)
+
+
 class OpenAICompatible:
-    def __init__(self, route: Route, timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        route: Route,
+        timeout: float = 30.0,
+        caps: Mapping[str, int] | None = None,
+    ) -> None:
+        # Chapter 11: the most tokens a call to each model may write.
+        self._caps = dict(caps or {})
         self._client = openai.AsyncOpenAI(
             base_url=route.base_url,
             api_key=route.api_key,
@@ -147,9 +173,13 @@ class OpenAICompatible:
         return bound
 
     def stream(
-        self, model: str, messages: Sequence[Message]
+        self,
+        model: str,
+        messages: Sequence[Message],
+        report: Report | None = None,
     ) -> AsyncGenerator["Chunk"]:
-        return chunks_of(self._client, model, messages)
+        cap = self._caps.get(model)
+        return chunks_of(self._client, model, messages, cap, report)
 
     async def chat(
         self, model: str, messages: Sequence[Message]
@@ -157,12 +187,16 @@ class OpenAICompatible:
         chat = self._client.chat.completions.with_raw_response
         tools = [to_tool(t) for t in self._tools] or openai.omit
         choice = self._choice if self._tools else openai.omit
+        cap = self._caps.get(model)
         try:
             raw = await chat.create(
                 model=model,
                 messages=[to_openai(m) for m in messages],
                 tools=tools,
                 tool_choice=choice,
+                max_completion_tokens=openai.omit
+                if cap is None
+                else cap,
             )
         except openai.APITimeoutError as exc:
             raise ProviderError(ErrorType.TIMEOUT) from exc
@@ -175,7 +209,7 @@ class OpenAICompatible:
             wait = retry_after(exc.response.headers)
             raise ProviderError(kind, exc.status_code, wait) from exc
         response = raw.parse()
-        usage = response.usage
+        usage = usage_of(response.usage) if response.usage else None
         return Completion(
             text=response.choices[0].message.content or "",
             status=raw.status_code,
@@ -184,11 +218,12 @@ class OpenAICompatible:
             finish_reasons=tuple(
                 str(c.finish_reason) for c in response.choices
             ),
-            input_tokens=usage.prompt_tokens if usage else None,
-            output_tokens=usage.completion_tokens if usage else None,
+            input_tokens=usage.input if usage else None,
+            output_tokens=usage.output if usage else None,
             tool_calls=calls_of(
                 response.choices[0].message.tool_calls
             ),
+            cache_read_tokens=usage.cache_read if usage else None,
         )
 
     async def aclose(self) -> None:
@@ -206,15 +241,21 @@ async def chunks_of(
     client: openai.AsyncOpenAI,
     model: str,
     messages: Sequence[Message],
+    cap: int | None = None,
+    report: Report | None = None,
 ) -> AsyncGenerator[Chunk]:
     """Chunks of one streamed completion (Chapter 8). Errors before
     the stream map as for chat. Once it has started, any failure,
-    an error event after HTTP 200 included, is stream_interrupted."""
+    an error event after HTTP 200 included, is stream_interrupted.
+    Chapter 11: the provider sends usage in a last chunk without
+    choices, only when asked; a stream that ends early has none."""
     try:
         events = await client.chat.completions.create(
             model=model,
             messages=[to_openai(m) for m in messages],
             stream=True,
+            stream_options={"include_usage": True},
+            max_completion_tokens=openai.omit if cap is None else cap,
         )
     except openai.APITimeoutError as exc:
         raise ProviderError(ErrorType.TIMEOUT) from exc
@@ -226,6 +267,8 @@ async def chunks_of(
         raise ProviderError(kind, exc.status_code, wait) from exc
     try:
         async for event in events:
+            if event.usage is not None and report is not None:
+                report(usage_of(event.usage))
             choice = event.choices[0] if event.choices else None
             yield Chunk(
                 (choice.delta.content or "") if choice else "",

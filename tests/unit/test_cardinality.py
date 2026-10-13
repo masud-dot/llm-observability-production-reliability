@@ -1,4 +1,5 @@
-"""The cardinality budget and its guard (Chapter 10)."""
+"""The cardinality budget and its guard (Chapter 10), and the
+token and cost metrics Chapter 11 adds to it."""
 
 import logging
 import typing
@@ -26,6 +27,13 @@ from wrenholt.tools.errors import ToolErrorType
 from wrenholt.tools.toolbox import SCHEMAS
 
 BUDGETS = {b.metric: b for b in c.BUDGET}
+# Table 10.2: the metrics Chapter 10 budgeted.
+TABLE_10_2 = {
+    c.OPERATION_DURATION, c.TIME_TO_FIRST_CHUNK,
+    c.TIME_PER_OUTPUT_CHUNK, c.ATTEMPTS, c.MODEL_MISMATCHES,
+    c.REDACTIONS, c.AGENT_DURATION, c.AGENT_INFERENCE_CALLS,
+    c.AGENT_TOOL_CALLS, c.TOOL_DURATION, c.RETURNED,
+}  # fmt: skip
 
 
 def test_every_metric_has_one_budget() -> None:
@@ -50,6 +58,10 @@ def test_combinations_follow_from_the_code() -> None:
     stops = len({FINISHED, REPEATED, STEP_LIMIT, NO_TOOLS})
     names = len(c.TOOLS) + 1  # and OTHER
     places = 2  # span and log (Chapter 7)
+    # Chapter 11: one tenant has a limit; the prompt in force and
+    # its successor while it rolls out; text is the only modality.
+    tenants = len({Settings().tenant})
+    versions = 2
     found = {b.metric: b.combinations for b in c.BUDGET}
     assert found == {
         # chat: a response model, an error, or a stream cut after
@@ -67,6 +79,13 @@ def test_combinations_follow_from_the_code() -> None:
         c.AGENT_TOOL_CALLS: 1,
         c.TOOL_DURATION: names * (1 + len(ToolErrorType)),
         c.RETURNED: 1 * 2,  # one data source, two index builds
+        c.USAGE_INPUT: route * models,
+        c.USAGE_OUTPUT: route * models,
+        c.USAGE_CACHE_READ: route * models,
+        c.OUTPUT_PER_CALL: route,
+        c.COST: tenants * route * models * versions,
+        c.LIMITED: tenants + 1,  # and OTHER
+        c.SPEND_LIMIT: tenants,
     }
 
 
@@ -80,8 +99,23 @@ def test_the_worked_numbers() -> None:
     assert series[c.AGENT_DURATION] == 36 * (13 + 3) == 576
     assert series[c.ATTEMPTS] == 27
     assert series[c.RETURNED] == 2 * (4 + 3) == 14
-    assert sum(series.values()) == 1871 <= c.SERIES_BUDGET
-    assert sum(b.combinations for b in c.BUDGET) == 151
+    table = {m: n for m, n in series.items() if m in TABLE_10_2}
+    assert sum(table.values()) == 1871 <= c.SERIES_BUDGET
+    points = sum(BUDGETS[m].combinations for m in TABLE_10_2)
+    assert points == 151
+
+
+def test_chapter_11_fits_the_budget() -> None:
+    # Section 11.4: what the token and cost metrics add.
+    series = {b.metric: b.series for b in c.BUDGET}
+    per = len(c.TOKEN_BUCKETS) + 3
+    assert series[c.OUTPUT_PER_CALL] == 3 * per == 51
+    assert 6 * per == 102  # had it kept the response model
+    added = {m: n for m, n in series.items() if m not in TABLE_10_2}
+    assert sum(added.values()) == 6 + 6 + 6 + 51 + 12 + 2 + 1 == 84
+    assert sum(series.values()) == 1871 + 84 == 1955
+    assert sum(series.values()) <= c.SERIES_BUDGET
+    assert sum(b.combinations for b in c.BUDGET) == 151 + 36 == 187
 
 
 def test_the_tools_offered_are_the_closed_set() -> None:

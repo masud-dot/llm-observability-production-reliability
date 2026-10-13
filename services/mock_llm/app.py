@@ -6,6 +6,7 @@ reader compare what the provider saw with what the client's
 telemetry reports.
 """
 
+import json
 import os
 import threading
 import time
@@ -57,6 +58,9 @@ class ChatRequest(BaseModel):
     stream: bool = False
     tools: list[dict[str, Any]] | None = None  # Chapter 9
     tool_choice: Any = None
+    # Chapter 11: the output cap, by its current name or its old one
+    max_completion_tokens: int | None = None
+    max_tokens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -122,11 +126,80 @@ def reply_to(req: ChatRequest, arrival: int) -> dict[str, Any]:
     return {"role": "assistant", "content": text}
 
 
+# Chapter 11 (SIMULATED). Asked in its system prompt to answer
+# thoroughly, the mock says the same thing at greater length.
+THOROUGH = "thoroughly"
+PADDING = (
+    "To be thorough, here is the same point again in more detail, "
+    "with the background that applies to every order."
+)
+
+
+class PrefixCache:
+    """A provider-managed prompt cache, reduced to its idea: once a
+    model has seen a system message, later requests that start with
+    it read those tokens from the cache. Real providers cache long
+    prefixes in blocks, and only above a minimum length."""
+
+    def __init__(self) -> None:
+        self._seen: set[tuple[str, str]] = set()
+        self._lock = threading.Lock()
+
+    def read(self, req: ChatRequest) -> int:
+        first = req.messages[0] if req.messages else None
+        if first is None or first.role != "system":
+            return 0
+        key = (req.model, first.content or "")
+        with self._lock:
+            hit = key in self._seen
+            self._seen.add(key)
+        return count_tokens(key[1]) if hit else 0
+
+    def clear(self) -> None:
+        with self._lock:
+            self._seen.clear()
+
+
+PREFIX_CACHE = PrefixCache()
+
+
+def thorough(req: ChatRequest) -> bool:
+    return any(
+        THOROUGH in (m.content or "")
+        for m in req.messages
+        if m.role == "system"
+    )
+
+
+def input_tokens(req: ChatRequest) -> int:
+    """Every message, and the tools offered: schemas are input."""
+    text = sum(count_tokens(m.content or "") for m in req.messages)
+    calls = sum(
+        count_tokens(json.dumps(c)) for m in req.messages
+        for c in m.tool_calls or ()
+    )  # fmt: skip
+    offered = count_tokens(json.dumps(req.tools)) if req.tools else 0
+    return text + calls + offered
+
+
 def completion(req: ChatRequest, arrival: int) -> dict[str, object]:
     message = reply_to(req, arrival)
-    prompt = sum(count_tokens(m.content or "") for m in req.messages)
-    output = count_tokens(message["content"] or "")
     finish = "tool_calls" if message.get("tool_calls") else "stop"
+    text = message["content"]
+    if text and thorough(req):
+        text = " ".join([text, *[PADDING] * 4])
+    words = (text or "").split()
+    cap = req.max_completion_tokens or req.max_tokens
+    if cap is not None and len(words) > cap:
+        text, finish = " ".join(words[:cap]), "length"
+    if text is not None:
+        message = {**message, "content": text}
+    prompt = input_tokens(req)
+    output = count_tokens(text or "") + sum(
+        count_tokens(json.dumps(c["function"]))
+        for c in message.get("tool_calls") or ()
+    )
+    cached = PREFIX_CACHE.read(req)
     return {
         "id": f"chatcmpl-mock-{arrival:06d}",
         "object": "chat.completion",
@@ -139,6 +212,7 @@ def completion(req: ChatRequest, arrival: int) -> dict[str, object]:
             "prompt_tokens": prompt,
             "completion_tokens": output,
             "total_tokens": prompt + output,
+            "prompt_tokens_details": {"cached_tokens": cached},
         },
     }
 

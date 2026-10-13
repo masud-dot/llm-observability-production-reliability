@@ -1,11 +1,13 @@
-"""Linnet as an agent (Chapters 4, 6, 8 and 9).
+"""Linnet as an agent (Chapters 4, 6, 8, 9 and 11).
 
 One invoke_agent span covers each answer. Linnet retrieves policy
 passages first. A question that names an order gets a tool loop:
 the model decides, Linnet's code runs the tools, and a guard ends
 a loop that repeats itself or runs out of steps. The answer is then
 written, whole or streamed, from the passages and the facts the
-tools found, so a streamed answer keeps Chapter 8's timers.
+tools found, so a streamed answer keeps Chapter 8's timers. Since
+Chapter 11 the agent span carries what the answer cost, and an
+answer refused at the spend limit records no duration.
 """
 
 import asyncio
@@ -19,8 +21,10 @@ from opentelemetry import metrics, trace
 from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 
 from wrenholt.gateway import (
+    SPEND,
     Completion,
     Gateway,
+    LimitExceeded,
     Message,
     ProviderError,
     StreamResult,
@@ -163,6 +167,9 @@ class Linnet:
             except ProviderError as err:
                 self._end(span, run, start, err)
                 raise
+            except LimitExceeded:
+                _refused(span)
+                raise
             self._end(span, run, start)
         return Answer(completion.text, completion)
 
@@ -204,6 +211,10 @@ class Linnet:
                 await chunks.aclose()
         except ProviderError as err:
             failed = err
+            raise
+        except LimitExceeded:
+            _refused(span)
+            left = True  # no answer, so no duration (Chapter 11)
             raise
         except (GeneratorExit, asyncio.CancelledError):
             left = True
@@ -298,6 +309,9 @@ class Linnet:
         cancelled: bool = False,
     ) -> None:
         span.set_attribute(c.AGENT_STOP, run.stop)
+        spend = SPEND.get()  # Chapter 11: every call made for it
+        if spend is not None:
+            span.set_attribute(c.ANSWER_COST, float(spend.cost))
         named = {c.AGENT_NAME: AGENT}
         self._inference.record(run.inference_calls, named)
         self._tool_calls.record(run.tool_calls, named)
@@ -328,3 +342,9 @@ def messages_for(notes: list[str], question: str) -> list[Message]:
         *(Message("system", n) for n in notes if n),
         Message("user", question),
     ]
+
+
+def _refused(span: Span) -> None:
+    """An answer refused at the spend limit (Chapter 11)."""
+    span.set_attribute(c.ERROR_TYPE, c.CONSUMPTION_LIMIT)
+    span.set_status(Status(StatusCode.ERROR))

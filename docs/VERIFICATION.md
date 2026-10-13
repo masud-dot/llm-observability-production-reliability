@@ -626,3 +626,73 @@ Same run, other checks:
 - Figures 10.1 and 10.2 are diagrams drawn by `figures_ch10.py`, which
   also builds Table 10.1 from `otelcol-contrib components` and Table
   10.2 from `conventions.BUDGET`.
+
+## Chapter 11: Tokens, Cost and Latency Economics
+
+- Command: `make verify-ch11` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-13
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L11-01 | The price table | `src/wrenholt/gateway/prices.yaml` | `tests/unit/test_cost.py` (every routed model priced; a table that looks wrong refused) | pass (SIMULATED prices) | pending |
+| L11-02 | One call's cost | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py` (the policy answer by hand, cached rate, five times on the large model) | pass | pending |
+| L11-03 | Recording a call | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py`; `tests/drift` (every emitted key in its budget) | pass | pending |
+| L11-04 | Charging a call | `src/wrenholt/gateway/client.py` | `tests/unit/test_cost.py` (whole and streamed calls charged, a cut stream not) | pass | pending |
+| L11-05 | The ledger | `src/wrenholt/gateway/limits.py` | `tests/unit/test_limits.py` | pass | pending |
+| L11-06 | Refused at the limit | `src/wrenholt/api/app.py` | `tests/unit/test_limits.py` (429 with `Retry-After`); native run | pass | pending |
+| L11-07 | Chapter 11's budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py` (combinations from the code; 1,955 of 2,000) | pass | pending |
+| L11-08 | The metrics queue | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (187 points × 60 exports); `otelcol-contrib validate` | pass | pending |
+| L11-09 | Two dashboard queries | `deploy/compose/grafana/provisioning/dashboards/cost.json` (the same expressions on one line) | `promtool check rules` on every dashboard expression; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
+| L11-10 | FS-12 lab | `scripts/fs12_token_explosion.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pending |
+| L11-11 | FS-13 lab | `scripts/fs13_costly_fallback.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pending |
+| L11-12 | The normal hour by hand | `tests/unit/test_economics.py` | itself | pass | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `.native/bin` (otelcol-contrib, promtool) on
+  `PATH`: 227 passed, 1 skipped (`SEMCONV_GENAI_DIR` not set; with
+  it, the drift suite's snapshot check passes too). `pytest tests/lab`:
+  8 passed. 236 tests: unit 171, slo 17, resilience 5, drift 21,
+  lab 8, privacy 14. Thirty are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (167 source
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 11 is in the repository (65
+  checked; 26 captured outputs and queries skipped), except L10-03,
+  which `tools/check_listings.py` reports as superseded by L11-08: the
+  metrics queue grew from 10,000 to 12,000 because Chapter 11's
+  metrics take an instance from 151 to 187 points an export. This
+  needs the author's approval, as L08-02 did.
+- Chapter 10's tests changed with the budget: the worked numbers of
+  Table 10.2 are asserted over Chapter 10's eleven metrics, and the
+  queue test over all of them. The drift run now gives every gateway
+  prices, a cap and a ledger, includes one refused call, and counts
+  registered keys that appear only on metrics
+  (`gen_ai.token.modality`).
+- Native run, 2026-10-13 10:43:52 UTC, 37 s: Collector 0.162.0 with
+  the production profile, Prometheus 3.15.0, Tempo, Loki, Linnet,
+  orders and the mock as local processes, limit $0.001 an hour.
+  18 answers: 9 answered, 9 refused with 429; recorded spend
+  $0.0010228. Prometheus stored `wrenholt_gateway_cost_total`,
+  `wrenholt_gateway_limited_total`, `wrenholt_gateway_spend_limit`
+  and the token metrics, with labels `wrenholt_tenant`,
+  `gen_ai_prompt_version` and `gen_ai_token_modality`; all nine
+  panels of the tokens and cost dashboard returned data. An earlier
+  run that morning found no `wrenholt_gateway_spend_limit`: a synchronous
+  gauge set while the API was built, before telemetry started, was
+  lost. The gauge is now observed at every export.
+- Sources read: semantic-conventions-genai at `bcc7f9c`
+  (`model/gen-ai/token-metrics.yaml`,
+  `docs/gen-ai/gen-ai-token-metrics.md`,
+  `docs/gen-ai/non-normative/token-metrics-design.md`); OWASP
+  LLM10:2025 (raw file fetched, sha256 prefix `25f5e3b9c5308c57`);
+  the installed openai 3.22.1 (`ChatCompletionChunk.usage`,
+  `CompletionUsage`, `max_tokens` deprecation).
+- Not run: Docker Compose and Grafana rendering. The dashboard's
+  queries were parsed by promtool and answered by the native
+  Prometheus; the panels themselves were not rendered.
+- Figures 11.1 and 11.2: matplotlib, greyscale, 300 DPI, 4.55 in;
+  Figure 11.2's data come from the labs (`figure_data.json`), and the
+  tests assert the same values.

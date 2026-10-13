@@ -117,6 +117,35 @@ AGENT_STOP: Final = "wrenholt.agent.stop_reason"
 TOOL_FINGERPRINT: Final = "wrenholt.tool.call.fingerprint"
 TOOL_REPLAYED: Final = "wrenholt.tool.replayed"
 RETURNED_BUCKETS: Final = (0, 1, 2, 3)  # top_k is 3
+# Chapter 11: tokens and what they cost. The usage counters and the
+# per-call histogram come from the token-metric redesign (GenAI,
+# Development); cost, tenant and limit names are the book's. Linnet
+# sends and receives text only, so every token it counts is text.
+TOKEN_MODALITY: Final = "gen_ai.token.modality"
+TEXT: Final = "text"
+REQUEST_MAX_TOKENS: Final = "gen_ai.request.max_tokens"
+CACHE_READ_TOKENS: Final = "gen_ai.usage.cache_read.input_tokens"
+USAGE_INPUT: Final = "gen_ai.client.inference.usage.input_tokens"
+USAGE_OUTPUT: Final = "gen_ai.client.inference.usage.output_tokens"
+USAGE_CACHE_READ: Final = (
+    "gen_ai.client.inference.usage.cache_read.input_tokens"
+)
+OUTPUT_PER_CALL: Final = (
+    "gen_ai.client.inference.operation.output_tokens"
+)
+TENANT: Final = "wrenholt.tenant"
+COST: Final = "wrenholt.gateway.cost"  # counter, US dollars
+CALL_COST: Final = "wrenholt.cost"  # one call's, on its span
+ANSWER_COST: Final = "wrenholt.answer.cost"  # on the agent span
+PRICE_TABLE: Final = "wrenholt.price_table"  # the table's version
+LIMITED: Final = "wrenholt.gateway.limited"  # calls refused
+SPEND_LIMIT: Final = "wrenholt.gateway.spend_limit"  # gauge
+CONSUMPTION_LIMIT: Final = "consumption_limit"  # error.type, spans
+# The specification's advice for both per-call token histograms.
+TOKEN_BUCKETS: Final = (
+    1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576,
+    4194304, 16777216, 67108864,
+)  # fmt: skip
 
 
 # The pinned specification the GenAI names come from.
@@ -216,6 +245,21 @@ REGISTRY: Final = (
     Name(AGENT_STOP, "attribute", "book"),
     Name(TOOL_FINGERPRINT, "attribute", "book"),
     Name(TOOL_REPLAYED, "attribute", "book"),
+    # Chapter 11: tokens, cost and the consumption limit.
+    Name(TOKEN_MODALITY, "attribute", "genai"),
+    Name(REQUEST_MAX_TOKENS, "attribute", "genai"),
+    Name(CACHE_READ_TOKENS, "attribute", "genai"),
+    Name(USAGE_INPUT, "metric", "genai", "counter", "{token}"),
+    Name(USAGE_OUTPUT, "metric", "genai", "counter", "{token}"),
+    Name(USAGE_CACHE_READ, "metric", "genai", "counter", "{token}"),
+    Name(OUTPUT_PER_CALL, "metric", "genai", "histogram", "{token}"),
+    Name(TENANT, "attribute", "book"),
+    Name(CALL_COST, "attribute", "book"),
+    Name(ANSWER_COST, "attribute", "book"),
+    Name(PRICE_TABLE, "attribute", "book"),
+    Name(COST, "metric", "book", "counter", "{USD}"),
+    Name(LIMITED, "metric", "book", "counter", "{call}"),
+    Name(SPEND_LIMIT, "metric", "book", "gauge", "{USD}"),
 )
 
 
@@ -310,4 +354,41 @@ BUDGET: Final = (
         2,
         RETURNED_BUCKETS,
     ),
+    # Chapter 11. Tokens: 3 routes x 2 response models, text only.
+    Budget(
+        USAGE_INPUT,
+        (OPERATION_NAME, *ROUTE, RESPONSE_MODEL, TOKEN_MODALITY),
+        6,
+    ),
+    Budget(
+        USAGE_OUTPUT,
+        (OPERATION_NAME, *ROUTE, RESPONSE_MODEL, TOKEN_MODALITY),
+        6,
+    ),
+    Budget(
+        USAGE_CACHE_READ,
+        (OPERATION_NAME, *ROUTE, RESPONSE_MODEL, TOKEN_MODALITY),
+        6,
+    ),
+    # 3 routes. The response model, only Recommended here, would
+    # double the histogram's 51 series.
+    Budget(
+        OUTPUT_PER_CALL, (OPERATION_NAME, *ROUTE), 3, TOKEN_BUCKETS
+    ),
+    # 1 tenant x 3 routes x 2 response models x 2 prompt versions
+    # (the one in force and its successor while it rolls out)
+    Budget(
+        COST,
+        (
+            TENANT,
+            PROVIDER_NAME,
+            REQUEST_MODEL,
+            RESPONSE_MODEL,
+            PROMPT_VERSION,
+        ),
+        12,
+    ),
+    # the tenant, or _OTHER for a name without a limit
+    Budget(LIMITED, (TENANT,), 2),
+    Budget(SPEND_LIMIT, (TENANT,), 1),
 )

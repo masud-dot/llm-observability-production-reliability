@@ -1,0 +1,19 @@
+# Prices for the mock models (SIMULATED): not any provider's price
+# list. A real table copies the provider's price page and its date,
+# and gets a new version whenever a price changes. US dollars per
+# million tokens, by the model the gateway requests.
+version: "2026-10-01"
+currency: USD
+models:
+  mock-a-fast:
+    input: "0.40"
+    cached_input: "0.10"
+    output: "1.60"
+  mock-a-large:
+    input: "2.00"
+    cached_input: "0.50"
+    output: "8.00"
+  mock-b-standard:
+    input: "1.00"
+    cached_input: "0.25"
+    output: "4.00"

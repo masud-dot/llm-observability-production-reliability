@@ -10,7 +10,11 @@ from typing import Any
 
 import uvicorn
 
-from services.mock_llm.app import ProviderLog, create_app
+from services.mock_llm.app import (
+    PREFIX_CACHE,
+    ProviderLog,
+    create_app,
+)
 from services.mock_llm.faults import NO_FAULTS, FaultPlan
 from services.mock_llm.headers import with_header_log
 from services.mock_llm.model_swap import with_model_swap
@@ -38,6 +42,7 @@ def running_provider(
     tool_loop: bool = False,
 ) -> Iterator[RunningProvider]:
     log = ProviderLog()
+    PREFIX_CACHE.clear()  # Chapter 11: each provider starts cold
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(("127.0.0.1", 0))
     port: int = sock.getsockname()[1]

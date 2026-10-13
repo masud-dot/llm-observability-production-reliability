@@ -35,6 +35,17 @@ class Message:
 
 
 @dataclass(frozen=True)
+class Usage:
+    """Tokens one completed call used, as the provider reported them
+    (Chapter 11). input includes cache_read; None means the provider
+    did not say."""
+
+    input: int
+    output: int
+    cache_read: int | None = None
+
+
+@dataclass(frozen=True)
 class Completion:
     text: str
     status: int
@@ -44,3 +55,14 @@ class Completion:
     input_tokens: int | None
     output_tokens: int | None
     tool_calls: tuple[ToolCall, ...] = ()  # Chapter 9
+    cache_read_tokens: int | None = None  # Chapter 11
+
+    @property
+    def usage(self) -> Usage | None:
+        if self.input_tokens is None or self.output_tokens is None:
+            return None
+        return Usage(
+            self.input_tokens,
+            self.output_tokens,
+            self.cache_read_tokens,
+        )

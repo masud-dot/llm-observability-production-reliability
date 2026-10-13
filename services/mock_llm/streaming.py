@@ -5,7 +5,9 @@ a request with "stream": true, asks the unchanged app for the whole
 answer, and replays it as OpenAI-style server-sent events on a
 fixed schedule. Faults live in the schedule: FS-02 delays the first
 chunk; FS-04 ends the stream early, after HTTP 200. The wrapper
-also notices when the client goes away, and stops sending.
+also notices when the client goes away, and stops sending. Chapter
+11: asked for usage, it sends it in a last chunk without choices,
+as OpenAI does, and only when the stream completes.
 """
 
 import asyncio
@@ -90,6 +92,8 @@ class Streaming:
             await self.app(scope, _replay(body), send)
             return
         request["stream"] = False
+        options = request.pop("stream_options", None) or {}
+        usage = bool(options.get("include_usage"))
         headers = {
             k.decode(): v.decode() for k, v in scope["headers"]
         }
@@ -100,10 +104,14 @@ class Streaming:
         if whole.status_code != 200:  # errors arrive before streaming
             await _send_whole(send, whole)
             return
-        await self._stream(whole.json(), receive, send)
+        await self._stream(whole.json(), receive, send, usage)
 
     async def _stream(
-        self, answer: dict[str, Any], receive: Any, send: Any
+        self,
+        answer: dict[str, Any],
+        receive: Any,
+        send: Any,
+        usage: bool = False,
     ) -> None:
         plan = self.schedule
         fault = self._requests < plan.faulty
@@ -138,7 +146,10 @@ class Streaming:
                 if await _wait(gone, plan.gap_s):
                     sent.outcome = "client_gone"
                     return
-            await send(_body(_chunk(answer, {}, "stop")))
+            finish = answer["choices"][0]["finish_reason"]
+            await send(_body(_chunk(answer, {}, finish)))
+            if usage:
+                await send(_body(_usage(answer)))
             await send(_body(b"data: [DONE]\n\n", more=False))
             sent.outcome = "complete"
         except OSError:  # the server found the client gone first
@@ -189,6 +200,19 @@ def _chunk(
         "choices": [
             {"index": 0, "delta": delta, "finish_reason": finish}
         ],
+    }
+    return f"data: {json.dumps(chunk)}\n\n".encode()
+
+
+def _usage(answer: dict[str, Any]) -> bytes:
+    """The last chunk when usage is asked for: no choices."""
+    chunk = {
+        "id": answer["id"],
+        "object": "chat.completion.chunk",
+        "created": answer["created"],
+        "model": answer["model"],
+        "choices": [],
+        "usage": answer["usage"],
     }
     return f"data: {json.dumps(chunk)}\n\n".encode()
 

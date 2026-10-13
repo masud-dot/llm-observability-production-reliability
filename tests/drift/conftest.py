@@ -2,6 +2,7 @@
 
 import asyncio
 from contextlib import aclosing
+from decimal import Decimal
 from typing import Any
 
 import pytest
@@ -23,7 +24,17 @@ from services.mock_llm.streaming import Schedule
 from services.orders.app import create_app as orders_app
 from services.orders.store import OrderStore, generate_orders
 from services.serving import serve
-from wrenholt.gateway import Gateway, Message, ProviderError, Route
+from wrenholt.gateway import (
+    SPEND,
+    Gateway,
+    Ledger,
+    LimitExceeded,
+    Message,
+    ProviderError,
+    Route,
+    Spend,
+    load_prices,
+)
 from wrenholt.gateway.context import prompt
 from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.privacy.pseudonym import keys_from_env
@@ -31,9 +42,19 @@ from wrenholt.privacy.redact import Redactor
 from wrenholt.rag.embed import EMBEDDERS
 from wrenholt.rag.index import index_as_of
 from wrenholt.rag.retriever import Retriever
+from wrenholt.telemetry import conventions as c
 from wrenholt.tools.orders import OrdersClient
 
 Metric = tuple[str, str, str, set[str]]
+# Chapter 11: every gateway meters, prices, caps and limits.
+PRICED: dict[str, Any] = {
+    "prices": load_prices(),
+    "max_tokens": {"mock-a-fast": 512},
+}
+
+
+def ledger(limit: str = "100") -> Ledger:
+    return Ledger({"wrenholt": Decimal(limit)})
 
 
 async def no_wait(_: float) -> None:
@@ -42,11 +63,13 @@ async def no_wait(_: float) -> None:
 
 @pytest.fixture(scope="session")
 def emitted() -> tuple[set[str], list[Metric]]:
-    """Attribute keys on Wrenholt's own spans, and each metric's
-    name, instrument, unit and attribute keys, over FS-01, FS-18
-    and FS-11, with a prompt and model pins in place (Chapter 6),
-    two streamed answers, one left early (Chapter 8), and Linnet
-    answering a policy question and a refund (Chapter 9)."""
+    """Attribute keys on Wrenholt's own spans (and registered ones on
+    its metrics), and each metric's name, instrument, unit and
+    attribute keys, over FS-01, FS-18 and FS-11, with a prompt and
+    model pins in place (Chapter 6),
+    two streamed answers, one left early (Chapter 8), Linnet
+    answering a policy question and a refund (Chapter 9), and a
+    call refused at the spend limit (Chapter 11)."""
     spans = InMemorySpanExporter()
     tracing = TracerProvider()
     tracing.add_span_processor(SimpleSpanProcessor(spans))
@@ -60,11 +83,28 @@ def emitted() -> tuple[set[str], list[Metric]]:
             meter_provider=meters,
             sleep=no_wait,
             pinned={"mock-a-fast": "mock-a-fast-2026-09"},
+            ledger=ledger(),
+            **PRICED,
         )
         try:
             with prompt("linnet.support", "1"):
                 await gw.chat("mock-a-fast", [Message("user", "Hi")])
         except ProviderError:
+            pass
+        finally:
+            await gw.aclose()
+
+    async def refused(route: Route) -> None:
+        gw = Gateway(
+            {"mock-a-fast": route},
+            tracer_provider=tracing,
+            meter_provider=meters,
+            ledger=ledger("0"),
+            **PRICED,
+        )
+        try:
+            await gw.chat("mock-a-fast", [Message("user", "Hi")])
+        except LimitExceeded:
             pass
         finally:
             await gw.aclose()
@@ -77,6 +117,10 @@ def emitted() -> tuple[set[str], list[Metric]]:
             asyncio.run(
                 ask(Route("wrenholt.mock_a", mock.base_url, "x"))
             )
+    with running_provider() as mock:
+        asyncio.run(
+            refused(Route("wrenholt.mock_a", mock.base_url, "x"))
+        )
 
     async def stream(route: Route, leave_after: int) -> None:
         gw = Gateway(
@@ -84,6 +128,8 @@ def emitted() -> tuple[set[str], list[Metric]]:
             tracer_provider=tracing,
             meter_provider=meters,
             sleep=no_wait,
+            ledger=ledger(),
+            **PRICED,
         )
         used = ("linnet.support", "1")
         chunks = gw.stream(
@@ -112,6 +158,8 @@ def emitted() -> tuple[set[str], list[Metric]]:
             tracer_provider=tracing,
             meter_provider=meters,
             sleep=no_wait,
+            ledger=ledger(),
+            **PRICED,
         )
         embedder = EMBEDDERS["wrenholt-embed-1"]
         retriever = Retriever(
@@ -129,6 +177,7 @@ def emitted() -> tuple[set[str], list[Metric]]:
                 "How long do I have to return an item?",
                 "Please refund £5.00 on order WG-100006.",
             ):
+                SPEND.set(Spend("wrenholt"))  # as the API does
                 await linnet.answer(
                     gw, "mock-a-fast", question, orders
                 )
@@ -155,10 +204,16 @@ def emitted() -> tuple[set[str], list[Metric]]:
                 kind = (
                     "histogram"
                     if isinstance(points[0], HistogramDataPoint)
+                    else "gauge"
+                    if type(m.data).__name__ == "Gauge"
                     else "counter"
                 )
                 keys = {
                     k for p in points for k in (p.attributes or {})
                 }
                 metrics.append((m.name, kind, m.unit or "", keys))
+    # Chapter 11: a registered name may only ever be a metric's, as
+    # gen_ai.token.modality is.
+    registered = {n.name for n in c.REGISTRY}
+    attrs |= {k for metric in metrics for k in metric[3]} & registered
     return attrs, metrics

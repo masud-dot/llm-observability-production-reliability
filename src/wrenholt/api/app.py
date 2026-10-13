@@ -7,16 +7,20 @@ call goes through the gateway; since Chapter 6 an order in the
 question is looked up, and every answer leaves a reproduction
 bundle. Since Chapter 8 an answer can be streamed. Since Chapter 9
 Linnet is an agent: it retrieves help-centre passages and calls
-tools, and the handlers call it exactly as before.
+tools, and the handlers call it exactly as before. Since Chapter 11
+every answer opens a bill that its model calls are charged to, and
+a tenant over its spend limit gets HTTP 429.
 """
 
 import json
 import logging
+import math
 from collections.abc import AsyncGenerator, AsyncIterator, Mapping
 from contextlib import asynccontextmanager
+from decimal import Decimal
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 from opentelemetry import trace
 from opentelemetry.trace import Span
 from pydantic import BaseModel
@@ -24,11 +28,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from wrenholt import repro
 from wrenholt.gateway import (
+    SPEND,
     Gateway,
+    Ledger,
+    LimitExceeded,
     ProviderError,
     RetryPolicy,
     Route,
+    Spend,
     StreamResult,
+    load_prices,
 )
 from wrenholt.orchestrator.guard import LoopGuard
 from wrenholt.orchestrator.linnet import Linnet
@@ -63,6 +72,11 @@ class Settings(BaseSettings):
     index_embedder: str = "wrenholt-embed-1"
     query_embedder: str = "wrenholt-embed-1"
     agent_max_steps: int = 5
+    # Chapter 11: whose spend this is, its limit per clock hour in US
+    # dollars, and the most tokens one model call may write.
+    tenant: str = "wrenholt"
+    spend_per_hour: str = "60.00"
+    max_output_tokens: int = 512
 
 
 def routes(cfg: Settings) -> dict[str, Route]:
@@ -96,7 +110,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     cfg = settings if settings is not None else Settings()
     table = routes(cfg)
     policy = RetryPolicy()
-    gateway = Gateway(table, policy, pinned=PINNED)
+    # Chapter 11: a routed model without a price stops start-up.
+    prices = load_prices()
+    if missing := prices.missing(table):
+        raise ValueError(f"no price for {', '.join(missing)}")
+    gateway = Gateway(
+        table,
+        policy,
+        pinned=PINNED,
+        prices=prices,
+        ledger=Ledger({cfg.tenant: Decimal(cfg.spend_per_hour)}),
+        max_tokens=dict.fromkeys(table, cfg.max_output_tokens),
+    )
     orders = OrdersClient(cfg.orders_url)
     # Chapter 9: an index built by another embedder stops start-up
     # here (FS-08), instead of answering every question emptily.
@@ -127,6 +152,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/healthz")
     def healthz() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.exception_handler(LimitExceeded)
+    async def over_limit(
+        _: Request, err: LimitExceeded
+    ) -> JSONResponse:
+        """Chapter 11: refused before any model call was made."""
+        LOG.warning("chat refused: spend limit")
+        wait = str(math.ceil(err.retry_after))
+        return JSONResponse(
+            {"detail": "Linnet cannot answer now."},
+            status_code=429,
+            headers={"Retry-After": wait},
+        )
 
     def keep(
         span: Span, question: str, text: str, seen: str, outcome: str
@@ -192,6 +230,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/chat", response_model=None)
     async def chat(body: ChatIn) -> ChatOut | StreamingResponse:
         span = trace.get_current_span()
+        SPEND.set(Spend(cfg.tenant))  # Chapter 11: this answer's bill
         if body.stream:
             done = StreamResult()
             chunks = stream_answer(

@@ -223,3 +223,39 @@ written.
   `uv run python scripts/collector_overload.py`.
   `MOCK_LLM_PLAN=fs15` rate-limits one attempt in four (SIMULATED).
 - Checks: `make verify-ch10`.
+
+## Chapter 11: Tokens, Cost and Latency Economics
+
+- Token metrics from the GenAI token-metric redesign (Development
+  at the pinned commit): usage counters for input, output and
+  cached input tokens, and a histogram of output tokens per call.
+  Linnet sends text only, so `gen_ai.token.modality` is `text`.
+- `src/wrenholt/gateway/prices.yaml`: the price table, versioned
+  configuration (SIMULATED prices for the mock models). A routed
+  model without a price stops start-up.
+- `src/wrenholt/gateway/cost.py`: the cost meter. Each billed call
+  adds to `wrenholt.gateway.cost` (US dollars, by tenant, route,
+  response model and prompt version) and to its answer's bill; the
+  agent span carries `wrenholt.answer.cost`.
+- `src/wrenholt/gateway/limits.py`: per-tenant spend limits per
+  clock hour. A call over the limit is refused before any attempt,
+  and the API answers 429 with `Retry-After`. The limit is exported
+  as `wrenholt.gateway.spend_limit`. Settings: `WRENHOLT_TENANT`,
+  `WRENHOLT_SPEND_PER_HOUR` (60.00), `WRENHOLT_MAX_OUTPUT_TOKENS`
+  (512, sent as `max_completion_tokens`).
+- `src/wrenholt/economics.py`: cost per resolved ticket, the latency
+  decomposition of an answer, and PromQL's `histogram_quantile`
+  arithmetic.
+- The mock provider (SIMULATED) honours the output cap, pads its
+  answers when asked to be thorough, caches the system prompt after
+  its first use and, asked for it, sends stream usage in a last
+  chunk.
+- The tokens and cost dashboard: tokens by model, the cached share,
+  output tokens per call, spend by model and by prompt version,
+  spend against the limit, refusals and cost per answer.
+- The production profile's metrics queue grows from 10,000 to
+  12,000 points: the new metrics take an instance to 187 points an
+  export.
+- Labs: `uv run python scripts/fs12_token_explosion.py` and
+  `uv run python scripts/fs13_costly_fallback.py`.
+- Checks: `make verify-ch11`.
