@@ -6,6 +6,11 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
+from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs.export import (
+    InMemoryLogRecordExporter,
+    SimpleLogRecordProcessor,
+)
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     HistogramDataPoint,
@@ -16,6 +21,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
 )
+from opentelemetry.trace import SpanContext, TraceFlags
 
 from services.mock_llm.faults import FS01_HIDDEN_RETRY_STORM
 from services.mock_llm.model_swap import FS11_SWAP
@@ -24,6 +30,8 @@ from services.mock_llm.streaming import Schedule
 from services.orders.app import create_app as orders_app
 from services.orders.store import OrderStore, generate_orders
 from services.serving import serve
+from wrenholt.evaluation.emitter import ResultEmitter
+from wrenholt.evaluation.evaluators import Sample, standard
 from wrenholt.gateway import (
     SPEND,
     Gateway,
@@ -71,8 +79,9 @@ def emitted() -> tuple[set[str], list[Metric]]:
     model pins in place (Chapter 6),
     two streamed answers, one left early (Chapter 8), Linnet
     answering a policy question and a refund (Chapter 9), a call
-    refused at the spend limit (Chapter 11), and the API's SLI
-    events and a guardrail refusal (Chapter 12)."""
+    refused at the spend limit (Chapter 11), the API's SLI events
+    and a guardrail refusal (Chapter 12), and one answer's evaluation
+    results, as events and counts (Chapter 13)."""
     spans = InMemorySpanExporter()
     tracing = TracerProvider()
     tracing.add_span_processor(SimpleSpanProcessor(spans))
@@ -198,6 +207,30 @@ def emitted() -> tuple[set[str], list[Metric]]:
     slis.event(
         "not_refused", Guardrail("2", tracing).screen(refund) is None
     )
+    logs = InMemoryLogRecordExporter()  # type: ignore[no-untyped-call]
+    events = LoggerProvider()
+    events.add_log_record_processor(SimpleLogRecordProcessor(logs))
+    results, judges = ResultEmitter(events, meters), standard()
+    results.start(judges, "1", "index-1")
+    sample = Sample(
+        "How long do I have to return an item?",
+        "Most items can be returned within 30 days.",
+        ("Most items can be returned within 30 days of delivery.",),
+        "1",
+        "index-1",
+    )
+    span = SpanContext(
+        1, 2, is_remote=False, trace_flags=TraceFlags(1)
+    )
+    for judge in judges:
+        verdict = judge.evaluate(sample)
+        if verdict is not None:
+            linked = (
+                span,
+                "chatcmpl-mock-000001",
+                "mock-a-fast-2026-09",
+            )
+            results.emit(judge, verdict, sample, *linked)
     attrs = {
         key
         for span in spans.get_finished_spans()
@@ -226,4 +259,10 @@ def emitted() -> tuple[set[str], list[Metric]]:
     # gen_ai.token.modality is.
     registered = {n.name for n in c.REGISTRY}
     attrs |= {k for metric in metrics for k in metric[3]} & registered
+    # Chapter 13: an event's attributes are emitted names too.
+    attrs |= {
+        k
+        for r in logs.get_finished_logs()
+        for k in (r.log_record.attributes or {})
+    }
     return attrs, metrics

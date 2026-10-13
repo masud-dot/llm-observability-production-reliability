@@ -102,7 +102,7 @@ exporters:
     endpoint: ${env:PROM_OTLP_HTTP}
     sending_queue:
       sizer: items
-      queue_size: 12000
+      queue_size: 13000
   otlp_http/loki:
     endpoint: ${env:LOKI_OTLP_HTTP}
     sending_queue:

@@ -762,3 +762,66 @@ Same run, other checks:
   v3.15.0 docs (configuration, command-line flags, feature flags,
   unit testing for rules).
 
+## Chapter 13: Evaluation Signals and Drift in Production
+
+- Command: `make verify-ch13` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-13
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L13-01 | Evaluation sampling by trace ID | `src/wrenholt/evaluation/sampling.py` | `tests/unit/test_evaluation.py` (the rule; a rate of 0.1 within 0.01 over 10,000 IDs) | pass | pending |
+| L13-02 | A verdict and the evaluator interface | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (known answers); `mypy --strict` | pass (SIMULATED evaluators) | pending |
+| L13-03 | The adapter for outside evaluators | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (label and score mapped; unmapped label refused) | pass | pending |
+| L13-04 | The result emitter | `src/wrenholt/evaluation/emitter.py` | `tests/unit/test_evaluation.py` (linked, no content, series at zero, slices); `tests/drift/test_events_drift.py`; native run | pass | pending |
+| L13-05 | Evaluating online | `src/wrenholt/evaluation/online.py` | `tests/unit/test_evaluation.py` (sampled, not sampled, no span, streamed, failing evaluator); native run | pass | pending |
+| L13-06 | The share check | `src/wrenholt/evaluation/drift.py` | `tests/unit/test_evaluation.py` (waits for 30; stable series; new baseline); `tests/slo/test_eval_labs.py` (z 22.5 and 21.7) | pass | pending |
+| L13-07 | Groundedness's objective | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py`; `tests/slo/test_rules.py` (10 groups, 86 rules); native run | pass | pending |
+| L13-08 | The metrics queue, superseding L11-08 | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (213 points; 12,780 within 13,000); native run | pass | pending |
+| L13-09 | FS-10 lab | `scripts/fs10_prompt_regression.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
+| L13-10 | FS-09 lab, index swap | `scripts/fs09_index_swap.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
+| L13-11 | FS-16 lab | `scripts/fs16_intent_drift.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `.native/bin` (otelcol-contrib, promtool) on
+  `PATH` and `SEMCONV_GENAI_DIR` set: 284 passed. `pytest tests/lab`:
+  8 passed. 292 tests: unit 191, slo 51, resilience 5, drift 23,
+  lab 8, privacy 14. Seventeen are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (201
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 13 is in the repository (84
+  checked; 32 captured outputs and queries skipped), except L10-03,
+  superseded by L11-08 as approved, and L11-08, superseded by L13-08
+  (proposed with this chapter).
+- Chapter 12's tests now expect groundedness's objective (0.99,
+  counted from evaluation results) and 10 groups of 86 rules; the
+  budget test counts 14 combinations for the evaluation counter,
+  1,997 series and 213 points; the queue test counts 12,780 points
+  in five minutes against 13,000. The drift run emits one answer's
+  evaluation results, and a new drift test checks the event name and
+  that every attribute on the events is registered.
+- The three labs printed exactly Listings L13-09, L13-10 and L13-11.
+- Native run, 2026-10-13 17:43:19 UTC, 48.5 s: Collector 0.162.0 with
+  the production profile, Prometheus 3.15.0 loading the generated
+  rules and Loki 3.7.8, Linnet with an evaluation rate of 1.0, orders
+  and the mock as local processes; Tempo left out. 8 answers, 3 of
+  them streamed (HTTP 200). Rules: 10 groups, 86 rules, health ok.
+  Prometheus stored `wrenholt_evaluation_results_total` with 10
+  label sets: intent (order 1, other 1, policy 2, refund 4), refusal
+  by prompt version 1 (answer 8, refusal 0), groundedness (grounded
+  2, ungrounded 0) and policy accuracy by index build (correct 2,
+  incorrect 0). The 5-minute groundedness error ratio read 0. Loki
+  held 20 evaluation events, found by
+  `{service_name="linnet-api"} | scope_name="wrenholt.evaluation"`,
+  each with its attributes, trace ID and span ID as structured
+  metadata and an empty line; a query by event name found nothing,
+  and a probe through the same configuration confirmed that Loki does
+  not keep the event name. All four panels of the evaluation
+  dashboard returned data.
+- Sources read: the GenAI events document at
+  semantic-conventions-genai `bcc7f9c` (pinned checkout); the
+  installed opentelemetry-api 1.45.0 (`Logger.emit` signature; no
+  events module); Zheng et al., NeurIPS 2023 (poster page).

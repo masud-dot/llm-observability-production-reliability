@@ -289,3 +289,34 @@ written.
   `uv run python scripts/fs17_over_blocking.py`.
 - Checks: `make verify-ch12`.
 
+## Chapter 13: Evaluation Signals and Drift in Production
+
+- `src/wrenholt/evaluation/`: evaluation results as telemetry.
+  `Evaluating` wraps the guardrail's wrapper and evaluates a sample
+  of answers, chosen by trace ID, inside the API's process; only
+  results leave. Setting: `WRENHOLT_EVALUATION_RATE` (0.1).
+- Each result is a `gen_ai.evaluation.result` event (Development),
+  parented to the request's span, with the response ID when the
+  answer was not streamed, and a count on
+  `wrenholt.evaluation.results`. No event carries the question, the
+  answer, the passages or an explanation.
+- Evaluators (SIMULATED rules): intent, refusal, groundedness and
+  policy accuracy, each with a version and a closed set of labels;
+  `External` adapts an outside evaluator and refuses labels it
+  cannot map.
+- `src/wrenholt/evaluation/drift.py`: the share of a label by a
+  two-proportion z-test and the mix of labels by total variation
+  distance, never across evaluator versions, and only once each side
+  holds 30 results.
+- Groundedness now has its objective (0.99, owner assistant),
+  counted from evaluation results; the SLO rules grow to 86 in 10
+  groups. The production metrics queue grows to 13,000 points.
+- In Loki, find evaluation events by scope:
+  `{service_name="linnet-api"} | scope_name="wrenholt.evaluation"`.
+- The evaluation dashboard: refusals by prompt version, correct
+  policy answers by index build, the intent mix and evaluated
+  answers per hour.
+- Labs: `uv run python scripts/fs10_prompt_regression.py`,
+  `uv run python scripts/fs09_index_swap.py` and
+  `uv run python scripts/fs16_intent_drift.py`.
+- Checks: `make verify-ch13`.

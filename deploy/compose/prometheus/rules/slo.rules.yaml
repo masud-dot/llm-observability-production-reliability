@@ -286,6 +286,63 @@ groups:
       slo: not_refused
       sli: not_refused
       layer: L2
+- name: slo-groundedness
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[5m])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[5m])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[30m])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[30m])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[1h])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[1h])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[6h])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[6h])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[3d])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[3d])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[28d])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[28d])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[1h]))
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="groundedness"} / 0.01
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
 - name: slo-policy_freshness
   interval: 1m
   rules:

@@ -382,3 +382,5 @@ prometheus_start_timestamps = "Prometheus 3.15.0 injects zero samples at start t
 otlp_bool_label = "Prometheus 3.15.0 stores a boolean OTLP attribute as the label value true or false (native run, Chapter 12)"
 pydantic_int_from_float = "pydantic 2.13.5 (lax mode, JSON input) accepts 5.0 for an int field as 5, and refuses the string \"£5.00\": a schema check proves validity, not correctness (test, Chapter 12)"
 
+otel_logs_events = "opentelemetry-api 1.45.0 has no events module: an event is a log record with an event name, emitted with Logger.emit(event_name=..., context=..., attributes=...); get_logger returns a ProxyLogger that forwards once a provider is set (package inspection and tests, Chapter 13; decision 81)"
+loki_event_name = "Loki 3.7.8 stores an OTLP log record's attributes, trace_id and span_id as structured metadata and does not keep its event name; a record without a body is stored with an empty line, so Wrenholt finds evaluation events by scope_name (native run and probe, Chapter 13; decision 89)"

@@ -76,6 +76,14 @@ def counting(s: Slo) -> Counting:
         refund = {c.TOOL_NAME: "issue_refund"}
         bad = {**refund, c.ERROR_TYPE: "invalid_arguments"}
         return Counting(calls + match(**refund), calls + match(**bad))
+    if s.counted_by == "evaluation":  # Chapter 13
+        assert s.bad_label
+        results = promname(c.EVALUATION_RESULTS)
+        evaluated = {c.EVALUATION_NAME: s.sli_id}
+        bad = {**evaluated, c.EVALUATION_LABEL: s.bad_label}
+        return Counting(
+            results + match(**evaluated), bad=results + match(**bad)
+        )
     if s.counted_by == "attempts":
         attempts = promname(c.ATTEMPTS)
         failed = "{" + label(c.ERROR_TYPE) + '!=""}'
@@ -142,7 +150,6 @@ def generate(objectives: Objectives | None = None) -> dict[str, Any]:
                 "rules": rules_for(s, slos.window),
             }
             for s in slos.objectives
-            if s.counted_by != "evaluation"  # Chapter 13
         ]
     }
 

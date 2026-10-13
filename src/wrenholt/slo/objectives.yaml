@@ -47,8 +47,10 @@ objectives:
 
   - slo: groundedness
     layer: L2
-    reason: no measured data until Chapter 13 consumes evaluations
-    counted_by: evaluation
+    objective: 0.99
+    owner: assistant
+    counted_by: evaluation  # Chapter 13: evaluation results
+    bad_label: ungrounded
 
   - slo: policy_freshness
     layer: L3

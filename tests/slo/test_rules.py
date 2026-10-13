@@ -41,7 +41,11 @@ def test_the_committed_rules_are_the_generated_ones() -> None:
 
 def test_each_slo_gets_its_rules() -> None:
     found = records()
-    assert "slo-groundedness" not in found  # Chapter 13
+    # Chapter 13: groundedness, counted from evaluation results
+    assert found["slo-groundedness"][-2:] == [
+        "slo:objective:ratio",
+        "slo:error_budget_remaining:ratio",
+    ]
     window = [*WINDOWS, "slo:sli_error:ratio_rate28d"]
     measured = [*window, "slo:valid_events:increase1h"]
     budgeted = [
@@ -51,8 +55,8 @@ def test_each_slo_gets_its_rules() -> None:
     ]
     assert found["slo-availability"] == budgeted
     assert found["slo-resolution"] == measured  # no objective
-    assert len(found) == 9
-    assert sum(len(r) for r in found.values()) == 7 * 9 + 2 * 7 == 77
+    assert len(found) == 10
+    assert sum(len(r) for r in found.values()) == 8 * 9 + 2 * 7 == 86
 
 
 def test_thresholds_are_written_as_prometheus_stores_them() -> None:

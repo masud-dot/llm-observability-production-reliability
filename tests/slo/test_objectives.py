@@ -22,6 +22,7 @@ TYPES = {
     "ttfc": "latency",
     "decision_validity": "quality",
     "not_refused": "quality",
+    "groundedness": "quality",  # Chapter 13
     "policy_freshness": "freshness",
     "answer_cost": "cost",
 }
@@ -51,7 +52,8 @@ def test_table_12_1() -> None:
         "ttfc_critical_action": ("L1", Decimal("0.99"), "platform"),
         "decision_validity": ("L2", Decimal("0.999"), "assistant"),
         "not_refused": ("L2", Decimal("0.995"), "assistant"),
-        "groundedness": ("L2", None, None),
+        # Chapter 13: measured from evaluation results
+        "groundedness": ("L2", Decimal("0.99"), "assistant"),
         "policy_freshness": ("L3", Decimal("0.99"), "help-centre"),
         "answer_cost": ("L4", Decimal("0.99"), "platform"),
         "resolution": ("L4", None, None),
@@ -93,7 +95,8 @@ def test_the_cost_threshold_sits_above_every_normal_answer() -> None:
     [
         (1, {"threshold_s": 3.0}, "bucket boundary"),
         (0, {"owner": None}, "needs an owner"),
-        (5, {"reason": None}, "an objective or a reason"),
+        (8, {"reason": None}, "an objective or a reason"),
+        (5, {"bad_label": None}, "a bad label, for evaluations"),
         (0, {"counted_by": "events", "slo": "uptime"}, "no such SLI"),
         (7, {"max_cost_usd": None}, "cost threshold"),
     ],

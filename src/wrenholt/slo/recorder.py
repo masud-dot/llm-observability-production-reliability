@@ -17,6 +17,7 @@ from typing import Any
 
 from opentelemetry import metrics
 
+from wrenholt.evaluation.context import PASSAGES
 from wrenholt.gateway import (
     SPEND,
     Completion,
@@ -195,6 +196,7 @@ class CheckedRetriever(Retriever):
 
     def search(self, query: str) -> list[Found]:
         found = super().search(query)
+        PASSAGES.set(tuple(f.text for f in found))  # Chapter 13
         if found:
             fresh = all(
                 self._in_force.get(f.id) == f.version for f in found

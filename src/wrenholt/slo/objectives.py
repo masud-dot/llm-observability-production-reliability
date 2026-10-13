@@ -39,6 +39,7 @@ class Slo(BaseModel):
     request_class: RequestClass | None = None
     threshold_s: float | None = None
     max_cost_usd: Decimal | None = None
+    bad_label: str | None = None  # Chapter 13: an evaluation's
 
     @property
     def sli_id(self) -> str:
@@ -76,6 +77,17 @@ class Slo(BaseModel):
             )
         if (self.sli_id == "answer_cost") != bool(self.max_cost_usd):
             raise ValueError(f"{self.slo}: a cost threshold, once")
+        return self
+
+    @model_validator(mode="after")
+    def check_evaluation(self) -> Self:
+        """Chapter 13: an SLI counted from evaluation results names
+        the label that makes a result bad."""
+        judged = self.counted_by == "evaluation"
+        if judged != (self.bad_label is not None):
+            raise ValueError(
+                f"{self.slo}: a bad label, for evaluations"
+            )
         return self
 
 

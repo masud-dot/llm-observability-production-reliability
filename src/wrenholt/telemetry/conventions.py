@@ -167,6 +167,15 @@ ANSWER_BUCKETS: Final = (0.5, 1.0, *SLI_THRESHOLDS, 6.0, 10.0)
 GUARDRAIL: Final = "wrenholt.guardrail"  # its tracer and span
 GUARDRAIL_VERSION: Final = "wrenholt.guardrail.version"
 GUARDRAIL_RULE: Final = "wrenholt.guardrail.rule"  # when it blocks
+# Chapter 13: evaluation results as telemetry. The event and its
+# attributes are the GenAI conventions' (Development); the counter
+# and the evaluator's version are the book's.
+EVALUATION_RESULT: Final = "gen_ai.evaluation.result"  # an event
+EVALUATION_NAME: Final = "gen_ai.evaluation.name"
+EVALUATION_SCORE: Final = "gen_ai.evaluation.score.value"
+EVALUATION_LABEL: Final = "gen_ai.evaluation.score.label"
+EVALUATOR_VERSION: Final = "wrenholt.evaluator.version"
+EVALUATION_RESULTS: Final = "wrenholt.evaluation.results"  # counter
 
 
 # The pinned specification the GenAI names come from.
@@ -289,7 +298,15 @@ REGISTRY: Final = (
     Name(REQUEST_CLASS, "attribute", "book"),
     Name(GUARDRAIL_VERSION, "attribute", "book"),
     Name(GUARDRAIL_RULE, "attribute", "book"),
+    # Chapter 13: evaluation results.
+    Name(EVALUATION_NAME, "attribute", "genai"),
+    Name(EVALUATION_SCORE, "attribute", "genai"),
+    Name(EVALUATION_LABEL, "attribute", "genai"),
+    Name(EVALUATOR_VERSION, "attribute", "book"),
+    Name(EVALUATION_RESULTS, "metric", "book", "counter", "{result}"),
 )
+# Events, checked against the pinned conventions' events.
+EVENTS: Final = (Name(EVALUATION_RESULT, "event", "genai"),)
 
 
 # Chapter 10: the cardinality budget. A metric may carry only the
@@ -425,4 +442,17 @@ BUDGET: Final = (
     Budget(SLO_EVENTS, (SLO_SLI, SLO_GOOD), 10),
     # 2 request classes
     Budget(ANSWER_FIRST_CHUNK, (REQUEST_CLASS,), 2, ANSWER_BUCKETS),
+    # Chapter 13: refusals by 2 prompt versions and policy accuracy
+    # by 2 index builds (during a rollout), 2 labels each; the 2
+    # labels of groundedness and the 4 of intent, unsliced
+    Budget(
+        EVALUATION_RESULTS,
+        (
+            EVALUATION_NAME,
+            EVALUATION_LABEL,
+            PROMPT_VERSION,
+            INDEX_VERSION,
+        ),
+        14,
+    ),
 )

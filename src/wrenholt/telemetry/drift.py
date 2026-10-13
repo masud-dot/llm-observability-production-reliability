@@ -228,3 +228,15 @@ def produced(
         series |= promnames.series(name, instrument, unit)
         labels |= {promnames.label(k) for k in keys}
     return series, labels
+
+
+def events_against_snapshot(
+    events: Iterable[Name], snapshot: dict[str, Any]
+) -> list[str]:
+    """Chapter 13: GenAI event names exist at the pinned commit."""
+    pin = snapshot["commit"][:7]
+    return [
+        f"{n.name}: not an event in the GenAI conventions @ {pin}"
+        for n in events
+        if n.source == "genai" and n.name not in snapshot["events"]
+    ]

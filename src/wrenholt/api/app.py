@@ -30,6 +30,9 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from wrenholt import repro
+from wrenholt.evaluation.emitter import ResultEmitter
+from wrenholt.evaluation.evaluators import standard
+from wrenholt.evaluation.online import Evaluating
 from wrenholt.gateway import (
     SPEND,
     Gateway,
@@ -43,9 +46,10 @@ from wrenholt.gateway import (
     load_prices,
 )
 from wrenholt.guardrail import Guardrail
+from wrenholt.orchestrator import linnet as running
 from wrenholt.orchestrator.guard import LoopGuard
 from wrenholt.orchestrator.linnet import Linnet
-from wrenholt.orchestrator.prompts import SUPPORT
+from wrenholt.orchestrator.prompts import SUPPORT, Prompt
 from wrenholt.privacy.vault import Vault
 from wrenholt.rag.corpus import snapshot
 from wrenholt.rag.embed import EMBEDDERS
@@ -88,6 +92,8 @@ class Settings(BaseSettings):
     max_output_tokens: int = 512
     # Chapter 12: the guardrail's rule set (FS-17 runs version 2).
     guardrail_version: str = "1"
+    # Chapter 13: the share of answers evaluated, chosen by trace ID.
+    evaluation_rate: float = 0.1
 
 
 def routes(cfg: Settings) -> dict[str, Route]:
@@ -122,7 +128,9 @@ class OutcomeIn(BaseModel):
 
 
 def create_app(
-    settings: Settings | None = None, slis: SliRecorder | None = None
+    settings: Settings | None = None,
+    slis: SliRecorder | None = None,
+    results: ResultEmitter | None = None,
 ) -> FastAPI:
     cfg = settings if settings is not None else Settings()
     # Chapter 12: the SLI events the handlers judge.
@@ -156,7 +164,21 @@ def create_app(
     linnet = Linnet(retriever, guard=lambda: LoopGuard(limit))
     guardrail = Guardrail(cfg.guardrail_version)
     screened = Screened(linnet, guardrail, slis)
-    answer, stream_answer = screened.answer, screened.stream_answer
+    # Chapter 13: a sample of answers evaluated in process.
+    judges = standard()
+    results = results if results is not None else ResultEmitter()
+
+    def versions() -> tuple[str, str]:
+        used: Prompt = vars(running)["SUPPORT"]  # as Linnet reads it
+        return used.version, index.version
+
+    evaluating = Evaluating(
+        screened, judges, results, cfg.evaluation_rate, versions
+    )
+    answer, stream_answer = (
+        evaluating.answer,
+        evaluating.stream_answer,
+    )
     vault = None
     if cfg.content_capture == "vault":
         vault = Vault(cfg.vault_path, cfg.vault_ttl_s)
@@ -164,6 +186,7 @@ def create_app(
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         slis.start()  # after instrument(): the meter is real by now
+        results.start(judges, *versions())
         yield
         await gateway.aclose()
         await orders.aclose()

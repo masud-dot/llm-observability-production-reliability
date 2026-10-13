@@ -163,6 +163,22 @@ class PrefixCache:
 PREFIX_CACHE = PrefixCache()
 
 
+# Chapter 13 (SIMULATED). Told to decline what it cannot verify,
+# the mock declines to say where an order is: FS-10.
+CAUTIOUS = "Decline anything you cannot verify."
+DECLINE = (
+    "I'm sorry, I can't confirm that. A member of the team can help."
+)
+
+
+def cautious(req: ChatRequest) -> bool:
+    return any(
+        CAUTIOUS in (m.content or "")
+        for m in req.messages
+        if m.role == "system"
+    )
+
+
 def thorough(req: ChatRequest) -> bool:
     return any(
         THOROUGH in (m.content or "")
@@ -188,6 +204,8 @@ def completion(req: ChatRequest, arrival: int) -> dict[str, object]:
     text = message["content"]
     if text and thorough(req):
         text = " ".join([text, *[PADDING] * 4])
+    if text and cautious(req) and text.startswith("Order "):
+        text = DECLINE
     words = (text or "").split()
     cap = req.max_completion_tokens or req.max_tokens
     if cap is not None and len(words) > cap:
