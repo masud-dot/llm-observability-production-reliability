@@ -259,3 +259,33 @@ written.
 - Labs: `uv run python scripts/fs12_token_explosion.py` and
   `uv run python scripts/fs13_costly_fallback.py`.
 - Checks: `make verify-ch11`.
+
+## Chapter 12: SLIs, SLOs and Error Budgets Across Four Layers
+
+- `src/wrenholt/slo/objectives.yaml`: the SLO file. Every candidate
+  SLI gets a decision: an objective over 28 days and an owner, or
+  no objective and the reason. `objectives.py` loads and checks it.
+- `scripts/slo_rules.py` writes
+  `deploy/compose/prometheus/rules/slo.rules.yaml` from it: error
+  ratios over 5m, 30m, 1h, 6h, 3d and 28d, valid events in the last
+  hour, the objective and the budget left. Prometheus loads the
+  file and keeps 35 days of samples.
+- `src/wrenholt/slo/recorder.py`: the SLI events the API judges
+  (`wrenholt.slo.events`: availability, refusals, policy freshness,
+  answer cost and resolution), each recorded at zero when the API
+  starts, and the customer's time to first chunk by request class
+  (`wrenholt.answer.time_to_first_chunk`).
+- `src/wrenholt/guardrail.py`: a versioned input guardrail
+  (SIMULATED). Setting: `WRENHOLT_GUARDRAIL_VERSION` (1).
+- `POST /outcome {"escalated": true|false}`: the help desk reports
+  how a conversation ended.
+- `src/wrenholt/slo/errorbudget.py`: budget and burn-rate
+  arithmetic. `docs/error_budget_policy.md`: what owners do when a
+  budget runs low.
+- The SLOs and error budgets dashboard: budget left, burn rate over
+  the last hour, the 28-day SLIs, valid events per hour, resolution
+  and cost per resolved conversation.
+- Labs: `uv run python scripts/fs05_malformed_refund.py` and
+  `uv run python scripts/fs17_over_blocking.py`.
+- Checks: `make verify-ch12`.
+

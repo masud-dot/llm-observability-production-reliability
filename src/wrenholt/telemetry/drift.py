@@ -22,7 +22,7 @@ PROMQL_WORDS = {
     "sum", "by", "without", "on", "ignoring", "group_left",
     "group_right", "rate", "irate", "increase", "delta", "avg",
     "min", "max", "count", "topk", "bottomk", "histogram_quantile",
-    "and", "or", "unless", "bool", "offset",
+    "and", "or", "unless", "bool", "offset", "vector",
 }  # fmt: skip
 LABELS_ALWAYS = {"le", "job", "instance"}
 TRACEQL_INTRINSICS = {"name", "status", "duration", "kind"}

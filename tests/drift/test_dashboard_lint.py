@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from wrenholt.slo import rules
 from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry import drift, promnames
 
@@ -23,7 +24,8 @@ Emitted = tuple[set[str], list[tuple[str, str, str, set[str]]]]
 def test_dashboard_queries_use_registered_names() -> None:
     assert BOARDS
     collector = drift.load_collector_snapshot()  # Chapter 10
-    found = drift.lint_dashboards(BOARDS, c.REGISTRY, collector)
+    known = {**collector, **rules.recorded()}  # Chapter 12's rules
+    found = drift.lint_dashboards(BOARDS, c.REGISTRY, known)
     assert found == []
 
 
@@ -33,6 +35,10 @@ def test_dashboard_names_come_from_a_real_run(
     series, labels = drift.produced(emitted[1])
     # Chapter 10: the Collector's names come from its own real runs.
     for name, keys in drift.load_collector_snapshot().items():
+        series.add(name)
+        labels |= keys
+    # Chapter 12: series the SLO rules record from the names below.
+    for name, keys in rules.recorded().items():
         series.add(name)
         labels |= keys
     for board in BOARDS:
@@ -143,3 +149,17 @@ def test_the_pipeline_dashboard_reads_only_the_collector() -> None:
         used |= names
         assert keys <= set().union(*collector.values()), expr
     assert used and used <= set(collector)
+
+
+def test_slo_rules_read_names_a_run_produced(
+    emitted: Emitted,
+) -> None:
+    """Chapter 12: a renamed metric would leave a rule reading
+    nothing, and an empty ratio looks like a healthy one."""
+    series, labels = drift.produced(emitted[1])
+    recorded = rules.recorded()
+    for group in rules.generate()["groups"]:
+        for rule in group["rules"]:
+            used, grouped = drift.promql_names(rule["expr"])
+            assert used <= series | set(recorded), rule["expr"]
+            assert grouped <= labels | {"slo"}, rule["expr"]

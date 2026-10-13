@@ -376,3 +376,9 @@ genai_token_metrics = "semantic-conventions-genai at bcc7f9c (model/gen-ai/token
 token_modality_unknown = "gen_ai.token.modality is unknown when the provider gives no breakdown and the modality cannot be determined (bcc7f9c); Linnet sends text only, so the gateway records text (Chapter 11)"
 openai_stream_usage = "openai 3.22.1: with stream_options include_usage the last chunk carries usage and no choices; if the stream is interrupted or cancelled that chunk may never arrive; prompt_tokens_details.cached_tokens is optional (Chapter 11)"
 openai_max_tokens_deprecated = "openai 3.22.1 marks max_tokens deprecated in favour of max_completion_tokens, incompatible with o-series models; the adapter sends max_completion_tokens and the mock accepts both (Chapter 11)"
+prometheus_rule_files = "Prometheus 3.15.0 loads rule_files relative to its configuration file, and promtool check config checks them too; the generated SLO rules (9 groups, 77 rules) loaded with health ok (native run, Chapter 12)"
+prometheus_retention_config = "Prometheus 3.15.0 keeps 15 days of samples unless told otherwise; --storage.tsdb.retention.time is deprecated in favour of storage.tsdb.retention.time in the configuration file, which Wrenholt sets to 35d for a 28-day window (docs, Chapter 12)"
+prometheus_start_timestamps = "Prometheus 3.15.0 injects zero samples at start timestamps only for scraped PrometheusProto and OpenMetrics 1.0.0 (created-timestamp-zero-ingestion), so an OTLP series born with its first event hides that event from rate(); the API records its SLI events at zero first (docs and promtool test, Chapter 12; decision 40)"
+otlp_bool_label = "Prometheus 3.15.0 stores a boolean OTLP attribute as the label value true or false (native run, Chapter 12)"
+pydantic_int_from_float = "pydantic 2.13.5 (lax mode, JSON input) accepts 5.0 for an int field as 5, and refuses the string \"£5.00\": a schema check proves validity, not correctness (test, Chapter 12)"
+

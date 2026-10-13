@@ -1,6 +1,6 @@
 # Chapter verification targets. Without make (for example in Git
 # Bash on Windows), run the commands under a target one by one.
-.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08 verify-ch10 fetch-collector fs15 overload verify-ch11 fs12 fs13
+.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08 verify-ch10 fetch-collector fs15 overload verify-ch11 fs12 fs13 verify-ch12 slo-rules fs05 fs17
 
 verify-ch01:
 	uv sync --group dev --group lab
@@ -174,3 +174,24 @@ fs12:
 
 fs13:
 	uv run python scripts/fs13_costly_fallback.py
+
+verify-ch12:
+	uv sync --group dev --group lab
+	scripts/fetch_collector.sh
+	uv run ruff check src services scripts tests
+	uv run ruff format --check src services scripts tests
+	uv run --group lab mypy src services scripts tests
+	uv run pytest tests/unit tests/slo tests/resilience tests/drift tests/privacy
+	uv run --group lab pytest tests/lab
+	uv run python scripts/fs05_malformed_refund.py
+	uv run python scripts/fs17_over_blocking.py
+
+slo-rules:
+	uv run python scripts/slo_rules.py
+
+fs05:
+	uv run python scripts/fs05_malformed_refund.py
+
+fs17:
+	uv run python scripts/fs17_over_blocking.py
+

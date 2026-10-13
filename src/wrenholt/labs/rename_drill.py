@@ -26,6 +26,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from services.mock_llm.faults import FS01_HIDDEN_RETRY_STORM
 from services.mock_llm.server import running_provider
 from wrenholt.gateway import Gateway, Message, Route
+from wrenholt.slo import rules
 from wrenholt.telemetry import conventions, drift
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -112,7 +113,9 @@ def drill(on: bool) -> Outcome:
         # Chapter 10: the pipeline dashboard reads the Collector's
         # own names, which its snapshot lists.
         collector = drift.load_collector_snapshot()
-        problems += drift.lint_dashboards(BOARDS, registry, collector)
+        # Chapter 12: and the series the SLO rules record.
+        known = {**collector, **rules.recorded()}
+        problems += drift.lint_dashboards(BOARDS, registry, known)
     return Outcome(sorted(set(missing)), problems)
 
 

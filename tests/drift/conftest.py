@@ -36,12 +36,14 @@ from wrenholt.gateway import (
     load_prices,
 )
 from wrenholt.gateway.context import prompt
+from wrenholt.guardrail import Guardrail
 from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.privacy.pseudonym import keys_from_env
 from wrenholt.privacy.redact import Redactor
 from wrenholt.rag.embed import EMBEDDERS
 from wrenholt.rag.index import index_as_of
 from wrenholt.rag.retriever import Retriever
+from wrenholt.slo.recorder import SliRecorder
 from wrenholt.telemetry import conventions as c
 from wrenholt.tools.orders import OrdersClient
 
@@ -68,8 +70,9 @@ def emitted() -> tuple[set[str], list[Metric]]:
     attribute keys, over FS-01, FS-18 and FS-11, with a prompt and
     model pins in place (Chapter 6),
     two streamed answers, one left early (Chapter 8), Linnet
-    answering a policy question and a refund (Chapter 9), and a
-    call refused at the spend limit (Chapter 11)."""
+    answering a policy question and a refund (Chapter 9), a call
+    refused at the spend limit (Chapter 11), and the API's SLI
+    events and a guardrail refusal (Chapter 12)."""
     spans = InMemorySpanExporter()
     tracing = TracerProvider()
     tracing.add_span_processor(SimpleSpanProcessor(spans))
@@ -188,6 +191,13 @@ def emitted() -> tuple[set[str], list[Metric]]:
     store = OrderStore(generate_orders())
     with running_provider() as mock, serve(orders_app(store)) as url:
         asyncio.run(agent(mock.base_url, url))
+    slis = SliRecorder(meter_provider=meters)
+    slis.start()
+    slis.first_chunk("critical_action", 0.4)
+    refund = "Please refund £5.00 on order WG-100006."
+    slis.event(
+        "not_refused", Guardrail("2", tracing).screen(refund) is None
+    )
     attrs = {
         key
         for span in spans.get_finished_spans()

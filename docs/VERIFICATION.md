@@ -696,3 +696,69 @@ Same run, other checks:
 - Figures 11.1 and 11.2: matplotlib, greyscale, 300 DPI, 4.55 in;
   Figure 11.2's data come from the labs (`figure_data.json`), and the
   tests assert the same values.
+
+## Chapter 12: SLIs, SLOs and Error Budgets Across Four Layers
+
+- Command: `make verify-ch12` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-13
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L12-01 | Burn rate and how long a budget lasts | `src/wrenholt/slo/errorbudget.py` | `tests/slo/test_error_budget.py` (every worked number) | pass | pending |
+| L12-02 | The SLO file: header, availability, latency by request class | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` (Table 12.1; thresholds are the catalogue's and bucket boundaries) | pass | pending |
+| L12-03 | An objective and a reason for none | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` | pass (SIMULATED cost threshold) | pending |
+| L12-04 | The rules a reviewer would check | `src/wrenholt/slo/objectives.py` | `tests/slo/test_objectives.py` (five broken files refused) | pass | pending |
+| L12-05 | The error-ratio expression | `src/wrenholt/slo/rules.py` | `tests/slo/test_rules.py`; `promtool test rules` (6 cases) | pass | pending |
+| L12-06 | Two generated rules, wrapped | `deploy/compose/prometheus/rules/slo.rules.yaml` (the same rules on one line each) | `tests/slo/test_rules.py` (exact expressions); `promtool check rules`; native run | pass | pending |
+| L12-07 | Rule files and retention | `deploy/compose/prometheus/prometheus.yml` | `tests/slo/test_rules.py`; `promtool check config`; native run | pass | pending |
+| L12-08 | The SLI recorder | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (series at zero; one event per SLI); native run | pass | pending |
+| L12-09 | The guardrail in front of Linnet | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (refusals whole and streamed; 429 spends availability) | pass | pending |
+| L12-10 | The error budget policy | `docs/error_budget_policy.md` | `tests/slo/test_error_budget.py` (the policy's thresholds) | pass | pending |
+| L12-11 | FS-05 fault in the mock | `services/mock_llm/malformed.py` | `tests/slo/test_slo_labs.py` | pass (SIMULATED) | pending |
+| L12-12 | FS-05 lab | `scripts/fs05_malformed_refund.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pending |
+| L12-13 | Guardrail versions | `src/wrenholt/guardrail.py` | `tests/unit/test_slo_api.py` (rule ids on spans, never words) | pass (SIMULATED) | pending |
+| L12-14 | FS-17 lab | `scripts/fs17_over_blocking.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy` with `.native/bin` (otelcol-contrib, promtool) on
+  `PATH` and `SEMCONV_GENAI_DIR` set: 267 passed. `pytest tests/lab`:
+  8 passed. 275 tests: unit 181, slo 45, resilience 5, drift 22,
+  lab 8, privacy 14. Thirty-nine are new.
+- `ruff check`, `ruff format --check` and `mypy --strict`: clean.
+  `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 12 is in the repository (76
+  checked; 29 captured outputs and queries skipped), except L10-03,
+  superseded by L11-08 as approved. No Chapter 12 change supersedes
+  a listing.
+- Chapter 11's budget test now leaves out Chapter 12's two metrics,
+  Chapter 10's combinations test includes them, and the queue test
+  counts 199 points (11,940 in five minutes, within 12,000). The
+  drift run records the API's SLI events and one guardrail refusal;
+  the dashboard lint and the rename drill accept the recorded SLO
+  names; a new drift test checks that every rule reads names a run
+  produced. `drift.PROMQL_WORDS` gains `vector`.
+- `promtool test rules tests/slo/slo_rules.test.yaml`: 6 cases pass,
+  among them a malformed decision in a series born with it, which no
+  rule sees, and the same decision in a series recorded at zero.
+- Native run, 2026-10-13 12:58:52 UTC, 38 s: Collector 0.162.0 with
+  the production profile and Prometheus 3.15.0 loading the generated
+  rules (interval shortened to 5 s for the run), Linnet with
+  guardrail version 2, orders and the mock as local processes; Tempo
+  and Loki left out. 21 answers (HTTP 200) and 3 outcomes (204).
+  Rules: 9 groups, 77 rules, health ok, no errors. Prometheus stored
+  `wrenholt_slo_events_total` with `wrenholt_slo_sli` and
+  `wrenholt_slo_good` (`true`, `false`), and
+  `wrenholt_answer_time_to_first_chunk_seconds_bucket` with `le`
+  0.5, 1, 2.5, 4, 6, 10 and +Inf: 28 series. The 5-minute refusal
+  ratio read 0.2857 (6 of 21); no refund was decided, so no
+  decision-validity ratio was recorded. All six panels of the SLO
+  dashboard returned data.
+- Sources read: SRE Workbook chapters 2 and 5 (quotes re-read) and
+  the example error budget policy (fetched 2026-10-13); Prometheus
+  v3.15.0 docs (configuration, command-line flags, feature flags,
+  unit testing for rules).
+

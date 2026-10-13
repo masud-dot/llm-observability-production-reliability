@@ -158,8 +158,9 @@ def test_the_queues_hold_what_their_comment_says() -> None:
     points = sum(b.combinations for b in c.BUDGET)  # per export
     exports = 5 * 60 / EXPORT_INTERVAL_S
     queue = QUEUES["otlp_http/prometheus"]["queue_size"]
-    # Chapter 11's token and cost metrics: 151 points became 187.
-    assert queue >= points * exports == 187 * 60 == 11220
+    # Chapter 11's token and cost metrics: 151 points became 187;
+    # Chapter 12's SLI events and first chunk add 12 more.
+    assert queue >= points * exports == 199 * 60 == 11940
     assert queue == 12000
 
 

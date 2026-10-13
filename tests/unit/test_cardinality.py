@@ -86,6 +86,8 @@ def test_combinations_follow_from_the_code() -> None:
         c.COST: tenants * route * models * versions,
         c.LIMITED: tenants + 1,  # and OTHER
         c.SPEND_LIMIT: tenants,
+        c.SLO_EVENTS: len(c.EVENT_SLIS) * 2,  # good or bad
+        c.ANSWER_FIRST_CHUNK: len(c.REQUEST_CLASSES),
     }
 
 
@@ -107,7 +109,11 @@ def test_the_worked_numbers() -> None:
 
 def test_chapter_11_fits_the_budget() -> None:
     # Section 11.4: what the token and cost metrics add.
-    series = {b.metric: b.series for b in c.BUDGET}
+    series = {
+        b.metric: b.series
+        for b in c.BUDGET
+        if b.metric not in CHAPTER_12
+    }
     per = len(c.TOKEN_BUCKETS) + 3
     assert series[c.OUTPUT_PER_CALL] == 3 * per == 51
     assert 6 * per == 102  # had it kept the response model
@@ -115,7 +121,25 @@ def test_chapter_11_fits_the_budget() -> None:
     assert sum(added.values()) == 6 + 6 + 6 + 51 + 12 + 2 + 1 == 84
     assert sum(series.values()) == 1871 + 84 == 1955
     assert sum(series.values()) <= c.SERIES_BUDGET
-    assert sum(b.combinations for b in c.BUDGET) == 151 + 36 == 187
+    points = sum(
+        b.combinations for b in c.BUDGET if b.metric not in CHAPTER_12
+    )
+    assert points == 151 + 36 == 187
+
+
+CHAPTER_12 = (c.SLO_EVENTS, c.ANSWER_FIRST_CHUNK)
+
+
+def test_chapter_12_fits_the_budget() -> None:
+    # Section 12.5: the SLI events and the customer's first chunk.
+    series = {b.metric: b.series for b in c.BUDGET}
+    assert series[c.SLO_EVENTS] == len(c.EVENT_SLIS) * 2 == 10
+    per = len(c.ANSWER_BUCKETS) + 3
+    assert series[c.ANSWER_FIRST_CHUNK] == 2 * per == 18
+    assert 2 * (len(c.TTFC_BUCKETS) + 3) == 38  # the gateway's set
+    assert sum(series.values()) == 1955 + 28 == 1983
+    assert sum(series.values()) <= c.SERIES_BUDGET
+    assert sum(b.combinations for b in c.BUDGET) == 187 + 12 == 199
 
 
 def test_the_tools_offered_are_the_closed_set() -> None:

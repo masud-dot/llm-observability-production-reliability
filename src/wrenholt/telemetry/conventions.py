@@ -146,6 +146,27 @@ TOKEN_BUCKETS: Final = (
     1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576,
     4194304, 16777216, 67108864,
 )  # fmt: skip
+# Chapter 12: what the API judges for the SLIs, the customer's time
+# to first chunk and the input guardrail, all the book's names.
+# Objectives and thresholds live in src/wrenholt/slo/objectives.yaml.
+SLO_EVENTS: Final = "wrenholt.slo.events"  # counter, good or bad
+SLO_SLI: Final = "wrenholt.slo.sli"
+SLO_GOOD: Final = "wrenholt.slo.good"
+EVENT_SLIS: Final = (
+    "availability",
+    "not_refused",
+    "policy_freshness",
+    "answer_cost",
+    "resolution",
+)
+ANSWER_FIRST_CHUNK: Final = "wrenholt.answer.time_to_first_chunk"
+REQUEST_CLASS: Final = "wrenholt.request_class"
+REQUEST_CLASSES: Final = ("interactive", "critical_action")
+# The customer's thresholds, and a few boundaries to show the shape.
+ANSWER_BUCKETS: Final = (0.5, 1.0, *SLI_THRESHOLDS, 6.0, 10.0)
+GUARDRAIL: Final = "wrenholt.guardrail"  # its tracer and span
+GUARDRAIL_VERSION: Final = "wrenholt.guardrail.version"
+GUARDRAIL_RULE: Final = "wrenholt.guardrail.rule"  # when it blocks
 
 
 # The pinned specification the GenAI names come from.
@@ -260,6 +281,14 @@ REGISTRY: Final = (
     Name(COST, "metric", "book", "counter", "{USD}"),
     Name(LIMITED, "metric", "book", "counter", "{call}"),
     Name(SPEND_LIMIT, "metric", "book", "gauge", "{USD}"),
+    # Chapter 12: SLI events, the first chunk and the guardrail.
+    Name(SLO_EVENTS, "metric", "book", "counter", "{event}"),
+    Name(SLO_SLI, "attribute", "book"),
+    Name(SLO_GOOD, "attribute", "book"),
+    Name(ANSWER_FIRST_CHUNK, "metric", "book", "histogram", "s"),
+    Name(REQUEST_CLASS, "attribute", "book"),
+    Name(GUARDRAIL_VERSION, "attribute", "book"),
+    Name(GUARDRAIL_RULE, "attribute", "book"),
 )
 
 
@@ -391,4 +420,9 @@ BUDGET: Final = (
     # the tenant, or _OTHER for a name without a limit
     Budget(LIMITED, (TENANT,), 2),
     Budget(SPEND_LIMIT, (TENANT,), 1),
+    # Chapter 12: 5 SLIs the API judges x good or bad, every one
+    # recorded at zero when the API starts
+    Budget(SLO_EVENTS, (SLO_SLI, SLO_GOOD), 10),
+    # 2 request classes
+    Budget(ANSWER_FIRST_CHUNK, (REQUEST_CLASS,), 2, ANSWER_BUCKETS),
 )

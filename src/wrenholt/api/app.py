@@ -9,7 +9,10 @@ bundle. Since Chapter 8 an answer can be streamed. Since Chapter 9
 Linnet is an agent: it retrieves help-centre passages and calls
 tools, and the handlers call it exactly as before. Since Chapter 11
 every answer opens a bill that its model calls are charged to, and
-a tenant over its spend limit gets HTTP 429.
+a tenant over its spend limit gets HTTP 429. Since Chapter 12 a
+guardrail screens each question first, the handlers judge the SLI
+events only they can judge, and the help desk reports how each
+conversation ended to /outcome.
 """
 
 import json
@@ -39,13 +42,19 @@ from wrenholt.gateway import (
     StreamResult,
     load_prices,
 )
+from wrenholt.guardrail import Guardrail
 from wrenholt.orchestrator.guard import LoopGuard
 from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.orchestrator.prompts import SUPPORT
 from wrenholt.privacy.vault import Vault
+from wrenholt.rag.corpus import snapshot
 from wrenholt.rag.embed import EMBEDDERS
 from wrenholt.rag.index import index_as_of
-from wrenholt.rag.retriever import Retriever
+from wrenholt.slo.recorder import (
+    CheckedRetriever,
+    Screened,
+    SliRecorder,
+)
 from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry.framework import FRAMEWORK_TELEMETRY_OFF
 from wrenholt.tools.orders import OrdersClient
@@ -77,6 +86,8 @@ class Settings(BaseSettings):
     tenant: str = "wrenholt"
     spend_per_hour: str = "60.00"
     max_output_tokens: int = 512
+    # Chapter 12: the guardrail's rule set (FS-17 runs version 2).
+    guardrail_version: str = "1"
 
 
 def routes(cfg: Settings) -> dict[str, Route]:
@@ -106,8 +117,16 @@ class ChatOut(BaseModel):
     answer: str
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+class OutcomeIn(BaseModel):
+    escalated: bool  # handed to a person, or not
+
+
+def create_app(
+    settings: Settings | None = None, slis: SliRecorder | None = None
+) -> FastAPI:
     cfg = settings if settings is not None else Settings()
+    # Chapter 12: the SLI events the handlers judge.
+    slis = slis if slis is not None else SliRecorder()
     table = routes(cfg)
     policy = RetryPolicy()
     # Chapter 11: a routed model without a price stops start-up.
@@ -128,16 +147,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     index = index_as_of(
         cfg.corpus_as_of, EMBEDDERS[cfg.index_embedder]
     )
-    retriever = Retriever(index, EMBEDDERS[cfg.query_embedder])
+    # Chapter 12: the help centre's versions in force, for freshness.
+    in_force = {a.id: a.version for a in snapshot()}
+    retriever = CheckedRetriever(
+        index, EMBEDDERS[cfg.query_embedder], in_force, slis
+    )
     limit = cfg.agent_max_steps
     linnet = Linnet(retriever, guard=lambda: LoopGuard(limit))
-    answer, stream_answer = linnet.answer, linnet.stream_answer
+    guardrail = Guardrail(cfg.guardrail_version)
+    screened = Screened(linnet, guardrail, slis)
+    answer, stream_answer = screened.answer, screened.stream_answer
     vault = None
     if cfg.content_capture == "vault":
         vault = Vault(cfg.vault_path, cfg.vault_ttl_s)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        slis.start()  # after instrument(): the meter is real by now
         yield
         await gateway.aclose()
         await orders.aclose()
@@ -152,6 +178,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/healthz")
     def healthz() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.post("/outcome", status_code=204)
+    def outcome(body: OutcomeIn) -> None:
+        """Chapter 12: how a conversation ended, from the help desk.
+        Nothing in it identifies the customer."""
+        slis.outcome(body.escalated)
 
     @app.exception_handler(LimitExceeded)
     async def over_limit(
