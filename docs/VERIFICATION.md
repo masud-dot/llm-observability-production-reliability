@@ -883,3 +883,43 @@ Same run, other checks:
 - Sources read: SRE Workbook chapter 5 (re-read 2026-10-13); Grafana
   v13.2.3 alert file provisioning (fetched at the tag); Prometheus
   v3.15.0 docs (querying basics, unit testing for rules).
+
+## Chapter 15: Diagnosing Production AI Failures
+
+- Command: `make verify-ch15` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-19
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L15-01 | Nearest-rank percentiles and the spread | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (18 answers; mean 1.70, p50 0.40, p95 3.00; 9 over 2.5 s) | pass | pending |
+| L15-02 | The provider check (L1) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (median +2.60 s; own time +0.00 s; gone once the brownout is removed) | pass | pending |
+| L15-03 | The retrieval check (L3) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (12 of 12 empty; embedders) | pass | pending |
+| L15-04 | The vault's gate | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (no reason, wrong role, granted; log without content) | pass | pending |
+| L15-05 | Bundle replay against the mock | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (0 passages, then 2; changed prompt refused) | pass (SIMULATED) | pending |
+| L15-06 | `wrenholt diagnose` on the recorded hour | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pending |
+| L15-07 | `wrenholt replay` of one trace | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 305 passed. `pytest tests/lab`: 8 passed. 313
+  tests: unit 198, slo 65, resilience 5, drift 23, lab 8, privacy 14.
+  Seven are new. The CLI was then renamed `scripts/wrenholt_cli.py`,
+  because `scripts/wrenholt.py` shadowed the package for mypy; ruff,
+  mypy and the diagnosis tests were rerun after the rename.
+- `ruff check`, `ruff format --check` and `mypy --strict` (211
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 15 is in the repository (98
+  checked; 35 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved.
+- The fixture `tests/fixtures/diagnosis/fs08_behind_fs02.json` was
+  recorded on 2026-10-19 from an in-process Linnet with the mock
+  provider; `captured.json` holds the synthetic questions. The CLI
+  printed exactly Listings L15-06 and L15-07.
+- No native run. The TraceQL query follows the Tempo v3.1.0 docs
+  (fetched at the tag) and the LogQL query Chapter 13's Loki run;
+  neither was executed against Tempo or Loki here.
+- Sources read: SRE book chapter 22 (2026-10-19); TraceQL docs at
+  Tempo v3.1.0.

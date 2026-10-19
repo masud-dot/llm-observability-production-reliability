@@ -345,3 +345,21 @@ written.
   at ten answers an hour, through the recording rules.
 - Lab: `uv run python scripts/fs02_fs03_paging.py`.
 - Checks: `make verify-ch14`.
+
+## Chapter 15: Diagnosing Production AI Failures
+
+- `uv run python scripts/wrenholt_cli.py diagnose [FIXTURE]`: attribute
+  the layer first. It compares the window before an alert with the
+  window of it, layer by layer (the provider's wait, the model's
+  finish reasons, retrieval), and prints the latency distribution
+  rather than the mean. `src/wrenholt/diagnosis.py` holds the checks.
+- `tests/fixtures/diagnosis/fs08_behind_fs02.json`: a recorded hour
+  of FS-08 behind FS-02 (SIMULATED), registered attributes only;
+  `captured.json` beside it holds the synthetic questions, read only
+  through the vault. `uv run python scripts/wrenholt_cli.py record`
+  records it again, with new trace IDs.
+- `uv run python scripts/wrenholt_cli.py replay TRACE --reader NAME
+  --reason TEXT`: read one question through the vault as an
+  investigator, then replay the trace's bundle against the mock, on
+  the bundle's index build and on the build that should serve.
+- Checks: `make verify-ch15`.

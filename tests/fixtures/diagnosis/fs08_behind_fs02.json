@@ -1,0 +1,4496 @@
+[
+ {
+  "spans": [
+   {
+    "span": "2cde42c53f94e640",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646738407067,
+    "end_ns": 1792390646781201441,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "943f7a57793cf489",
+    "parent": "2cde42c53f94e640",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646738480161,
+    "end_ns": 1792390646739195372,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0001",
+       "version": "returns-2026-03",
+       "score": 0.527
+      },
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.222
+      }
+     ]
+    }
+   },
+   {
+    "span": "5a1bd85cae05efd9",
+    "parent": "943f7a57793cf489",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646738515598,
+    "end_ns": 1792390646738560728,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "bd57447267e344df",
+    "parent": "2cde42c53f94e640",
+    "name": "build context",
+    "start_ns": 1792390646739329531,
+    "end_ns": 1792390646739357152,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 62,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "5b0023027dfa4e8f",
+    "parent": "2cde42c53f94e640",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646739455145,
+    "end_ns": 1792390646781106969,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000000",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 86,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 0
+    }
+   },
+   {
+    "span": "de8c2392fd86ca78",
+    "parent": "5b0023027dfa4e8f",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646739492902,
+    "end_ns": 1792390646780806163,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "0700c9dea56f66d97b8a5e9299e5d67b",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "0700c9dea56f66d97b8a5e9299e5d67b",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "4d4db3793433684b",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646781291383,
+    "end_ns": 1792390646826416644,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "29ba3901f2377719",
+    "parent": "4d4db3793433684b",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646781327401,
+    "end_ns": 1792390646781682742,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0001",
+       "version": "returns-2026-03",
+       "score": 0.548
+      },
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.224
+      }
+     ]
+    }
+   },
+   {
+    "span": "4957cffeb24f94a8",
+    "parent": "29ba3901f2377719",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646781349801,
+    "end_ns": 1792390646781379771,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "a4f3585e135e9a3e",
+    "parent": "4d4db3793433684b",
+    "name": "build context",
+    "start_ns": 1792390646781742403,
+    "end_ns": 1792390646781762981,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 60,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "cbb34c6ffc66ed9d",
+    "parent": "4d4db3793433684b",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646781819081,
+    "end_ns": 1792390646826347379,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000001",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 79,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "816b69f6344cb2ce",
+    "parent": "cbb34c6ffc66ed9d",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646781845985,
+    "end_ns": 1792390646826132049,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "fbc1522f054325073ad8ab9b30a1b0a3",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "fbc1522f054325073ad8ab9b30a1b0a3",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "2772002825b61741",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646826530987,
+    "end_ns": 1792390646874396791,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "d3bc2cff11fbd724",
+    "parent": "2772002825b61741",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646826587765,
+    "end_ns": 1792390646827264028,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0001",
+       "version": "returns-2026-03",
+       "score": 0.387
+      }
+     ]
+    }
+   },
+   {
+    "span": "cd71262451f2b893",
+    "parent": "d3bc2cff11fbd724",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646826620023,
+    "end_ns": 1792390646826666601,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "3506310d4bf50b87",
+    "parent": "2772002825b61741",
+    "name": "build context",
+    "start_ns": 1792390646827406429,
+    "end_ns": 1792390646827433809,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 37,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "84fcb556cef85fd1",
+    "parent": "2772002825b61741",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646827510908,
+    "end_ns": 1792390646874328392,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000002",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 57,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "4bab88679f9a211e",
+    "parent": "84fcb556cef85fd1",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646827549136,
+    "end_ns": 1792390646874156999,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "88f3a3bfbbb8ee7af48b7d512d01bd02",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "88f3a3bfbbb8ee7af48b7d512d01bd02",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "e2f10003cb6a045e",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646874510064,
+    "end_ns": 1792390646923448020,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "8341f94183b472fa",
+    "parent": "e2f10003cb6a045e",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646874544150,
+    "end_ns": 1792390646875109168,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.544
+      },
+      {
+       "id": "HC-0003",
+       "version": "damaged-2025-10",
+       "score": 0.309
+      }
+     ]
+    }
+   },
+   {
+    "span": "913c288fcc1ea837",
+    "parent": "8341f94183b472fa",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646874575197,
+    "end_ns": 1792390646874621290,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "3bda95646127761f",
+    "parent": "e2f10003cb6a045e",
+    "name": "build context",
+    "start_ns": 1792390646875210831,
+    "end_ns": 1792390646875234356,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 52,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "0c9da5f62b177256",
+    "parent": "e2f10003cb6a045e",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646875306660,
+    "end_ns": 1792390646923378382,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000003",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 72,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "ca7ed42bf15d2c73",
+    "parent": "0c9da5f62b177256",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646875340131,
+    "end_ns": 1792390646922911400,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "fa9059ce44ff9c0345f049db4f32e7a2",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "fa9059ce44ff9c0345f049db4f32e7a2",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "db58a030a7707d19",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646924734195,
+    "end_ns": 1792390646974224974,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "223f8a7d580634e1",
+    "parent": "db58a030a7707d19",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646924773402,
+    "end_ns": 1792390646926379020,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.333
+      }
+     ]
+    }
+   },
+   {
+    "span": "f77e8614154feef8",
+    "parent": "223f8a7d580634e1",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646924799269,
+    "end_ns": 1792390646924843813,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "62b099aff90b2946",
+    "parent": "db58a030a7707d19",
+    "name": "build context",
+    "start_ns": 1792390646926502716,
+    "end_ns": 1792390646926524167,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 25,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "7b5bbb1b1e312a2a",
+    "parent": "db58a030a7707d19",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646926588720,
+    "end_ns": 1792390646974163341,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000004",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 46,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "0ea2f200f60a9f88",
+    "parent": "7b5bbb1b1e312a2a",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646926631565,
+    "end_ns": 1792390646973901092,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "e014ed6421d060e79efae4949950208e",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "e014ed6421d060e79efae4949950208e",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "1c76ffdd44b550d2",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390646974330403,
+    "end_ns": 1792390647022573004,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "28073cf1448360ef",
+    "parent": "1c76ffdd44b550d2",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390646974363139,
+    "end_ns": 1792390646974913482,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0003",
+       "version": "damaged-2025-10",
+       "score": 0.378
+      }
+     ]
+    }
+   },
+   {
+    "span": "4c9ec717928d91c9",
+    "parent": "28073cf1448360ef",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390646974385100,
+    "end_ns": 1792390646974430628,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "00ef6de862758dd0",
+    "parent": "1c76ffdd44b550d2",
+    "name": "build context",
+    "start_ns": 1792390646975062029,
+    "end_ns": 1792390646975088205,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 27,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "7bb21a5e67a2e825",
+    "parent": "1c76ffdd44b550d2",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390646975166639,
+    "end_ns": 1792390647022498157,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000005",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 50,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "5d52420d7bb927f9",
+    "parent": "7bb21a5e67a2e825",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390646975209177,
+    "end_ns": 1792390647022275298,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "35e351cf2a27edecc8c8426354ae3c9c",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "35e351cf2a27edecc8c8426354ae3c9c",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "c6e2d7d728dfcdfd",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647022692282,
+    "end_ns": 1792390647170319367,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "2c46119bd0039ad2",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647022735662,
+    "end_ns": 1792390647023611673,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.387
+      },
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.327
+      }
+     ]
+    }
+   },
+   {
+    "span": "5fefb74e55679a78",
+    "parent": "2c46119bd0039ad2",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647022762297,
+    "end_ns": 1792390647022815786,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "2d27a9215c89e0e5",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "build context",
+    "start_ns": 1792390647023783964,
+    "end_ns": 1792390647023823896,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 48,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "af5f5b0722a02537",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647023982638,
+    "end_ns": 1792390647071393869,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000006",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 167,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "8a4094874698bd1b",
+    "parent": "af5f5b0722a02537",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647024091036,
+    "end_ns": 1792390647071206516,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "5c4c540f287462b1",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647071593599,
+    "end_ns": 1792390647076835973,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000006_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "8b69b28b85def2e5",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647077185953,
+    "end_ns": 1792390647122364718,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000007",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 185,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "7c0a9f8de677ef70",
+    "parent": "8b69b28b85def2e5",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647077235876,
+    "end_ns": 1792390647122167354,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "402eb1d7cd2088f2",
+    "parent": "c6e2d7d728dfcdfd",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647122511615,
+    "end_ns": 1792390647170204665,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000008",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 76,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "6c42d7abc2695a93",
+    "parent": "402eb1d7cd2088f2",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647122565668,
+    "end_ns": 1792390647169969117,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "13aec2ec8f4ee18c4ee9b91e3a6bcd68",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "13aec2ec8f4ee18c4ee9b91e3a6bcd68",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "0d004d40c5dd8a78",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647170433970,
+    "end_ns": 1792390647309959972,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "655e70993a4bd22c",
+    "parent": "0d004d40c5dd8a78",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647170475102,
+    "end_ns": 1792390647171255900,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.387
+      },
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.327
+      }
+     ]
+    }
+   },
+   {
+    "span": "8a5611e6c8092c91",
+    "parent": "655e70993a4bd22c",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647170501846,
+    "end_ns": 1792390647170561203,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "ade27f29bad97b35",
+    "parent": "0d004d40c5dd8a78",
+    "name": "build context",
+    "start_ns": 1792390647171398989,
+    "end_ns": 1792390647171425565,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 48,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "b8acbf5a347316c1",
+    "parent": "0d004d40c5dd8a78",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647171561262,
+    "end_ns": 1792390647218156662,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000009",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 167,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "e4ab5693d9dcee3f",
+    "parent": "b8acbf5a347316c1",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647171596556,
+    "end_ns": 1792390647217947709,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "e15c564b013f0cf0",
+    "parent": "0d004d40c5dd8a78",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647218335159,
+    "end_ns": 1792390647220798512,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000009_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "46bbfde92d1ddfd5",
+    "parent": "0d004d40c5dd8a78",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647221039652,
+    "end_ns": 1792390647265910757,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000010",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 185,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "a8d330e8d9dc19b4",
+    "parent": "46bbfde92d1ddfd5",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647221095437,
+    "end_ns": 1792390647265771776,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "c032eaba90ddbd32",
+    "parent": "0d004d40c5dd8a78",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647266050715,
+    "end_ns": 1792390647309905716,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000011",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 76,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "a131351777bc5d48",
+    "parent": "c032eaba90ddbd32",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647266091020,
+    "end_ns": 1792390647309766197,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "5d6abc3ddfbd292d42dac22971703da2",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "5d6abc3ddfbd292d42dac22971703da2",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "36ec7a1f8c38a245",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647310097288,
+    "end_ns": 1792390647454117262,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "08716448a37b95bd",
+    "parent": "36ec7a1f8c38a245",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647310131506,
+    "end_ns": 1792390647310591640,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.387
+      },
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.327
+      }
+     ]
+    }
+   },
+   {
+    "span": "55561e4245af2473",
+    "parent": "08716448a37b95bd",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647310151486,
+    "end_ns": 1792390647310193043,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "37443b51d035c6cc",
+    "parent": "36ec7a1f8c38a245",
+    "name": "build context",
+    "start_ns": 1792390647310653225,
+    "end_ns": 1792390647310670346,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 48,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "7029d5d4d2ba468a",
+    "parent": "36ec7a1f8c38a245",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647310754675,
+    "end_ns": 1792390647357918255,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000012",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 167,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "830c1390371288bc",
+    "parent": "7029d5d4d2ba468a",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647310786328,
+    "end_ns": 1792390647357778991,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "2be6206e0bbc4236",
+    "parent": "36ec7a1f8c38a245",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647358076253,
+    "end_ns": 1792390647360824321,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000012_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "eb5d24259c774e77",
+    "parent": "36ec7a1f8c38a245",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647361029228,
+    "end_ns": 1792390647410145573,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000013",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 185,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "37f07ed8960da8ad",
+    "parent": "eb5d24259c774e77",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647361080192,
+    "end_ns": 1792390647409923633,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "763c4c9104c11cf5",
+    "parent": "36ec7a1f8c38a245",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647410253433,
+    "end_ns": 1792390647454046626,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000014",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 76,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "44309ea65b695166",
+    "parent": "763c4c9104c11cf5",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647410290130,
+    "end_ns": 1792390647453860340,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "81736b272fa48240baf6a8ca18934461",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "81736b272fa48240baf6a8ca18934461",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "3b6fe0c6368a1272",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647454210026,
+    "end_ns": 1792390647641946073,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "a90b8fe0aa1920e7",
+    "parent": "3b6fe0c6368a1272",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647454241917,
+    "end_ns": 1792390647454815919,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.286
+      },
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.254
+      },
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.218
+      }
+     ]
+    }
+   },
+   {
+    "span": "d9ce36acdc2a2109",
+    "parent": "a90b8fe0aa1920e7",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647454261859,
+    "end_ns": 1792390647454310879,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "5bead03725d47336",
+    "parent": "3b6fe0c6368a1272",
+    "name": "build context",
+    "start_ns": 1792390647454876337,
+    "end_ns": 1792390647454893882,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 73,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "2326ff16a6ece8a6",
+    "parent": "3b6fe0c6368a1272",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647454974948,
+    "end_ns": 1792390647502054920,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000015",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 193,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "6682a11dc45905fd",
+    "parent": "2326ff16a6ece8a6",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647455033082,
+    "end_ns": 1792390647501870882,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "8a1684edfc3e1994",
+    "parent": "3b6fe0c6368a1272",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647502186428,
+    "end_ns": 1792390647505034456,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000015_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "af9dc75488714a9f",
+    "parent": "3b6fe0c6368a1272",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647505165687,
+    "end_ns": 1792390647550196350,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000016",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 211,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "3e0502cb93898c75",
+    "parent": "af9dc75488714a9f",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647505282234,
+    "end_ns": 1792390647549987569,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "f5fcbbeada69e103",
+    "parent": "3b6fe0c6368a1272",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390647550330472,
+    "end_ns": 1792390647553175314,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000016_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "af36176202b8084c",
+    "parent": "3b6fe0c6368a1272",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647553329960,
+    "end_ns": 1792390647598068986,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000017",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 227,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "1cf8a70ed013f391",
+    "parent": "af36176202b8084c",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647553359649,
+    "end_ns": 1792390647597853723,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "7042bbe137c6d8ed",
+    "parent": "3b6fe0c6368a1272",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647598174868,
+    "end_ns": 1792390647641886920,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000018",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 110,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "7cb2e591dd66b875",
+    "parent": "7042bbe137c6d8ed",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647598210197,
+    "end_ns": 1792390647641743313,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "5928ea6d1294db90a489924b270a7b61",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "5928ea6d1294db90a489924b270a7b61",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "db454ba94b29a665",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647642073414,
+    "end_ns": 1792390647830112435,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "de030e0ef7fdb3c6",
+    "parent": "db454ba94b29a665",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647642106627,
+    "end_ns": 1792390647642673110,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.286
+      },
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.254
+      },
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.218
+      }
+     ]
+    }
+   },
+   {
+    "span": "906345b02a4ae576",
+    "parent": "de030e0ef7fdb3c6",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647642126131,
+    "end_ns": 1792390647642170928,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "f803546c0d7596e0",
+    "parent": "db454ba94b29a665",
+    "name": "build context",
+    "start_ns": 1792390647642731894,
+    "end_ns": 1792390647642749790,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 73,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "9583bafe366f90ca",
+    "parent": "db454ba94b29a665",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647642838759,
+    "end_ns": 1792390647690213422,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000019",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 193,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "6812a26d463f0d05",
+    "parent": "9583bafe366f90ca",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647642863564,
+    "end_ns": 1792390647690034806,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "6abbe3b0e157ca2f",
+    "parent": "db454ba94b29a665",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647690349444,
+    "end_ns": 1792390647693388926,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000019_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "56ef5bc36af99b6f",
+    "parent": "db454ba94b29a665",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647693547658,
+    "end_ns": 1792390647738151600,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000020",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 211,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "11d7c1961355baaa",
+    "parent": "56ef5bc36af99b6f",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647693586449,
+    "end_ns": 1792390647737929302,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "1bb54e0e8bca9c3f",
+    "parent": "db454ba94b29a665",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390647738281308,
+    "end_ns": 1792390647741036108,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000020_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "0bc4980b7838e581",
+    "parent": "db454ba94b29a665",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647741178243,
+    "end_ns": 1792390647785949599,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000021",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 227,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "e80e532dee85f301",
+    "parent": "0bc4980b7838e581",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647741215561,
+    "end_ns": 1792390647785802165,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "54715f1feabfaf36",
+    "parent": "db454ba94b29a665",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647786110145,
+    "end_ns": 1792390647830041970,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000022",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 110,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "39b6407efb8d39ce",
+    "parent": "54715f1feabfaf36",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647786155957,
+    "end_ns": 1792390647829846049,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "927addbf5cc6a7c5e91de66ac585df96",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "927addbf5cc6a7c5e91de66ac585df96",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "643a6c3296530329",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390647830206296,
+    "end_ns": 1792390648018224168,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "cf757fc2fd64e374",
+    "parent": "643a6c3296530329",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390647830239733,
+    "end_ns": 1792390647830894740,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-1",
+     "wrenholt.index.embedder": "wrenholt-embed-1",
+     "gen_ai.retrieval.documents": [
+      {
+       "id": "HC-0004",
+       "version": "order-tracking-2026-01",
+       "score": 0.286
+      },
+      {
+       "id": "HC-0005",
+       "version": "cancel-2026-02",
+       "score": 0.254
+      },
+      {
+       "id": "HC-0002",
+       "version": "refund-timing-2025-11",
+       "score": 0.218
+      }
+     ]
+    }
+   },
+   {
+    "span": "144a68ef1ed12715",
+    "parent": "cf757fc2fd64e374",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390647830282024,
+    "end_ns": 1792390647830331651,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "29410494500417f4",
+    "parent": "643a6c3296530329",
+    "name": "build context",
+    "start_ns": 1792390647830959886,
+    "end_ns": 1792390647830979543,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 73,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "b7ab2d6659bce929",
+    "parent": "643a6c3296530329",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647831108729,
+    "end_ns": 1792390647878192845,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000023",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 193,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "d98099811caf443d",
+    "parent": "b7ab2d6659bce929",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647831138034,
+    "end_ns": 1792390647877909289,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "247b2cde65b74387",
+    "parent": "643a6c3296530329",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390647878338729,
+    "end_ns": 1792390647881129729,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000023_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "d5f6f5457043276d",
+    "parent": "643a6c3296530329",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647881280237,
+    "end_ns": 1792390647925982401,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000024",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 211,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "3fbee80c5e97c9d2",
+    "parent": "d5f6f5457043276d",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647881317311,
+    "end_ns": 1792390647925839424,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "5a689d144b59dbaf",
+    "parent": "643a6c3296530329",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390647926140944,
+    "end_ns": 1792390647928763671,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000024_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "cb44ae27c8ed3204",
+    "parent": "643a6c3296530329",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647928902732,
+    "end_ns": 1792390647974069884,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000025",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 227,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "2c899574b18a9520",
+    "parent": "cb44ae27c8ed3204",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647928987911,
+    "end_ns": 1792390647973868671,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "0eda32a671ed9ef8",
+    "parent": "643a6c3296530329",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390647974170910,
+    "end_ns": 1792390648018159940,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000026",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 110,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "2215062ed47bb2e9",
+    "parent": "0eda32a671ed9ef8",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390647974206680,
+    "end_ns": 1792390648017950039,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 40363,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "e541026bd9df1a479ec2422573253784",
+  "first_chunk_s": 0.4,
+  "bundle": {
+   "trace_id": "e541026bd9df1a479ec2422573253784",
+   "recorded_at": "2026-10-19T06:17:28+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-1",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "before"
+ },
+ {
+  "spans": [
+   {
+    "span": "80b956ec06772f0f",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648503373338,
+    "end_ns": 1792390648509811549,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "8d83a3e9402703b1",
+    "parent": "80b956ec06772f0f",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648503417458,
+    "end_ns": 1792390648504162866,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "8979bf09ff7db2b3",
+    "parent": "8d83a3e9402703b1",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648503441131,
+    "end_ns": 1792390648503483718,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "8ca615a595e7b56e",
+    "parent": "80b956ec06772f0f",
+    "name": "build context",
+    "start_ns": 1792390648504303485,
+    "end_ns": 1792390648504320107,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "319978e0d2b9cdec",
+    "parent": "80b956ec06772f0f",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648504404667,
+    "end_ns": 1792390648509730324,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000000",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 22,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 0
+    }
+   },
+   {
+    "span": "ae3aa77b5fc20049",
+    "parent": "319978e0d2b9cdec",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648504434565,
+    "end_ns": 1792390648509541807,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "ac473af06c2ced458c8b24521d65eef2",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "ac473af06c2ced458c8b24521d65eef2",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "3457ed59a1cbf78d",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648509886558,
+    "end_ns": 1792390648554038810,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "c4c7e30456c863a2",
+    "parent": "3457ed59a1cbf78d",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648509917180,
+    "end_ns": 1792390648510349098,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "927cf6be771cd5ae",
+    "parent": "c4c7e30456c863a2",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648509936377,
+    "end_ns": 1792390648509970172,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "c84a5a49687858d1",
+    "parent": "3457ed59a1cbf78d",
+    "name": "build context",
+    "start_ns": 1792390648510409602,
+    "end_ns": 1792390648510422162,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "8c36ca08abdde907",
+    "parent": "3457ed59a1cbf78d",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648510472025,
+    "end_ns": 1792390648553955201,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000001",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 17,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "34840e543ad2bd8d",
+    "parent": "8c36ca08abdde907",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648510498671,
+    "end_ns": 1792390648553845519,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "91778bd39f9a2330ed9b013e9a529447",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "91778bd39f9a2330ed9b013e9a529447",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "97f44edb193d48d0",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648554112000,
+    "end_ns": 1792390648598234115,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "26b184b57f8cc5f8",
+    "parent": "97f44edb193d48d0",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648554138442,
+    "end_ns": 1792390648554461403,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "6f8896b29fbadf49",
+    "parent": "26b184b57f8cc5f8",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648554154221,
+    "end_ns": 1792390648554196016,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "c2a0fb47a5c42623",
+    "parent": "97f44edb193d48d0",
+    "name": "build context",
+    "start_ns": 1792390648554504099,
+    "end_ns": 1792390648554513764,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "5634eb9ce3f472df",
+    "parent": "97f44edb193d48d0",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648554555312,
+    "end_ns": 1792390648598179801,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000002",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 18,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "de9065409405c688",
+    "parent": "5634eb9ce3f472df",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648554574974,
+    "end_ns": 1792390648597964253,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "9b1399f1cae9501b8c4b8a6d77ddc75d",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "9b1399f1cae9501b8c4b8a6d77ddc75d",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "1e4921d788a6101c",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648598324141,
+    "end_ns": 1792390648646131911,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "04db78f7a21edfef",
+    "parent": "1e4921d788a6101c",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648598356375,
+    "end_ns": 1792390648598852162,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "9fdc876e1f578688",
+    "parent": "04db78f7a21edfef",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648598376402,
+    "end_ns": 1792390648598453266,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "08d0808bd534a132",
+    "parent": "1e4921d788a6101c",
+    "name": "build context",
+    "start_ns": 1792390648598911390,
+    "end_ns": 1792390648598924840,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "d0e6abcc48bb8621",
+    "parent": "1e4921d788a6101c",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648598985479,
+    "end_ns": 1792390648646078811,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000003",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 18,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "fdc7de59eb6893a7",
+    "parent": "d0e6abcc48bb8621",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648599042015,
+    "end_ns": 1792390648645893393,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "f7a82f2bb17555e079576b4a30ec73a1",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "f7a82f2bb17555e079576b4a30ec73a1",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "1e30804386a4d2b7",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648646218748,
+    "end_ns": 1792390648690165611,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "bfad3f7c148d7095",
+    "parent": "1e30804386a4d2b7",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648646247948,
+    "end_ns": 1792390648646722373,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "cc7ab088915e979b",
+    "parent": "bfad3f7c148d7095",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648646275345,
+    "end_ns": 1792390648646314291,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "7a2ffa4bc3018db6",
+    "parent": "1e30804386a4d2b7",
+    "name": "build context",
+    "start_ns": 1792390648646775780,
+    "end_ns": 1792390648646786393,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "8dacae1d646b4d02",
+    "parent": "1e30804386a4d2b7",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648646832687,
+    "end_ns": 1792390648690107999,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000004",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 19,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "d1847f136eeca79e",
+    "parent": "8dacae1d646b4d02",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648646856297,
+    "end_ns": 1792390648689894943,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "61e7c776fdfb7702d49c1e19fbad9ff8",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "61e7c776fdfb7702d49c1e19fbad9ff8",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "d104b65842343890",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648690257465,
+    "end_ns": 1792390648738686949,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "no_tools"
+    }
+   },
+   {
+    "span": "47d210a1c3570b2d",
+    "parent": "d104b65842343890",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648690298768,
+    "end_ns": 1792390648690789594,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "0cffb6943b950fe1",
+    "parent": "47d210a1c3570b2d",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648690320855,
+    "end_ns": 1792390648690361688,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "c06707941af4ad66",
+    "parent": "d104b65842343890",
+    "name": "build context",
+    "start_ns": 1792390648690846346,
+    "end_ns": 1792390648690858785,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "2ac6f4e7b5aea711",
+    "parent": "d104b65842343890",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648690912694,
+    "end_ns": 1792390648738627867,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000005",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 21,
+     "gen_ai.usage.output_tokens": 8,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "2bc5b8de56cb0f14",
+    "parent": "2ac6f4e7b5aea711",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648690939144,
+    "end_ns": 1792390648738452285,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "953bb8ec2f190ccec4efac9972908a1d",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "953bb8ec2f190ccec4efac9972908a1d",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "2b467a5cbd84bd9e",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648738798058,
+    "end_ns": 1792390648882215821,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "4a212f13e81a0b07",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648738833650,
+    "end_ns": 1792390648739374925,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "e6b1a452ef7f62f0",
+    "parent": "4a212f13e81a0b07",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648738856290,
+    "end_ns": 1792390648738898198,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "dedcd5a55146c078",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "build context",
+    "start_ns": 1792390648739443935,
+    "end_ns": 1792390648739457492,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "1b8c754f4dd1f52a",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648739553920,
+    "end_ns": 1792390648786052006,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000006",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 117,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "b3343829aa975930",
+    "parent": "1b8c754f4dd1f52a",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648739582998,
+    "end_ns": 1792390648785852913,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "9a1d53b7d3de998a",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390648786209428,
+    "end_ns": 1792390648790267082,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000006_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "008220b968c47d89",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648790446584,
+    "end_ns": 1792390648838055818,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000007",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 135,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "16426d5f43ffc481",
+    "parent": "008220b968c47d89",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648790487589,
+    "end_ns": 1792390648837866223,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "c270b2953f843891",
+    "parent": "2b467a5cbd84bd9e",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648838162366,
+    "end_ns": 1792390648882125003,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000008",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 26,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "14c82de95a522a75",
+    "parent": "c270b2953f843891",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648838195056,
+    "end_ns": 1792390648881924574,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "db7fa25cac24fc03472d6bfd8ffbe6b9",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "db7fa25cac24fc03472d6bfd8ffbe6b9",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "e3569a7acb2cab17",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390648882315395,
+    "end_ns": 1792390649026439068,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "50f23a4f61e55fc7",
+    "parent": "e3569a7acb2cab17",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390648882349238,
+    "end_ns": 1792390648882888702,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "45b1187d6ae250ce",
+    "parent": "50f23a4f61e55fc7",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390648882369452,
+    "end_ns": 1792390648882407807,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "208909489745d1e8",
+    "parent": "e3569a7acb2cab17",
+    "name": "build context",
+    "start_ns": 1792390648882950147,
+    "end_ns": 1792390648882963051,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "14589a3db13a1562",
+    "parent": "e3569a7acb2cab17",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648883086736,
+    "end_ns": 1792390648930131317,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000009",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 117,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "f97e34ffc5ea0b6b",
+    "parent": "14589a3db13a1562",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648883115434,
+    "end_ns": 1792390648929883008,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "d821457343e69b82",
+    "parent": "e3569a7acb2cab17",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390648930289413,
+    "end_ns": 1792390648934345800,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000009_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "9159deddbeb7f2c5",
+    "parent": "e3569a7acb2cab17",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648934478077,
+    "end_ns": 1792390648981957273,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000010",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 135,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "e382cb5fd297b10a",
+    "parent": "9159deddbeb7f2c5",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648934511465,
+    "end_ns": 1792390648981822715,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "917e8134b58ca0f9",
+    "parent": "e3569a7acb2cab17",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390648982124333,
+    "end_ns": 1792390649026376325,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000011",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 26,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "2a8745ba85dbd765",
+    "parent": "917e8134b58ca0f9",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390648982158974,
+    "end_ns": 1792390649026053368,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "4c44c8bb860a257f32af1f74310a3c1e",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "4c44c8bb860a257f32af1f74310a3c1e",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "cd8a9e66400f301f",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390649026551890,
+    "end_ns": 1792390649170228142,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "9edee9adaefa34c8",
+    "parent": "cd8a9e66400f301f",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390649026585428,
+    "end_ns": 1792390649027186423,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "3b0634ac63299fee",
+    "parent": "9edee9adaefa34c8",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390649026607148,
+    "end_ns": 1792390649026649252,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "9df28619a323e4f7",
+    "parent": "cd8a9e66400f301f",
+    "name": "build context",
+    "start_ns": 1792390649027255703,
+    "end_ns": 1792390649027269728,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "e4711d85aa018bfa",
+    "parent": "cd8a9e66400f301f",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649027358724,
+    "end_ns": 1792390649074237173,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000012",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 117,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "9405390b6fcd7d23",
+    "parent": "e4711d85aa018bfa",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649027386264,
+    "end_ns": 1792390649074089329,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "6b8f27d502593275",
+    "parent": "cd8a9e66400f301f",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390649074452440,
+    "end_ns": 1792390649077396532,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000012_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "f414e4b8fc8cb899",
+    "parent": "cd8a9e66400f301f",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649077515666,
+    "end_ns": 1792390649122114295,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000013",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 135,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "a90abca9b7954c69",
+    "parent": "f414e4b8fc8cb899",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649077546165,
+    "end_ns": 1792390649121898148,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "a750218ec87c9432",
+    "parent": "cd8a9e66400f301f",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649122223491,
+    "end_ns": 1792390649170169697,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000014",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 26,
+     "gen_ai.usage.output_tokens": 9,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "0a3aa2db6eb4097a",
+    "parent": "a750218ec87c9432",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649122259580,
+    "end_ns": 1792390649169976248,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "interactive",
+  "trace": "ee8f31650d608a17ee1950329f43dd70",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "ee8f31650d608a17ee1950329f43dd70",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "c050e70056d2e3f1",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390649170322101,
+    "end_ns": 1792390649358182943,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "2d2b730e984b7389",
+    "parent": "c050e70056d2e3f1",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390649170354192,
+    "end_ns": 1792390649171137656,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "7f4c9573a04aab19",
+    "parent": "2d2b730e984b7389",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390649170374055,
+    "end_ns": 1792390649170422701,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "48ca590751a85f37",
+    "parent": "c050e70056d2e3f1",
+    "name": "build context",
+    "start_ns": 1792390649171203768,
+    "end_ns": 1792390649171216500,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "3e57c5bc264b796f",
+    "parent": "c050e70056d2e3f1",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649171298225,
+    "end_ns": 1792390649218109252,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000015",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 118,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "cf994b19a72d422f",
+    "parent": "3e57c5bc264b796f",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649171324702,
+    "end_ns": 1792390649217905326,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "819ad94befb9d31e",
+    "parent": "c050e70056d2e3f1",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390649218253893,
+    "end_ns": 1792390649220821061,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000015_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "0e6c84a56c72f5cf",
+    "parent": "c050e70056d2e3f1",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649221029366,
+    "end_ns": 1792390649266108717,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000016",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 136,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "08efbc45b2472138",
+    "parent": "0e6c84a56c72f5cf",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649221071800,
+    "end_ns": 1792390649265873661,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "41f7958545eb94e1",
+    "parent": "c050e70056d2e3f1",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390649266248222,
+    "end_ns": 1792390649269337233,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000016_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "2ca916a6ab03832d",
+    "parent": "c050e70056d2e3f1",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649269540275,
+    "end_ns": 1792390649314098084,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000017",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 152,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "d4d47d08cf41aa8a",
+    "parent": "2ca916a6ab03832d",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649269586122,
+    "end_ns": 1792390649313913547,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "613767db9e386e8d",
+    "parent": "c050e70056d2e3f1",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649314188192,
+    "end_ns": 1792390649358124387,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000018",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 35,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "8453d79d817d050e",
+    "parent": "613767db9e386e8d",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649314219864,
+    "end_ns": 1792390649357936060,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "ac9a46f1017e35b337dc2ceab454fb20",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "ac9a46f1017e35b337dc2ceab454fb20",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "e827054a3152fdf3",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390649358297643,
+    "end_ns": 1792390649545932638,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "eb68d5244ddc91af",
+    "parent": "e827054a3152fdf3",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390649358336282,
+    "end_ns": 1792390649358849298,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "faacab28fd255016",
+    "parent": "eb68d5244ddc91af",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390649358362336,
+    "end_ns": 1792390649358419520,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "1b914246c236806f",
+    "parent": "e827054a3152fdf3",
+    "name": "build context",
+    "start_ns": 1792390649358911306,
+    "end_ns": 1792390649358922780,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "45a20c249e840a77",
+    "parent": "e827054a3152fdf3",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649359038786,
+    "end_ns": 1792390649406132010,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000019",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 118,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "c0041f0a9383908b",
+    "parent": "45a20c249e840a77",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649359070523,
+    "end_ns": 1792390649405954549,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "22a46a43ff9c3120",
+    "parent": "e827054a3152fdf3",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390649406263273,
+    "end_ns": 1792390649408893569,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000019_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "a811e970aadb4b46",
+    "parent": "e827054a3152fdf3",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649409185740,
+    "end_ns": 1792390649454146464,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000020",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 136,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "25780009e544429d",
+    "parent": "a811e970aadb4b46",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649409224569,
+    "end_ns": 1792390649453961062,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "687bd1928b964688",
+    "parent": "e827054a3152fdf3",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390649454277474,
+    "end_ns": 1792390649456753975,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000020_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "d4f5c7571baf9405",
+    "parent": "e827054a3152fdf3",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649456882770,
+    "end_ns": 1792390649502101635,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000021",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 152,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "e72b3c6db6b3548c",
+    "parent": "d4f5c7571baf9405",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649456918542,
+    "end_ns": 1792390649501884811,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "5de41be0c81aeb24",
+    "parent": "e827054a3152fdf3",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649502222412,
+    "end_ns": 1792390649545880479,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000022",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 35,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "0eeb007b3ed43143",
+    "parent": "5de41be0c81aeb24",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649502260162,
+    "end_ns": 1792390649545735355,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "90e67ed2d983bfdedaa2be21d3361099",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "90e67ed2d983bfdedaa2be21d3361099",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ },
+ {
+  "spans": [
+   {
+    "span": "5b60ce81d23af878",
+    "parent": null,
+    "name": "invoke_agent Linnet",
+    "start_ns": 1792390649546054284,
+    "end_ns": 1792390649738437612,
+    "attributes": {
+     "gen_ai.operation.name": "invoke_agent",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.agent.description": "Customer-support assistant for Wrenholt Goods",
+     "wrenholt.agent.stop_reason": "finished"
+    }
+   },
+   {
+    "span": "62f5a5cde55be0f5",
+    "parent": "5b60ce81d23af878",
+    "name": "retrieval help-centre",
+    "start_ns": 1792390649546087736,
+    "end_ns": 1792390649546892962,
+    "attributes": {
+     "gen_ai.operation.name": "retrieval",
+     "gen_ai.data_source.id": "help-centre",
+     "gen_ai.retrieval.top_k": 3,
+     "wrenholt.index.version": "45e99498.wrenholt-embed-2",
+     "wrenholt.index.embedder": "wrenholt-embed-2",
+     "gen_ai.retrieval.documents": []
+    }
+   },
+   {
+    "span": "1c8d31e23b4f9455",
+    "parent": "62f5a5cde55be0f5",
+    "name": "embeddings wrenholt-embed-1",
+    "start_ns": 1792390649546107226,
+    "end_ns": 1792390649546154737,
+    "attributes": {
+     "gen_ai.operation.name": "embeddings",
+     "gen_ai.provider.name": "wrenholt.local",
+     "gen_ai.request.model": "wrenholt-embed-1",
+     "gen_ai.embeddings.dimension.count": 4096
+    }
+   },
+   {
+    "span": "12a691d6046dd403",
+    "parent": "5b60ce81d23af878",
+    "name": "build context",
+    "start_ns": 1792390649547114959,
+    "end_ns": 1792390649547129906,
+    "attributes": {
+     "wrenholt.context.budget": 150,
+     "wrenholt.context.tokens": 0,
+     "wrenholt.context.dropped": 0
+    }
+   },
+   {
+    "span": "3ba798611afe45d8",
+    "parent": "5b60ce81d23af878",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649547234624,
+    "end_ns": 1792390649593960575,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000023",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 118,
+     "gen_ai.usage.output_tokens": 5,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "5f0895dd0200c645",
+    "parent": "3ba798611afe45d8",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649547261941,
+    "end_ns": 1792390649593829270,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "490eff53bb8543c4",
+    "parent": "5b60ce81d23af878",
+    "name": "execute_tool lookup_order",
+    "start_ns": 1792390649594135425,
+    "end_ns": 1792390649596806581,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "lookup_order",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000023_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:ddefa2a47bc2"
+    }
+   },
+   {
+    "span": "e6cb221bf1a6d5ca",
+    "parent": "5b60ce81d23af878",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649597214841,
+    "end_ns": 1792390649641975404,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000024",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 136,
+     "gen_ai.usage.output_tokens": 7,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "ff8e489e7d191a37",
+    "parent": "e6cb221bf1a6d5ca",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649597255527,
+    "end_ns": 1792390649641827723,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "2e01fd9f8d42408e",
+    "parent": "5b60ce81d23af878",
+    "name": "execute_tool issue_refund",
+    "start_ns": 1792390649642135956,
+    "end_ns": 1792390649644784278,
+    "attributes": {
+     "gen_ai.operation.name": "execute_tool",
+     "gen_ai.tool.name": "issue_refund",
+     "gen_ai.tool.type": "function",
+     "gen_ai.agent.name": "Linnet",
+     "gen_ai.tool.call.id": "call_000024_0",
+     "wrenholt.tool.call.fingerprint": "args:dev1:f9dc98f73139",
+     "wrenholt.tool.replayed": false
+    }
+   },
+   {
+    "span": "6beda4633a1315a7",
+    "parent": "5b60ce81d23af878",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649644924750,
+    "end_ns": 1792390649690438534,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000025",
+     "gen_ai.response.finish_reasons": [
+      "tool_calls"
+     ],
+     "gen_ai.usage.input_tokens": 152,
+     "gen_ai.usage.output_tokens": 4,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "b8f634cc074b5aaa",
+    "parent": "6beda4633a1315a7",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649645075443,
+    "end_ns": 1792390649690231900,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   },
+   {
+    "span": "e9038a11ae78e6e5",
+    "parent": "5b60ce81d23af878",
+    "name": "chat mock-a-fast",
+    "start_ns": 1792390649690585275,
+    "end_ns": 1792390649738355533,
+    "attributes": {
+     "gen_ai.operation.name": "chat",
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "gen_ai.request.model": "mock-a-fast",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.gateway.attempt_count": 1,
+     "gen_ai.prompt.name": "linnet.support",
+     "gen_ai.prompt.version": "1",
+     "gen_ai.response.model": "mock-a-fast-2026-09",
+     "gen_ai.response.id": "chatcmpl-mock-000026",
+     "gen_ai.response.finish_reasons": [
+      "stop"
+     ],
+     "gen_ai.usage.input_tokens": 35,
+     "gen_ai.usage.output_tokens": 17,
+     "wrenholt.tenant": "wrenholt",
+     "gen_ai.usage.cache_read.input_tokens": 13
+    }
+   },
+   {
+    "span": "21255da9dad899fb",
+    "parent": "e9038a11ae78e6e5",
+    "name": "attempt wrenholt.mock_a",
+    "start_ns": 1792390649690637379,
+    "end_ns": 1792390649738140132,
+    "attributes": {
+     "gen_ai.provider.name": "wrenholt.mock_a",
+     "server.address": "127.0.0.1",
+     "server.port": 39799,
+     "wrenholt.attempt.number": 1,
+     "wrenholt.attempt.delay": 0.0,
+     "http.response.status_code": 200
+    }
+   }
+  ],
+  "request_class": "critical_action",
+  "trace": "0a13c286d7ded001a400024ab15a02a1",
+  "first_chunk_s": 3.0,
+  "bundle": {
+   "trace_id": "0a13c286d7ded001a400024ab15a02a1",
+   "recorded_at": "2026-10-19T06:17:30+00:00",
+   "service_version": "ch14",
+   "conventions_commit": "bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc",
+   "prompt_name": "linnet.support",
+   "prompt_version": "1",
+   "prompt_sha256": "d9c8ba5e4bebcf56",
+   "requested_model": "mock-a-fast",
+   "response_model": "mock-a-fast-2026-09",
+   "pinned_model": "none",
+   "provider": "wrenholt.mock_a",
+   "model_config_sha256": "b6eeb3258faefb8a",
+   "index_version": "45e99498.wrenholt-embed-2",
+   "scenario": "none",
+   "seed": "none"
+  },
+  "phase": "after"
+ }
+]
