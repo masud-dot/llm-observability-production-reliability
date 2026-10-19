@@ -410,3 +410,21 @@ written.
   with a retired one, FS-13's candidates priced, FS-16's surge with a
   queue and with admission (SIMULATED).
 - Checks: `make verify-ch17`.
+
+## Chapter 18: Failure Injection, Load and Chaos Experiments
+
+- `uv run --group lab python scripts/experiments.py [FS-03 ...]`: the
+  eighteen failure scenarios as experiments. Each states its
+  hypothesis first (held by a control, or detected against Chapter
+  12's objectives and Chapter 14's page), runs the scenario's lab in
+  a process of its own, judges one line of evidence, prints a report
+  and records `experiments/latest.json`. It exits 1 when a hypothesis
+  fails. About two and a half minutes; FS-15 needs the Collector
+  binary (`scripts/fetch_collector.sh`).
+- `src/wrenholt/load.py`: a deterministic load generator: gradual and
+  impulse patterns as arrival times, and `drive()`, which starts each
+  call at its time without waiting for the calls before it.
+- `uv run python scripts/breaking_lab.py`: Chapter 17's surge model
+  past the breaking point, on a gradual ramp and an impulse, with a
+  queue and with admission control (SIMULATED).
+- Checks: `make verify-ch18`.

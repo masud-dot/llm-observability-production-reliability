@@ -998,3 +998,37 @@ Same run, other checks:
   in Section 17.4 were not executed against Tempo.
 - Sources read: SRE book chapter 22, the load shedding, queue and
   unused code path quotes (2026-10-19).
+
+## Chapter 18: Failure Injection, Load and Chaos Experiments
+
+- Command: `make verify-ch18` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-20
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L18-01 | Gradual and impulse arrivals | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (7,200 on the ramp; 4,500 on the impulse; the same every time) | pass | pending |
+| L18-02 | `drive`, without waiting | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (every call starts before the first ends; an exception is a result) | pass | pending |
+| L18-03 | Experiments as data | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (FS-01 to FS-18; 14.4 and 0.99 read from the book's files) | pass | pending |
+| L18-04 | Judging and running | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (held, BROKEN, no evidence; detected, MISSED; FS-09, FS-11, FS-18 run and recorded) | pass | pending |
+| L18-05 | The breaking-point model | `src/wrenholt/labs/breaking_lab.py` | `tests/unit/test_experiments.py` (windows and recovery) | pass (SIMULATED) | pending |
+| L18-06 | The eighteen experiments | `scripts/experiments.py` | run command (2026-10-20), recorded in `experiments/latest.json` | pass (SIMULATED) | pending |
+| L18-07 | The breaking point, and past it | `scripts/breaking_lab.py` | run command (2026-10-20); `tests/unit/test_experiments.py` | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 336 passed. `pytest tests/lab`: 8 passed. 344
+  tests: unit 223, slo 65, resilience 11, drift 23, lab 8, privacy 14.
+  Nine are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (232
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 18 is in the repository (114
+  checked; 39 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved.
+- The experiment run: 18 run, 0 hypotheses failed, about two minutes;
+  FS-15 runs the Collector binary from `.native/bin`, as in Chapter
+  10. No other native run, and no Compose stack.
+- Sources read: SRE book chapter 22, the load testing, breaking point,
+  degraded mode and noncritical backend quotes (2026-10-20).
