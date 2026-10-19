@@ -960,3 +960,41 @@ Same run, other checks:
   Amazon Builders' Library, timeouts, retries and backoff with
   jitter (2026-10-19). The Azure circuit breaker pattern is
   paraphrased, not quoted.
+
+## Chapter 17: Fallbacks, Degraded Modes and Load Shedding
+
+- Command: `make verify-ch17` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-19
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L17-01 | The chain's walk, with exercise | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (A rate-limited: B answers, then A; exercise; retired fallback; spent deadline) | pass | pending |
+| L17-02 | Price ratio, affordability, when to move | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (B affordable, `mock-a-large` refused at start-up) | pass | pending |
+| L17-03 | The ladder without a model | `src/wrenholt/orchestrator/degraded.py` | `tests/unit/test_fallback.py` (brief, citation, stale, no passage, refund) | pass | pending |
+| L17-04 | Admission and the degraded path in the API | `src/wrenholt/api/app.py` | `tests/unit/test_fallback.py` (no room: brief and 503; A and B down: brief); Hypothesis property of `Admission` | pass | pending |
+| L17-05 | The `degraded` tail-sampling policy | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py`; `otelcol-contrib validate` with dummy endpoints and key | pass | pending |
+| L17-06 | Fallbacks, costs and shedding | `scripts/fallback_lab.py` | run command (2026-10-19); `tests/unit/test_fallback.py` (every figure) | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 327 passed. `pytest tests/lab`: 8 passed. 335
+  tests: unit 214, slo 65, resilience 11, drift 23, lab 8, privacy 14.
+  Eight are new; the drift fixture now makes a call that falls back
+  to provider B, so the four new attribute names are emitted names.
+- `ruff check`, `ruff format --check` and `mypy --strict` (226
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 17 is in the repository (109
+  checked; 37 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved. The `degraded` policy follows the baseline,
+  after the block Listing L10-01 shows; the runbook note follows the
+  block Listing L14-08 shows.
+- The mock provider can now serve provider B's models in process
+  (`running_provider(provider="b")`); `MOCK_LLM_PROVIDER` still sets
+  the process default, and Listing L01-02's code is unchanged.
+- No native run: the lab uses a fake clock, and the TraceQL queries
+  in Section 17.4 were not executed against Tempo.
+- Sources read: SRE book chapter 22, the load shedding, queue and
+  unused code path quotes (2026-10-19).

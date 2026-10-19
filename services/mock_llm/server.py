@@ -14,6 +14,7 @@ from services.mock_llm.app import (
     PREFIX_CACHE,
     ProviderLog,
     create_app,
+    serving,
 )
 from services.mock_llm.faults import NO_FAULTS, FaultPlan
 from services.mock_llm.headers import with_header_log
@@ -42,6 +43,7 @@ def running_provider(
     sent: list[Sent] | None = None,
     tool_loop: bool = False,
     malformed_refunds: bool = False,
+    provider: str = "a",
 ) -> Iterator[RunningProvider]:
     log = ProviderLog()
     PREFIX_CACHE.clear()  # Chapter 11: each provider starts cold
@@ -59,6 +61,8 @@ def running_provider(
         app = with_tool_loop(app)
     if malformed_refunds:  # FS-05 (Chapter 12)
         app = with_malformed_refunds(app)
+    if provider != "a":  # provider B in process (Chapter 17)
+        app = serving(app, provider)
     served: Any = app
     wrapper = None
     if streaming is not None:  # SSE on a schedule (Chapter 8)

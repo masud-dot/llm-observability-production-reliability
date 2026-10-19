@@ -187,6 +187,14 @@ LIMIT_IN_FLIGHT: Final = "wrenholt.limit.in_flight"
 # events are checked against the pinned conventions.
 RETRY_EVENT: Final = "wrenholt.retry"
 BREAKER_EVENT: Final = "wrenholt.breaker"
+# Chapter 17: fallbacks and degraded answers, on spans too. The mode
+# is how an answer was made: full, fallback_model, cached,
+# citation_only, handoff or refused; the reason, why.
+FALLBACK_FROM: Final = "wrenholt.fallback.from"
+FALLBACK_TO: Final = "wrenholt.fallback.to"
+DEGRADED_MODE: Final = "wrenholt.degraded.mode"
+DEGRADED_REASON: Final = "wrenholt.degraded.reason"
+FALLBACK_EVENT: Final = "wrenholt.fallback"
 
 
 # The pinned specification the GenAI names come from.
@@ -320,6 +328,11 @@ REGISTRY: Final = (
     Name(DEADLINE_LEFT, "attribute", "book"),
     Name(BREAKER_STATE, "attribute", "book"),
     Name(LIMIT_IN_FLIGHT, "attribute", "book"),
+    # Chapter 17: fallbacks and degraded answers, on spans.
+    Name(FALLBACK_FROM, "attribute", "book"),
+    Name(FALLBACK_TO, "attribute", "book"),
+    Name(DEGRADED_MODE, "attribute", "book"),
+    Name(DEGRADED_REASON, "attribute", "book"),
     Name(EVALUATION_RESULTS, "metric", "book", "counter", "{result}"),
 )
 # Events, checked against the pinned conventions' events.

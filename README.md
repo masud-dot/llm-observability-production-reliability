@@ -385,3 +385,28 @@ written.
   clock, the gateway's own classes). Streamed answers keep Chapter
   8's path.
 - Checks: `make verify-ch16`.
+
+## Chapter 17: Fallbacks, Degraded Modes and Load Shedding
+
+- `src/wrenholt/gateway/fallback.py`: `FallbackGateway` walks each
+  model's chain (`WRENHOLT_FALLBACKS`, `mock-a-fast` to
+  `mock-b-standard`) on a provider's own failures and on Chapter 16's
+  refusals, starts every call at the model asked for, and sends one
+  call in `WRENHOLT_EXERCISE_EVERY` (100) to the fallback. The API
+  refuses to start with a fallback that would pass the spend limit at
+  the planning peak (`WRENHOLT_PEAK_COST_PER_HOUR`, 21.91).
+- `src/wrenholt/orchestrator/degraded.py`: the ladder without a
+  model: an approved brief for the article version in force, the
+  cited passage, or a person.
+- `src/wrenholt/api/admission.py`: no queue; `WRENHOLT_MAX_ANSWERS`
+  (90) at once a process, `WRENHOLT_RESERVED_CRITICAL` (18) kept for
+  refunds. A shed question gets the ladder, a shed refund a 503.
+- `wrenholt.degraded.mode` and `wrenholt.degraded.reason` on the
+  answer's span, `wrenholt.fallback` events, and the `degraded`
+  tail-sampling policy in the production Collector profile.
+- `running_provider(provider="b")` serves provider B's models in
+  process, beside provider A.
+- `uv run python scripts/fallback_lab.py`: FS-03 with a fallback and
+  with a retired one, FS-13's candidates priced, FS-16's surge with a
+  queue and with admission (SIMULATED).
+- Checks: `make verify-ch17`.

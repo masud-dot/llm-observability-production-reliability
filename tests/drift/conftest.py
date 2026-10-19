@@ -45,6 +45,7 @@ from wrenholt.gateway import (
 )
 from wrenholt.gateway.context import prompt
 from wrenholt.gateway.deadlines import deadline
+from wrenholt.gateway.fallback import FallbackGateway
 from wrenholt.gateway.guarded import GuardedGateway
 from wrenholt.gateway.retry import GuardedPolicy, RetryBudget
 from wrenholt.guardrail import Guardrail
@@ -85,7 +86,8 @@ def emitted() -> tuple[set[str], list[Metric]]:
     refused at the spend limit (Chapter 11), the API's SLI events
     and a guardrail refusal (Chapter 12), one answer's evaluation
     results, as events and counts (Chapter 13), and a guarded call
-    whose breaker opens under a deadline (Chapter 16)."""
+    whose breaker opens under a deadline (Chapter 16), and one that
+    falls back to provider B (Chapter 17)."""
     spans = InMemorySpanExporter()
     tracing = TracerProvider()
     tracing.add_span_processor(SimpleSpanProcessor(spans))
@@ -160,6 +162,30 @@ def emitted() -> tuple[set[str], list[Metric]]:
             await gw.aclose()
 
     asyncio.run(guarded())
+
+    async def fell_back(b: Route) -> None:
+        """Chapter 17: nothing listens for A, so B answers."""
+        a = Route("wrenholt.mock_a", "http://127.0.0.1:9/v1", "x")
+        gw = FallbackGateway(
+            {"mock-a-fast": a, "mock-b-standard": b},
+            GuardedPolicy(RetryBudget()),
+            tracer_provider=tracing,
+            meter_provider=meters,
+            sleep=no_wait,
+            chains={"mock-a-fast": ["mock-b-standard"]},
+            **PRICED,
+        )
+        tracer = tracing.get_tracer("wrenholt.drift")
+        try:
+            with tracer.start_as_current_span("answer"):
+                await gw.chat("mock-a-fast", [Message("user", "Hi")])
+        finally:
+            await gw.aclose()
+
+    with running_provider(provider="b") as mock:
+        asyncio.run(
+            fell_back(Route("wrenholt.mock_b", mock.base_url, "x"))
+        )
 
     async def stream(route: Route, leave_after: int) -> None:
         gw = Gateway(
@@ -291,7 +317,8 @@ def emitted() -> tuple[set[str], list[Metric]]:
         key
         for span in spans.get_finished_spans()
         for event in span.events
-        if event.name in (c.RETRY_EVENT, c.BREAKER_EVENT)
+        if event.name
+        in (c.RETRY_EVENT, c.BREAKER_EVENT, c.FALLBACK_EVENT)
         for key in (event.attributes or {})
     }
     # Chapter 13: an event's attributes are emitted names too.

@@ -36,6 +36,10 @@ spend limit's 429s (Chapter 12). Owner: platform.
   `deadline` means the gateway refused the call itself; a
   `wrenholt.breaker` event shows when the breaker opened, and its
   next probe is at most 30 s later.
+- Chapter 17: the gateway falls back to provider B by itself. Answers
+  it made there carry `wrenholt.degraded.mode` `fallback_model`; a
+  trace whose reason is `exercise` and mode `full` is a fallback that
+  failed its daily exercise: fix it before relying on it.
 
 ## ttfc_interactive
 

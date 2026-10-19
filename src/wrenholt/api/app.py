@@ -30,6 +30,7 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from wrenholt import repro
+from wrenholt.api.admission import Admission
 from wrenholt.evaluation.emitter import ResultEmitter
 from wrenholt.evaluation.evaluators import standard
 from wrenholt.evaluation.online import Evaluating
@@ -44,10 +45,16 @@ from wrenholt.gateway import (
     load_prices,
 )
 from wrenholt.gateway.deadlines import deadline
-from wrenholt.gateway.guarded import GuardedGateway
+from wrenholt.gateway.fallback import (
+    FallbackGateway,
+    Mode,
+    affordable,
+    mark,
+)
 from wrenholt.gateway.retry import GuardedPolicy, RetryBudget
 from wrenholt.guardrail import Guardrail
 from wrenholt.orchestrator import linnet as running
+from wrenholt.orchestrator.degraded import degrade
 from wrenholt.orchestrator.guard import LoopGuard
 from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.orchestrator.prompts import SUPPORT, Prompt
@@ -55,10 +62,12 @@ from wrenholt.privacy.vault import Vault
 from wrenholt.rag.corpus import snapshot
 from wrenholt.rag.embed import EMBEDDERS
 from wrenholt.rag.index import index_as_of
+from wrenholt.rag.retriever import Retriever
 from wrenholt.slo.recorder import (
     CheckedRetriever,
     Screened,
     SliRecorder,
+    request_class,
 )
 from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry.framework import FRAMEWORK_TELEMETRY_OFF
@@ -98,6 +107,17 @@ class Settings(BaseSettings):
     attempt_timeout_s: float = 30.0
     retries_per_minute: int = 60
     in_flight: int = 64
+    # Chapter 17: each model's fallbacks; one call in this many
+    # exercises them; the planning peak's cost an hour (Chapter 11),
+    # which every fallback must afford; and answers worked on at once,
+    # with room kept for critical actions.
+    fallbacks: dict[str, list[str]] = {
+        "mock-a-fast": ["mock-b-standard"]
+    }
+    exercise_every: int = 100
+    peak_cost_per_hour: str = "21.91"
+    max_answers: int = 90
+    reserved_critical: int = 18
     # Chapter 12: the guardrail's rule set (FS-17 runs version 2).
     guardrail_version: str = "1"
     # Chapter 13: the share of answers evaluated, chosen by trace ID.
@@ -151,7 +171,24 @@ def create_app(
     prices = load_prices()
     if missing := prices.missing(table):
         raise ValueError(f"no price for {', '.join(missing)}")
-    gateway = GuardedGateway(
+    # Chapter 17: a fallback the tenant could not afford at the
+    # planning peak stops start-up, as FS-13's did not.
+    peak, spend_limit = (
+        Decimal(cfg.peak_cost_per_hour),
+        Decimal(cfg.spend_per_hour),
+    )
+    for model, chain in cfg.fallbacks.items():
+        for fallback in chain:
+            if fallback not in table:
+                raise ValueError(f"no route for fallback {fallback}")
+            # A fallback must keep an affordable peak affordable.
+            if peak < spend_limit and not affordable(
+                prices, model, fallback, peak, spend_limit
+            ):
+                raise ValueError(
+                    f"{fallback} costs too much at the peak"
+                )
+    gateway = FallbackGateway(
         table,
         policy,
         pinned=PINNED,
@@ -160,6 +197,8 @@ def create_app(
         max_tokens=dict.fromkeys(table, cfg.max_output_tokens),
         attempt_timeout_s=cfg.attempt_timeout_s,
         in_flight=cfg.in_flight,
+        chains=cfg.fallbacks,
+        every=cfg.exercise_every,
     )
     orders = GuardedOrders(cfg.orders_url, budget)
     # Chapter 9: an index built by another embedder stops start-up
@@ -172,6 +211,10 @@ def create_app(
     retriever = CheckedRetriever(
         index, EMBEDDERS[cfg.query_embedder], in_force, slis
     )
+    # Chapter 17: degraded answers search without judging freshness
+    # again, and the process admits what it can answer in time.
+    plain = Retriever(index, EMBEDDERS[cfg.query_embedder])
+    admission = Admission(cfg.max_answers, cfg.reserved_critical)
     limit = cfg.agent_max_steps
     linnet = Linnet(retriever, guard=lambda: LoopGuard(limit))
     guardrail = Guardrail(cfg.guardrail_version)
@@ -314,17 +357,37 @@ def create_app(
             return StreamingResponse(
                 events, media_type="text/event-stream"
             )
+        cls = request_class(body.message)
+        if not admission.admit(cls):  # Chapter 17: no queue
+            if cls == "critical_action":
+                mark(span, Mode.REFUSED, "shed")
+                raise HTTPException(
+                    503,
+                    "Linnet cannot answer now.",
+                    headers={"Retry-After": "5"},
+                )
+            shed = degrade(
+                plain.search(body.message), cls, in_force, "shed"
+            )
+            return ChatOut(answer=shed.text)
         try:
             with deadline(cfg.deadline_s):  # Chapter 16
                 result = await answer(
                     gateway, cfg.model, body.message, orders
                 )
         except ProviderError as err:
-            # The trace holds the details; the customer gets none.
+            # The trace holds the details; the customer gets the best
+            # answer Linnet can give without a model (Chapter 17).
             LOG.warning("chat failed: %s", err.error_type.value)
-            raise HTTPException(
-                503, "Linnet cannot answer now."
-            ) from err
+            out = degrade(
+                plain.search(body.message),
+                cls,
+                in_force,
+                err.error_type.value,
+            )
+            return ChatOut(answer=out.text)
+        finally:
+            admission.release()
         LOG.info("chat answered")  # never the customer's words
         model_seen = result.completion.response_model
         keep(span, body.message, result.text, model_seen, "complete")

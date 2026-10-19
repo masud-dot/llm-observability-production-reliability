@@ -10,12 +10,15 @@ import json
 import os
 import threading
 import time
+from collections.abc import Iterator, Mapping
+from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from typing import Any
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
+from starlette.middleware.base import RequestResponseEndpoint
 
 from services.mock_llm.decide import decide, from_notes
 from services.mock_llm.faults import NO_FAULTS, FaultPlan
@@ -30,7 +33,41 @@ PROVIDER_MODELS = {
     },
     "b": {"mock-b-standard": "mock-b-standard-2026-09"},
 }
-MODELS = PROVIDER_MODELS[os.environ.get("MOCK_LLM_PROVIDER", "a")]
+# The provider a request reached: the process's (MOCK_LLM_PROVIDER),
+# or another, set for each request by serving() (Chapter 17), so one
+# test process can run providers A and B side by side.
+PROCESS_PROVIDER = os.environ.get("MOCK_LLM_PROVIDER", "a")
+SERVING: ContextVar[str] = ContextVar(
+    "serving", default=PROCESS_PROVIDER
+)
+
+
+class Served(Mapping[str, str]):
+    """The models of the provider serving this request."""
+
+    def __getitem__(self, model: str) -> str:
+        return PROVIDER_MODELS[SERVING.get()][model]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(PROVIDER_MODELS[SERVING.get()])
+
+    def __len__(self) -> int:
+        return len(PROVIDER_MODELS[SERVING.get()])
+
+
+MODELS: Mapping[str, str] = Served()
+
+
+def serving(app: FastAPI, provider: str) -> FastAPI:
+    @app.middleware("http")
+    async def as_provider(
+        request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        SERVING.set(provider)
+        return await call_next(request)
+
+    return app
+
 
 # Deterministic answers chosen by keyword; the first match wins.
 ANSWERS = (

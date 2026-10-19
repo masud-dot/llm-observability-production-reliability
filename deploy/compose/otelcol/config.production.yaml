@@ -82,6 +82,12 @@ processors:
         type: probabilistic
         probabilistic:
           sampling_percentage: 10
+      - name: degraded  # Chapter 17: answers not made in full
+        type: string_attribute
+        string_attribute:
+          key: wrenholt.degraded.mode
+          values:
+            [fallback_model, cached, citation_only, handoff, refused]
   batch:
     timeout: 1s
 

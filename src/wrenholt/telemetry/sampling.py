@@ -17,6 +17,14 @@ from wrenholt.orchestrator.guard import REPEATED, STEP_LIMIT
 from wrenholt.telemetry import conventions as c
 
 BASELINE: Final = "baseline"
+# The degraded modes of Chapter 17's ladder, and refusals.
+DEGRADED: Final = (
+    "fallback_model",
+    "cached",
+    "citation_only",
+    "handoff",
+    "refused",
+)
 BASELINE_PERCENT: Final = 10
 
 
@@ -53,6 +61,8 @@ POLICIES: Final = (
     Policy("replayed-write", "boolean_attribute", c.TOOL_REPLAYED),
     Policy("model-mismatch", "boolean_attribute", c.MODEL_MISMATCH),
     Policy(BASELINE, "probabilistic"),
+    # Chapter 17: every answer made other than in full.
+    Policy("degraded", "string_attribute", c.DEGRADED_MODE, DEGRADED),
 )
 
 KEEP: Final = (
