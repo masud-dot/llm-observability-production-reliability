@@ -176,6 +176,17 @@ EVALUATION_SCORE: Final = "gen_ai.evaluation.score.value"
 EVALUATION_LABEL: Final = "gen_ai.evaluation.score.label"
 EVALUATOR_VERSION: Final = "wrenholt.evaluator.version"
 EVALUATION_RESULTS: Final = "wrenholt.evaluation.results"  # counter
+# Chapter 16: the gateway's protective decisions. Spans only: the
+# instance's series budget has no room for another metric.
+RETRY_DECISION: Final = "wrenholt.retry.decision"
+RETRY_WAIT: Final = "wrenholt.retry.wait"  # seconds
+DEADLINE_LEFT: Final = "wrenholt.deadline.remaining"  # seconds
+BREAKER_STATE: Final = "wrenholt.breaker.state"
+LIMIT_IN_FLIGHT: Final = "wrenholt.limit.in_flight"
+# Span events that carry them (book names). Not in REGISTRY, whose
+# events are checked against the pinned conventions.
+RETRY_EVENT: Final = "wrenholt.retry"
+BREAKER_EVENT: Final = "wrenholt.breaker"
 
 
 # The pinned specification the GenAI names come from.
@@ -303,6 +314,12 @@ REGISTRY: Final = (
     Name(EVALUATION_SCORE, "attribute", "genai"),
     Name(EVALUATION_LABEL, "attribute", "genai"),
     Name(EVALUATOR_VERSION, "attribute", "book"),
+    # Chapter 16: protective decisions, on spans.
+    Name(RETRY_DECISION, "attribute", "book"),
+    Name(RETRY_WAIT, "attribute", "book"),
+    Name(DEADLINE_LEFT, "attribute", "book"),
+    Name(BREAKER_STATE, "attribute", "book"),
+    Name(LIMIT_IN_FLIGHT, "attribute", "book"),
     Name(EVALUATION_RESULTS, "metric", "book", "counter", "{result}"),
 )
 # Events, checked against the pinned conventions' events.

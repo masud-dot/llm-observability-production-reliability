@@ -923,3 +923,40 @@ Same run, other checks:
   neither was executed against Tempo or Loki here.
 - Sources read: SRE book chapter 22 (2026-10-19); TraceQL docs at
   Tempo v3.1.0.
+
+## Chapter 16: Timeouts, Retries, Rate Limits and Circuit Breakers
+
+- Command: `make verify-ch16` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-19
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L16-01 | One deadline per answer | `src/wrenholt/gateway/deadlines.py` | `tests/unit/test_guarded.py` (spent deadline refused; attempt cut at the deadline) | pass | pending |
+| L16-02 | The process-wide retry budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (Hypothesis: grants exactly its rolling minute) | pass | pending |
+| L16-03 | Retry decisions under the deadline and the budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (backoff bounds; never past the deadline); `tests/unit/test_guarded.py` (6 s retry-after: Chapter 4 stops, 9 s left retries, 5 s left stops) | pass | pending |
+| L16-04 | The breaker's states | `src/wrenholt/gateway/breaker.py` | `tests/resilience/test_controls.py` (opens on the fifth, one probe, closes; only the provider's failures; Hypothesis) | pass | pending |
+| L16-05 | The guarded attempt | `src/wrenholt/gateway/guarded.py` | `tests/unit/test_guarded.py` (breaker, bulkhead and deadline refusals send nothing; FS-18 not retried) | pass | pending |
+| L16-06 | The refund under the deadline and the budget | `src/wrenholt/tools/guarded.py` | `tests/unit/test_guarded.py` (cut at the deadline; retry refused with the budget spent) | pass | pending |
+| L16-07 | The protective controls under load | `scripts/protect_lab.py` | run command (2026-10-19); `tests/unit/test_guarded.py` (every figure) | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 319 passed. `pytest tests/lab`: 8 passed. 327
+  tests: unit 206, slo 65, resilience 11, drift 23, lab 8, privacy 14.
+  Fourteen are new; the drift fixture now makes a guarded call whose
+  breaker opens, so the five new attribute names are emitted names.
+- `ruff check`, `ruff format --check` and `mypy --strict` (220
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 16 is in the repository (104
+  checked; 36 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved. The availability runbook's Chapter 16 note
+  follows the block Listing L14-08 shows, which is unchanged.
+- No native run: the lab uses a fake clock, and the TraceQL query in
+  Section 16.4 was not executed against Tempo.
+- Sources read: SRE book chapter 22, the retry quotes (2026-10-19);
+  Amazon Builders' Library, timeouts, retries and backoff with
+  jitter (2026-10-19). The Azure circuit breaker pattern is
+  paraphrased, not quoted.

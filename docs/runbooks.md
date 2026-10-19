@@ -31,6 +31,11 @@ spend limit's 429s (Chapter 12). Owner: platform.
 - Act: for a provider outage, move traffic to another provider or
   model; for a spend limit, ask the budget owner before raising
   it.
+- Chapter 16: on the chat spans of failed answers,
+  `wrenholt.retry.decision` `breaker_open`, `limit_full` or
+  `deadline` means the gateway refused the call itself; a
+  `wrenholt.breaker` event shows when the breaker opened, and its
+  next probe is at most 30 s later.
 
 ## ttfc_interactive
 

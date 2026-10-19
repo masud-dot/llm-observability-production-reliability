@@ -35,16 +35,17 @@ from wrenholt.evaluation.evaluators import standard
 from wrenholt.evaluation.online import Evaluating
 from wrenholt.gateway import (
     SPEND,
-    Gateway,
     Ledger,
     LimitExceeded,
     ProviderError,
-    RetryPolicy,
     Route,
     Spend,
     StreamResult,
     load_prices,
 )
+from wrenholt.gateway.deadlines import deadline
+from wrenholt.gateway.guarded import GuardedGateway
+from wrenholt.gateway.retry import GuardedPolicy, RetryBudget
 from wrenholt.guardrail import Guardrail
 from wrenholt.orchestrator import linnet as running
 from wrenholt.orchestrator.guard import LoopGuard
@@ -61,7 +62,7 @@ from wrenholt.slo.recorder import (
 )
 from wrenholt.telemetry import conventions as c
 from wrenholt.telemetry.framework import FRAMEWORK_TELEMETRY_OFF
-from wrenholt.tools.orders import OrdersClient
+from wrenholt.tools.guarded import GuardedOrders
 
 LOG = logging.getLogger("wrenholt.api")
 
@@ -90,6 +91,13 @@ class Settings(BaseSettings):
     tenant: str = "wrenholt"
     spend_per_hour: str = "60.00"
     max_output_tokens: int = 512
+    # Chapter 16: the answer's deadline end to end (Chapter 2), the
+    # attempt timeout (set it from the provider's p99.9), retries a
+    # minute for the process, and calls in flight per provider.
+    deadline_s: float = 10.0
+    attempt_timeout_s: float = 30.0
+    retries_per_minute: int = 60
+    in_flight: int = 64
     # Chapter 12: the guardrail's rule set (FS-17 runs version 2).
     guardrail_version: str = "1"
     # Chapter 13: the share of answers evaluated, chosen by trace ID.
@@ -136,20 +144,24 @@ def create_app(
     # Chapter 12: the SLI events the handlers judge.
     slis = slis if slis is not None else SliRecorder()
     table = routes(cfg)
-    policy = RetryPolicy()
+    # Chapter 16: one retry budget for model and tool calls.
+    budget = RetryBudget(cfg.retries_per_minute)
+    policy = GuardedPolicy(budget)
     # Chapter 11: a routed model without a price stops start-up.
     prices = load_prices()
     if missing := prices.missing(table):
         raise ValueError(f"no price for {', '.join(missing)}")
-    gateway = Gateway(
+    gateway = GuardedGateway(
         table,
         policy,
         pinned=PINNED,
         prices=prices,
         ledger=Ledger({cfg.tenant: Decimal(cfg.spend_per_hour)}),
         max_tokens=dict.fromkeys(table, cfg.max_output_tokens),
+        attempt_timeout_s=cfg.attempt_timeout_s,
+        in_flight=cfg.in_flight,
     )
-    orders = OrdersClient(cfg.orders_url)
+    orders = GuardedOrders(cfg.orders_url, budget)
     # Chapter 9: an index built by another embedder stops start-up
     # here (FS-08), instead of answering every question emptily.
     index = index_as_of(
@@ -303,9 +315,10 @@ def create_app(
                 events, media_type="text/event-stream"
             )
         try:
-            result = await answer(
-                gateway, cfg.model, body.message, orders
-            )
+            with deadline(cfg.deadline_s):  # Chapter 16
+                result = await answer(
+                    gateway, cfg.model, body.message, orders
+                )
         except ProviderError as err:
             # The trace holds the details; the customer gets none.
             LOG.warning("chat failed: %s", err.error_type.value)

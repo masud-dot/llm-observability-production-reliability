@@ -51,3 +51,17 @@ class ProviderError(Exception):
     @property
     def retryable(self) -> bool:
         return self.error_type in RETRYABLE
+
+
+class Rejected(ProviderError):
+    """Refused by the gateway itself, before any provider call
+    (Chapter 16): an open breaker or a full concurrency limit. It
+    keeps the closed set's error type and is never retried."""
+
+    def __init__(self, error_type: ErrorType, reason: str) -> None:
+        super().__init__(error_type)
+        self.reason = reason
+
+    @property
+    def retryable(self) -> bool:
+        return False

@@ -56,3 +56,22 @@ class Ledger:
 
     def charge(self, tenant: str, cost: Decimal) -> None:
         self._spent[tenant] = self.spent(tenant) + cost
+
+
+class ConcurrencyLimit:
+    """A bulkhead (Chapter 16): at most `size` provider calls in
+    flight. The next is refused at once rather than queued, so a slow
+    provider cannot hold every worker."""
+
+    def __init__(self, size: int) -> None:
+        self.size = size
+        self.in_flight = 0
+
+    def acquire(self) -> bool:
+        if self.in_flight >= self.size:
+            return False
+        self.in_flight += 1
+        return True
+
+    def release(self) -> None:
+        self.in_flight -= 1

@@ -44,6 +44,9 @@ from wrenholt.gateway import (
     load_prices,
 )
 from wrenholt.gateway.context import prompt
+from wrenholt.gateway.deadlines import deadline
+from wrenholt.gateway.guarded import GuardedGateway
+from wrenholt.gateway.retry import GuardedPolicy, RetryBudget
 from wrenholt.guardrail import Guardrail
 from wrenholt.orchestrator.linnet import Linnet
 from wrenholt.privacy.pseudonym import keys_from_env
@@ -80,8 +83,9 @@ def emitted() -> tuple[set[str], list[Metric]]:
     two streamed answers, one left early (Chapter 8), Linnet
     answering a policy question and a refund (Chapter 9), a call
     refused at the spend limit (Chapter 11), the API's SLI events
-    and a guardrail refusal (Chapter 12), and one answer's evaluation
-    results, as events and counts (Chapter 13)."""
+    and a guardrail refusal (Chapter 12), one answer's evaluation
+    results, as events and counts (Chapter 13), and a guarded call
+    whose breaker opens under a deadline (Chapter 16)."""
     spans = InMemorySpanExporter()
     tracing = TracerProvider()
     tracing.add_span_processor(SimpleSpanProcessor(spans))
@@ -133,6 +137,29 @@ def emitted() -> tuple[set[str], list[Metric]]:
         asyncio.run(
             refused(Route("wrenholt.mock_a", mock.base_url, "x"))
         )
+
+    async def guarded() -> None:
+        """Chapter 16: nothing listens on port 9, the first failure
+        opens the breaker, and the retry is refused."""
+        route = Route("wrenholt.mock_a", "http://127.0.0.1:9/v1", "x")
+        gw = GuardedGateway(
+            {"mock-a-fast": route},
+            GuardedPolicy(RetryBudget()),
+            tracer_provider=tracing,
+            meter_provider=meters,
+            sleep=no_wait,
+            failures=1,
+            **PRICED,
+        )
+        try:
+            with deadline(10.0):
+                await gw.chat("mock-a-fast", [Message("user", "Hi")])
+        except ProviderError:
+            pass
+        finally:
+            await gw.aclose()
+
+    asyncio.run(guarded())
 
     async def stream(route: Route, leave_after: int) -> None:
         gw = Gateway(
@@ -259,6 +286,14 @@ def emitted() -> tuple[set[str], list[Metric]]:
     # gen_ai.token.modality is.
     registered = {n.name for n in c.REGISTRY}
     attrs |= {k for metric in metrics for k in metric[3]} & registered
+    # Chapter 16: so are those of the gateway's span events.
+    attrs |= {
+        key
+        for span in spans.get_finished_spans()
+        for event in span.events
+        if event.name in (c.RETRY_EVENT, c.BREAKER_EVENT)
+        for key in (event.attributes or {})
+    }
     # Chapter 13: an event's attributes are emitted names too.
     attrs |= {
         k

@@ -363,3 +363,25 @@ written.
   investigator, then replay the trace's bundle against the mock, on
   the bundle's index build and on the build that should serve.
 - Checks: `make verify-ch15`.
+
+## Chapter 16: Timeouts, Retries, Rate Limits and Circuit Breakers
+
+- `src/wrenholt/gateway/deadlines.py`: one deadline per answer, in a
+  context variable; the API sets `WRENHOLT_DEADLINE_S` (10 s) around
+  each whole answer.
+- `src/wrenholt/gateway/retry.py`: `GuardedPolicy` keeps Chapter 4's
+  backoff, retries only within the deadline and a process-wide
+  budget (`WRENHOLT_RETRIES_PER_MINUTE`, 60), never retries a quota,
+  and records each decision as a `wrenholt.retry` span event.
+- `src/wrenholt/gateway/breaker.py` and `guarded.py`: a breaker per
+  provider (5 failures in a row, 30 s, one probe), a concurrency
+  limit (`WRENHOLT_IN_FLIGHT`, 64) and attempts cut to the deadline
+  (`WRENHOLT_ATTEMPT_TIMEOUT_S`, 30 s until measured). Refusals are
+  `Rejected` errors, never retried, and send nothing to the provider.
+- `src/wrenholt/tools/guarded.py`: the orders service under the same
+  deadline and budget; the refund tool's retry spends from it.
+- `uv run python scripts/protect_lab.py`: FS-01, FS-03 and FS-18,
+  the timeout from a percentile and the bulkhead (SIMULATED, fake
+  clock, the gateway's own classes). Streamed answers keep Chapter
+  8's path.
+- Checks: `make verify-ch16`.
