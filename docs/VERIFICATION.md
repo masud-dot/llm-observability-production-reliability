@@ -1032,3 +1032,38 @@ Same run, other checks:
   10. No other native run, and no Compose stack.
 - Sources read: SRE book chapter 22, the load testing, breaking point,
   degraded mode and noncritical backend quotes (2026-10-20).
+
+## Chapter 19: Incident Response and Postmortems for AI Systems
+
+- Command: `make verify-ch19` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-20
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L19-01 | AI severities | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (severity follows the SLO and only rises) | pass | pending |
+| L19-02 | Grafana's notifications into one record | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (open, repeat, join, mitigate, reopen; restart) | pass | pending |
+| L19-03 | The incident service | `src/wrenholt/api/incidents.py` | `tests/unit/test_incidents.py` (POST /alerts, GET /incidents, the draft, 404) | pass | pending |
+| L19-04 | The service in compose | `deploy/compose/docker-compose.yml` | `tests/unit/test_incidents.py` (parsed; Grafana's default webhook); not started | pass (parsed only) | pending |
+| L19-05 | The postmortem's completeness check | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (nine gaps; end-user data blocks the close) | pass | pending |
+| L19-06 | The game day, FS-03 and FS-07 | `scripts/game_day.py` | run command (2026-10-20); `tests/unit/test_incidents.py` | pass (SIMULATED) | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 343 passed. `pytest tests/lab`: 8 passed. 351
+  tests: unit 230, slo 65, resilience 11, drift 23, lab 8, privacy 14.
+  Seven are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (237
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 19 is in the repository (119
+  checked; 40 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved.
+- No Docker run: the compose file is parsed, not started. The game
+  day's trace comes from a real gateway call to two addresses that
+  refuse connections; its FS-07 finding comes from Chapter 9's lab.
+- Sources read: SRE book chapter 15; the abstracts of Yan et al.
+  (arXiv 2504.08865) and Chu et al. (arXiv 2501.12469); Grafana's
+  webhook notifier docs at v13.2.3; Tempo's API docs at v3.1.0
+  (2026-10-20).

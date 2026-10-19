@@ -333,8 +333,8 @@ written.
   `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml`:
   18 Grafana-managed rules, the incident webhook contact point and a
   notification policy by severity. Grafana fills the webhook from
-  `WRENHOLT_INCIDENT_WEBHOOK`; compose points it at the webhook sink
-  until Chapter 19. The same expressions go to
+  `WRENHOLT_INCIDENT_WEBHOOK`; compose points it at the incident
+  service (Chapter 19). The same expressions go to
   `tests/slo/slo_alerts.rules.yaml` for promtool.
 - The SLO recording rules add valid events over 6 hours: 96 rules
   in 10 groups.
@@ -428,3 +428,22 @@ written.
   past the breaking point, on a gradual ramp and an impulse, with a
   queue and with admission control (SIMULATED).
 - Checks: `make verify-ch18`.
+
+## Chapter 19: Incident Response and Postmortems for AI Systems
+
+- `src/wrenholt/incidents.py`: incident records. Grafana's
+  notifications are grouped by SLO; a page opens an incident at its
+  SLO's severity (SEV1 availability and critical actions, SEV2
+  decision validity, refusals and interactive first chunks, SEV3
+  tickets), later alerts join its timeline, and it is mitigated when
+  every alert has resolved. It closes only on a complete postmortem:
+  every section filled, a trace link, an action with an owner and a
+  date, and no end-user data.
+- `uvicorn wrenholt.api.incidents:app --port 8300`: the incident
+  service. `POST /alerts` takes Grafana's webhook; `GET /incidents`;
+  `GET /incidents/{id}/postmortem`. Compose runs it as `incidents`,
+  and Grafana's contact point now reaches it.
+- `uv run python scripts/game_day.py`: a game day combining FS-03 and
+  FS-07 (SIMULATED): Chapter 14's alerts, the responders' steps, and
+  a postmortem that closes the incident.
+- Checks: `make verify-ch19`.

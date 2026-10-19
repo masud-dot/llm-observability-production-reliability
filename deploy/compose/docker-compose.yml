@@ -65,12 +65,12 @@ services:
       # Chapter 14: where SLO alerts go. Until Chapter 19's incident
       # service, a sink that records each notification.
       WRENHOLT_INCIDENT_WEBHOOK: >-
-        ${WRENHOLT_INCIDENT_WEBHOOK:-http://webhook-sink:8099/alert}
+        ${WRENHOLT_INCIDENT_WEBHOOK:-http://incidents:8300/alerts}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3000:3000"
-    depends_on: [prometheus, tempo, loki, webhook-sink]
+    depends_on: [prometheus, tempo, loki, incidents]
 
   webhook-sink:
     image: python:3.14.7-slim
@@ -103,6 +103,18 @@ services:
   # ---- Application plane (Chapter 3): one image, four services.
   # No service here depends on the telemetry plane: Linnet must
   # start, and keep serving, without a Collector.
+  # Chapter 19: the incident service Grafana's alerts reach.
+  incidents:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    command: ["uvicorn", "wrenholt.api.incidents:app",
+              "--host", "0.0.0.0", "--port", "8300"]
+    environment:
+      WRENHOLT_INCIDENTS: /tmp/incidents.json
+    ports:
+      - "8300:8300"
+
   linnet-api:
     build: &app-image
       context: ../..
