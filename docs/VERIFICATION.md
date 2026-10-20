@@ -1067,3 +1067,39 @@ Same run, other checks:
   (arXiv 2504.08865) and Chu et al. (arXiv 2501.12469); Grafana's
   webhook notifier docs at v13.2.3; Tempo's API docs at v3.1.0
   (2026-10-20).
+
+## Chapter 20: Reliability in CI/CD and the Reliability Programme
+
+- Command: `make verify-ch20` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-20
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| L20-01 | Change types and their CI gates | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (classification by path; `ci` runs only the gates needed) | pass | pending |
+| L20-02 | The evaluation gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (FS-10 blocked, version 1 passes; cases weighted by the mix) | pass | pending |
+| L20-03 | Canary signals, the split by version, the decision | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (wait, promote, roll back; one-sided; inside the budget; FS-11) | pass | pending |
+| L20-04 | The budget gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (held; fix ships; outside cause; nothing exhausted) | pass | pending |
+| L20-05 | The gates workflow | `.github/workflows/gates.yml` | `tests/unit/test_gates.py` (parsed); not run in GitHub Actions | pass (parsed only) | pending |
+| L20-06 | The gates lab, FS-10 and FS-11 | `scripts/gates.py lab` | run command (2026-10-20); `tests/unit/test_gates.py` | pass (SIMULATED) | pending |
+| L20-07 | The self-assessment | `scripts/gates.py assess` | run command (2026-10-20); `tests/unit/test_gates.py` | pass | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 354 passed. `pytest tests/lab`: 8 passed. 362
+  tests: unit 241, slo 65, resilience 11, drift 23, lab 8, privacy 14.
+  Eleven are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (242
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 20 is in the repository (124
+  checked; 42 captured outputs skipped), except L10-03 and L11-08,
+  superseded as approved.
+- No Docker run, and no GitHub Actions run: the workflow is parsed,
+  and `ci` runs with a stand-in for its subprocesses. The canary's
+  spans come from real gateway calls to two in-process mock
+  providers; the endpoint move and the newer model are simulated.
+- Sources read: *The Site Reliability Workbook*, chapter 16,
+  Canarying Releases, fetched twice with the quotes re-checked
+  (2026-10-20).

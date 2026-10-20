@@ -446,4 +446,23 @@ written.
 - `uv run python scripts/game_day.py`: a game day combining FS-03 and
   FS-07 (SIMULATED): Chapter 14's alerts, the responders' steps, and
   a postmortem that closes the incident.
+
+## Chapter 20: Reliability in CI/CD and the Reliability Programme
+
+- `src/wrenholt/gates.py`: release gates. A change is classified by
+  the paths it touches (prompt, model, index, configuration, code);
+  code and configuration face the contract and drift gates, and
+  prompts, models and the index face the evaluation gate. The
+  error-budget gate applies `docs/error_budget_policy.md`; the
+  canary compares releases by `service.version` with Chapter 13's
+  one-sided test and rolls back on errors or a model mismatch.
+- `.github/workflows/gates.yml`: runs
+  `scripts/gates.py ci --base origin/<base>` on each pull request.
+  The tests parse it; it has not run in GitHub Actions here.
+- `uv run --group lab python scripts/gates.py lab`: FS-10 blocked by
+  the evaluation gate, FS-11 rolled back by the canary, and the
+  budget policy's three cases (SIMULATED).
+- `uv run --group lab python scripts/gates.py assess`: the
+  self-assessment, one question for each stage of the spine,
+  answered from the repository.
 - Checks: `make verify-ch19`.
