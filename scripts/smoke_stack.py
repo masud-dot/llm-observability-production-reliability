@@ -1,4 +1,4 @@
-"""Phase 1.5 smoke test for the local observability stack.
+"""Smoke test for the local observability stack (checks 1-8).
 
 Stdlib only, so it runs on a bare CI runner. Exit status 0 means
 every required check passed. Endpoints default to the Compose

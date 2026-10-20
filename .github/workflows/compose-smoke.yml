@@ -1,6 +1,6 @@
-# Prove the local stack end to end. Phase 1.5: checks 1-8 run in
-# stack-smoke and check 9 (file-provisioned Grafana alert reaching a
-# webhook) in alert-smoke. Chapter 3 adds config-lint and checks
+# Prove the local stack end to end: checks 1-8 run in stack-smoke
+# and check 9 (a file-provisioned Grafana alert reaching a webhook)
+# in alert-smoke. Chapter 3 adds config-lint and checks
 # 10-17 for the application plane, including a Collector outage.
 name: compose-smoke
 

@@ -165,7 +165,7 @@ def test_workflow_runs_the_gates_on_pull_requests() -> None:
     assert checkout["with"] == {"fetch-depth": 0}
     assert "scripts/gates.py ci --base" in run["run"]
     assert "--group lab" in run["run"]
-    # Phase 3: the contract gate's Collector tests need the binary.
+    # The contract gate's Collector tests need the binary.
     assert "scripts/fetch_collector.sh" in run["run"]
 
 

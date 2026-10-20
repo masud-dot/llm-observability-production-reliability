@@ -1,4 +1,4 @@
-# Local stack. Telemetry plane (Phase 1.5): OpenTelemetry
+# Local stack. Telemetry plane: OpenTelemetry
 # Collector, Prometheus, Tempo, Loki, Grafana; Jaeger is the
 # documented alternative only (Appendix H). Application plane
 # (Chapter 3): Linnet API, mock providers A and B, orders service.
@@ -40,7 +40,7 @@ services:
   tempo:
     image: grafana/tempo:3.1.0
     command: ["-config.file=/etc/tempo/tempo.yaml"]
-    # Tempo 3.1.0 needed ~30 s to stop in the Phase 1.5 native run
+    # Tempo 3.1.0 needed ~30 s to stop in the baseline native run
     # (backend worker waits out a job timeout); allow it to exit.
     stop_grace_period: 60s
     volumes:

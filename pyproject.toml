@@ -32,7 +32,7 @@ dev = [
     "types-pyyaml==6.0.12.20260906",
 ]
 # Chapter 1 and 4 comparison labs only: official instrumentation,
-# pinned to the combination verified in the Phase 1 spike.
+# pinned to the combination verified in the initial compatibility check.
 lab = [
     "opentelemetry-instrumentation-openai-v2==2.4b0",
     "opentelemetry-util-genai==0.4b0",

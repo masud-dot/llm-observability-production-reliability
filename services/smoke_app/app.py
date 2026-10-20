@@ -1,4 +1,4 @@
-"""Phase 1.5 smoke app: one span, one metric point and one log
+"""Smoke app: one span, one metric point and one log
 record per /smoke call, exported over OTLP/HTTP."""
 
 from __future__ import annotations
