@@ -201,7 +201,21 @@ def wrap(query: str, width: int = 66) -> str:
             line = "  "
         line += text + sep
     lines.append(line.rstrip())
-    return "\n".join(lines)
+    return "\n".join(part for one in lines for part in fit(one))
+
+
+def fit(line: str, limit: int = 70) -> list[str]:
+    """Split a line still over the print limit before its range
+    selector, which PromQL lets whitespace precede; a name too long
+    for its indent loses the indent."""
+    head, bracket, tail = line.rpartition("[")
+    selector = re.match(r"\d+[smhdwy]\]", tail)
+    if len(line) <= limit or not bracket or not selector:
+        return [line]
+    head = head.rstrip()
+    if len(head) > limit:
+        head = head.lstrip()
+    return [head, "  [" + tail]
 
 
 # Appendix D ---------------------------------------------------------

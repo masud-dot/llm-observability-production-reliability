@@ -165,3 +165,18 @@ def test_alternative_probes_read_the_backends(
     gone = json.dumps({"error": {"message": "No traces found"}})
     monkeypatch.setattr(alt, "call", lambda *_: (404, gone))
     assert alt.jaeger_has_traces() == (False, "HTTP 404, 0 trace(s)")
+
+
+def test_printed_queries_fit_the_page() -> None:
+    # The book's code lines are at most 70 characters; dashboard
+    # queries with long metric names break before the range selector.
+    for language in ("prometheus", "tempo"):
+        text = a.dashboard_queries(language)
+        code = [
+            line
+            for block in text.split("```")[1::2]
+            for line in block.splitlines()
+        ]
+        assert code and max(len(line) for line in code) <= 70
+    long = "  x" * 30 + "[5m])"
+    assert a.fit(long) == ["x" + "  x" * 29, "  [5m])"]
