@@ -1146,7 +1146,7 @@ Same run, other checks:
 | LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pass: native load-balancing exercise, 20 Oct 2026 |
-| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | failed: alternatives run 39418580084 validated the override and started the stack, but the probes used routes Jaeger 2.21.0 removed (HTTP 404); probes corrected and passed natively; GitHub rerun pending |
+| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | pass: alternatives on pull request #1 at 17eb713 (Jaeger job succeeded; log not read); the first run, 39418580084, failed on routes Jaeger 2.21.0 removed, and the probes were corrected |
 | Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pass: tests re-run 20 Oct 2026 |
 | Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pass: parse only, native backends, 20 Oct 2026 |
 
@@ -1163,7 +1163,7 @@ Same run, other checks:
   except L10-03 and L11-08, superseded as approved.
 - Not run: Docker, the Jaeger override, the otel-lgtm quick start.
 
-## Phase 3: Technical Validation (open)
+## Phase 3: Technical Validation (checks complete; closes on the author's approval)
 
 Results are Passed (executed), Failed (executed, failure recorded),
 Static (configuration or parse only), Not run, or Blocked. Provider
@@ -1422,10 +1422,37 @@ port 16686, so no book text changes, and the pin stays 2.21.0.
   files): clean. `uv lock --check`: 96 packages. Listings: 130
   checked, 43 skipped, 0 missing.
 
-### Still open in Phase 3
+### GitHub Actions: pull request #1 at 17eb713 (20 Oct 2026)
 
-- The Jaeger alternative (LH-01): rerun on pull request #1 with the
-  corrected probes.
+All 9 checks succeeded, from the author's screenshot of the Checks
+tab: compose-smoke on the push and on the pull request (3 jobs
+each), gates, and alternatives (Jaeger and the quick start). The
+public run pages were still cached, so the run IDs were not
+captured: they are the runs for commit 17eb713 on pull request #1.
+The Jaeger job's smoke step exits 1 if any check fails, so all three
+H.3 checks passed: Linnet answered (SIMULATED), and Jaeger listed
+`linnet-api` and held its traces. Passed.
+
+### Phase 3 result (20 Oct 2026)
+
+All ten validation items have run. Listings, Phase 3 column: 173
+rows. 160 pass; 2 superseded as approved (L10-03, L11-08); 2 static
+(L14-05, L14-06: Grafana loaded them in CI, rules not seen firing);
+8 not re-run, needing a running stack with data or a manual run
+(L01-06, L04-08, L06-07, L08-06, L09-07, L10-07, L11-09, L12-06); 1
+differs (L05-04).
+
+Open for the author's decision:
+
+- L05-04: keep it as Chapter 5's snapshot, or update its output.
+- The GenAI conventions' renames since the pin: keep the pin, or
+  move it under Appendix B.
+- Newer releases of pinned components: adopt none, or some.
+- `alternatives.yml`: keep or drop its pull-request trigger.
+- Appendix H's "has not been run" sentences (H.3, H.4 and Listing
+  LH-01's comment), now that both alternatives have run.
+
+Phase 3 closes on the author's approval.
 - L05-04: keep it as Chapter 5's snapshot, or update its output.
 - The GenAI conventions' renames since the pin: keep the pin, or move
   it under Appendix B.
