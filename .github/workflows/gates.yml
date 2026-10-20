@@ -27,4 +27,6 @@ jobs:
         run: |
           pipx install uv==0.11.7
           uv sync --frozen --group lab
+          # The contract gate's Collector tests need the binary.
+          scripts/fetch_collector.sh
           uv run --group lab python scripts/gates.py ci --base "$BASE"

@@ -138,8 +138,11 @@ def tempo_has_linnet_spans() -> tuple[bool, str]:
 
 
 def prometheus_has_linnet_metric() -> tuple[bool, str]:
+    # Chapter 6 added service.namespace, and Prometheus names an
+    # OTLP job "<namespace>/<name>": the series must exist under it.
     promql = (
-        'http_server_request_duration_seconds_count{job="linnet-api"}'
+        "http_server_request_duration_seconds_count"
+        '{job="wrenholt/linnet-api"}'
     )
     query = urllib.parse.urlencode({"query": promql})
     status, body = call(f"{PROM}/api/v1/query?{query}")

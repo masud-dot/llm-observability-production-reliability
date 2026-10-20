@@ -1,0 +1,104 @@
+# Appendix H alternatives (mock provider: SIMULATED): Jaeger v2 in
+# place of Tempo (H.3), and the single-container quick start (H.4).
+# Neither is part of the smoke stack. Run it by hand from the Actions
+# tab: GitHub offers manual runs only for workflows on the default
+# branch, so until this file is there it also runs on pull requests
+# that change it, the Jaeger override or the smoke script.
+name: alternatives
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/alternatives.yml"
+      - "deploy/compose/docker-compose.jaeger.yml"
+      - "scripts/smoke_alternatives.py"
+
+permissions:
+  contents: read
+
+env:
+  COMPOSE_VERSION: v5.5.1
+
+jobs:
+  jaeger:
+    name: Jaeger v2 in place of Tempo (H.3)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      FILES: >-
+        -f deploy/compose/docker-compose.yml
+        -f deploy/compose/docker-compose.jaeger.yml
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install pinned Docker Compose
+        run: |
+          mkdir -p "$HOME/.docker/cli-plugins"
+          curl -fsSL -o "$HOME/.docker/cli-plugins/docker-compose" \
+            "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-x86_64"
+          chmod +x "$HOME/.docker/cli-plugins/docker-compose"
+          docker compose version
+
+      - name: Validate the layered Compose model
+        run: docker compose $FILES config --quiet
+
+      - name: Start the stack with Jaeger
+        run: |
+          docker compose $FILES up --detach --build --wait \
+            --wait-timeout 240
+
+      - name: Linnet answers and its traces reach Jaeger
+        run: python3 scripts/smoke_alternatives.py jaeger
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose $FILES logs --no-color --timestamps
+
+      - name: Shut down
+        if: always()
+        run: |
+          docker compose $FILES down --volumes --remove-orphans \
+            --timeout 60
+
+  quickstart:
+    name: Single-container quick start (H.4)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Start grafana/otel-lgtm
+        run: |
+          docker run --detach --name lgtm \
+            -p 3000:3000 -p 4317:4317 -p 4318:4318 \
+            grafana/otel-lgtm:0.34.0
+
+      - name: Run the mock provider and Linnet against it
+        run: |
+          pipx install uv==0.11.7
+          uv sync --frozen --group lab
+          MOCK_LLM_PROVIDER=a nohup uv run --group lab uvicorn \
+            services.mock_llm.main:app --port 8100 > mock.log 2>&1 &
+          WRENHOLT_PROVIDER_URL=http://localhost:8100/v1 \
+          OTEL_SERVICE_NAME=linnet-api \
+          OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 \
+          OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
+          OTEL_METRIC_EXPORT_INTERVAL=5000 \
+          nohup uv run --group lab uvicorn wrenholt.api.main:app \
+            --app-dir src --port 8000 > linnet.log 2>&1 &
+
+      - name: Telemetry reaches the bundled backends
+        env:
+          SMOKE_LINNET: http://localhost:8000
+        run: python3 scripts/smoke_alternatives.py lgtm
+
+      - name: Logs on failure
+        if: failure()
+        run: |
+          cat mock.log linnet.log || true
+          docker logs --tail 200 lgtm
+
+      - name: Stop
+        if: always()
+        run: docker rm --force lgtm

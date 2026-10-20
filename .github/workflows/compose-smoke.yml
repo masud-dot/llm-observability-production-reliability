@@ -53,10 +53,14 @@ jobs:
 
       - name: Collector validates its own config
         run: |
+          # The development-only key compose also uses (Chapter 7):
+          # redaction refuses an empty HMAC key at validate time.
+          # Production sets its own REDACTION_HMAC_KEY.
           docker run --rm \
             -e TEMPO_OTLP_HTTP=http://tempo:4318 \
             -e PROM_OTLP_HTTP=http://prometheus:9090/api/v1/otlp \
             -e LOKI_OTLP_HTTP=http://loki:3100/otlp \
+            -e REDACTION_HMAC_KEY=dev-only-redaction-key-not-for-production \
             -v "$PWD/deploy/compose/otelcol:/cfg:ro" \
             ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0-amd64 \
             validate --config=/cfg/config.yaml

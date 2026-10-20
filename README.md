@@ -493,3 +493,8 @@ written.
 - `deploy/compose/docker-compose.jaeger.yml`: Jaeger v2 in place of
   Tempo, layered over the main compose file. The tests parse it; it
   has not been run.
+- `.github/workflows/alternatives.yml`: runs that override and the
+  `grafana/otel-lgtm` quick start, checked by
+  `scripts/smoke_alternatives.py`. Run it by hand from the Actions tab
+  once it is on the default branch; until then it runs on pull
+  requests that change it.

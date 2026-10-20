@@ -1162,3 +1162,80 @@ Same run, other checks:
   in the repository (130 checked; 43 captured outputs skipped),
   except L10-03 and L11-08, superseded as approved.
 - Not run: Docker, the Jaeger override, the otel-lgtm quick start.
+
+## Phase 3: Technical Validation (open)
+
+Results are Passed (executed), Failed (executed, failure recorded),
+Static (configuration or parse only), Not run, or Blocked. Provider
+results come from the mock and stay SIMULATED.
+
+### GitHub Actions: compose-smoke run 39392390376
+
+Branch `phase2-sync`, commit 3c83f57, 20 Oct 2026; read from the
+run's job logs as shared by the author.
+
+| Item | Result | Evidence |
+|---|---|---|
+| Check 1: start stack | Passed | 39 s; every container running and healthy, Tempo and Loki with 14-day retention among them |
+| Checks 1-7: smoke test | Passed | 19 s |
+| Checks 10-14 and 18 | Passed | four services healthy; Linnet answered; provider B served only its model; refund 201 then 200, one refund ID; 2 Linnet traces in Tempo; 4 dashboards provisioned |
+| Check 15 | Failed | `HTTP 200, 0 series`: the check asked for `job="linnet-api"`, but since Chapter 6's `service.namespace` Prometheus names the job `wrenholt/linnet-api` |
+| Checks 16 and 17 | Not run | skipped after check 15 failed |
+| Check 8: shut down cleanly | Passed | 1 m 1 s |
+| Check 9: alert smoke | Not run | skipped; it needs the stack smoke job |
+| Config lint: rules | Passed | 6 s |
+| Config lint: Collector validates its own config | Failed | `processors::redaction: hmac_key must not be empty when hash_function is "hmac-sha256"`: the step passed no `REDACTION_HMAC_KEY` |
+| Config lint: promtool, drift suite | Not run | skipped after the failure |
+| Release gates | Not run | no pull request yet |
+
+### Corrections approved by the author (20 Oct 2026)
+
+- `.github/workflows/compose-smoke.yml`: the validate step passes
+  the development-only key compose already uses; production sets
+  its own `REDACTION_HMAC_KEY`, and redaction itself is unchanged.
+- `scripts/smoke_wrenholt.py`: check 15 asks for
+  `job="wrenholt/linnet-api"` and still requires at least one series.
+- `.github/workflows/gates.yml`: fetches the native Collector before
+  the gates, so the contract gate's Collector tests run instead of
+  skipping. Listing L20-05, in the book's files and in the Chapter
+  20 document, matches the workflow byte for byte.
+- `.github/workflows/alternatives.yml` and
+  `scripts/smoke_alternatives.py`: Appendix H's Jaeger alternative
+  and quick start. GitHub runs `workflow_dispatch` only for
+  workflows on the default branch, so until the file is there it
+  also runs on pull requests that change it, the override or the
+  smoke script.
+
+### Local checks after the corrections (20 Oct 2026)
+
+- Collector 0.162.0 `validate` with the CI step's environment:
+  failed without the key, with the message CI reported; passed with
+  it. Static validation only.
+- Native stand-in for the stack, no Docker: the same Prometheus,
+  Tempo, Loki and Collector binaries and configuration files on
+  local ports, with mock providers A and B, orders and Linnet under
+  uvicorn. Checks 10-15 passed (check 15: 1 series under
+  `wrenholt/linnet-api`). Check 16: Collector stopped, 20 of 20
+  answered, slowest 60 ms. Check 17: Collector restarted, accepted
+  spans 200 -> 250. Check 18 not run natively: no Grafana binary.
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 367 passed. `pytest tests/lab`: 8 passed. 375
+  tests: unit 248, slo 65, resilience 11, drift 29, lab 8, privacy 14.
+  Two are new: the alternatives workflow, and its probes against
+  canned Jaeger and Grafana replies.
+- `ruff check`, `ruff format --check` and `mypy --strict` (248
+  files): clean. `uv lock --check`: 96 packages. Listings: 130
+  checked, 43 captured outputs skipped, 0 missing, L10-03 and
+  L11-08 superseded as approved. `scripts/contract_reference.py
+  --check`: reference is current.
+
+### Still to run in Phase 3
+
+- compose-smoke and the release gates on GitHub after this commit.
+- The alternatives workflow: Jaeger (H.3) and the quick start (H.4);
+  neither has run yet.
+- The Collector load-balancing tier: validated only.
+- The 41 version pins marked `recheck = true`, including the GenAI
+  conventions' release status.
+- The Phase 3 column of the listing tables above.
+- Chapters 15, 18 and 19 against their objectives.

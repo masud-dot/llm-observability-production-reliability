@@ -1,7 +1,10 @@
 """Appendices B to H: the generated tables and the Jaeger file."""
 
+import importlib.util
+import json
 import re
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 import yaml
@@ -90,3 +93,66 @@ def test_mock_and_environment() -> None:
     assert env["TEMPO_OTLP_HTTP"] == "http://jaeger:4318"
     base = yaml.safe_load(a.COMPOSE.read_text())["services"]
     assert "otel-collector" in base and "jaeger" not in base
+
+
+def smoke() -> ModuleType:
+    path = ROOT / "scripts/smoke_alternatives.py"
+    spec = importlib.util.spec_from_file_location("alt", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_alternatives_workflow() -> None:
+    path = ROOT / ".github/workflows/alternatives.yml"
+    flow = yaml.safe_load(path.read_text())
+    on = flow[True]  # YAML 1.1 reads "on" as True
+    assert "workflow_dispatch" in on
+    assert set(on["pull_request"]["paths"]) == {
+        ".github/workflows/alternatives.yml",
+        "deploy/compose/docker-compose.jaeger.yml",
+        "scripts/smoke_alternatives.py",
+    }
+    jaeger, quick = flow["jobs"]["jaeger"], flow["jobs"]["quickstart"]
+    assert "docker-compose.jaeger.yml" in jaeger["env"]["FILES"]
+    runs = "\n".join(s.get("run", "") for s in jaeger["steps"])
+    assert "smoke_alternatives.py jaeger" in runs
+    lgtm = a.versions()["components"]["otel-lgtm"]["image"]
+    runs = "\n".join(s.get("run", "") for s in quick["steps"])
+    assert lgtm in runs and "smoke_alternatives.py lgtm" in runs
+
+
+def test_alternative_probes_read_the_backends(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    alt = smoke()
+    replies = {
+        "/api/services": {"data": ["linnet-api", "orders"]},
+        "/api/traces": {"data": [{"traceID": "4bf9"}]},
+        "/api/datasources": [
+            {"type": "tempo", "uid": "t1"},
+            {"type": "prometheus", "uid": "p1"},
+        ],
+        "/api/datasources/proxy/uid/t1/api/search": {
+            "traces": [{"traceID": "4bf9"}]
+        },
+        "/api/datasources/proxy/uid/p1/api/v1/query": {
+            "data": {"result": [{"metric": {"job": alt.JOB}}]}
+        },
+    }
+    asked: list[str] = []
+
+    def fake(url: str, *_: object) -> tuple[int, str]:
+        asked.append(url)
+        path = url.split("//", 1)[1].split("/", 1)[1].split("?")[0]
+        return 200, json.dumps(replies["/" + path])
+
+    monkeypatch.setattr(alt, "call", fake)
+    assert alt.jaeger_lists_linnet()[0]
+    assert alt.jaeger_has_traces()[0]
+    assert alt.lgtm_has_traces()[0]
+    assert alt.lgtm_has_metric()[0]
+    assert any(
+        "job%3D%22wrenholt%2Flinnet-api%22" in u for u in asked
+    )
