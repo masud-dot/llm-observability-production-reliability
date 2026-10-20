@@ -18,10 +18,15 @@ class DataClass(StrEnum):
     SECRET = "secret"
 
 
+# How long each signal keeps what it exports. Prometheus keeps 35
+# days to hold the 28-day SLO window (Chapter 12); the drift tests
+# hold the Prometheus, Tempo and Loki configurations to these.
+RETENTION_DAYS = {"metrics": 35, "traces": 14, "logs": 14}
+
 # How each class is handled: (handling, retention, who reads).
 HANDLING = {
     DataClass.OPERATIONAL: (
-        "exported as is", "metrics 30 days; traces, logs 14 days",
+        "exported as is", "metrics 35 days; traces, logs 14 days",
         "on-call",
     ),
     DataClass.IDENTIFIER: (

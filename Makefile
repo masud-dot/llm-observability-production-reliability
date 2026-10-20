@@ -1,6 +1,6 @@
 # Chapter verification targets. Without make (for example in Git
 # Bash on Windows), run the commands under a target one by one.
-.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08 verify-ch10 fetch-collector fs15 overload verify-ch11 fs12 fs13 verify-ch12 slo-rules fs05 fs17 verify-ch13 fs10 fs09-index fs16 verify-ch14 slo-alerts fs02-fs03 verify-ch15 diagnose verify-ch16 protect verify-ch17 fallback verify-ch18 experiments breaking verify-ch19 game-day verify-ch20 gates assess
+.PHONY: verify-ch01 fs01 verify-ch02 fs09 verify-ch03 outage verify-ch04 gateway-lab verify-ch05 rename-drill names-lab semconv-snapshot verify-ch06 correlation-lab fs11 verify-ch07 fs14 hash-lab verify-ch08 fs02 fs04 verify-ch09 fs06 fs07 fs08 verify-ch10 fetch-collector fs15 overload verify-ch11 fs12 fs13 verify-ch12 slo-rules fs05 fs17 verify-ch13 fs10 fs09-index fs16 verify-ch14 slo-alerts fs02-fs03 verify-ch15 diagnose verify-ch16 protect verify-ch17 fallback verify-ch18 experiments breaking verify-ch19 game-day verify-ch20 gates assess verify-appA contract-reference
 
 verify-ch01:
 	uv sync --group dev --group lab
@@ -317,3 +317,16 @@ gates:
 
 assess:
 	uv run --group lab python scripts/gates.py assess
+
+verify-appA:
+	uv sync --group dev --group lab
+	scripts/fetch_collector.sh
+	uv run ruff check src services scripts tests
+	uv run ruff format --check src services scripts tests
+	uv run --group lab mypy src services scripts tests
+	uv run pytest tests/unit tests/slo tests/resilience tests/drift tests/privacy
+	uv run --group lab pytest tests/lab
+	uv run python scripts/contract_reference.py --check
+
+contract-reference:
+	uv run python scripts/contract_reference.py

@@ -75,6 +75,17 @@ async def no_wait(_: float) -> None:
     return None
 
 
+# Appendix A: the span and event names the scenarios emit.
+SEEN: dict[str, set[str]] = {}
+
+
+@pytest.fixture(scope="session")
+def seen(
+    emitted: tuple[set[str], list[Metric]],
+) -> dict[str, set[str]]:
+    return SEEN
+
+
 @pytest.fixture(scope="session")
 def emitted() -> tuple[set[str], list[Metric]]:
     """Attribute keys on Wrenholt's own spans (and registered ones on
@@ -326,5 +337,12 @@ def emitted() -> tuple[set[str], list[Metric]]:
         k
         for r in logs.get_finished_logs()
         for k in (r.log_record.attributes or {})
+    }
+    finished = spans.get_finished_spans()
+    SEEN["spans"] = {s.name for s in finished}
+    SEEN["events"] = {e.name for s in finished for e in s.events} | {
+        str(r.log_record.event_name)
+        for r in logs.get_finished_logs()
+        if r.log_record.event_name
     }
     return attrs, metrics

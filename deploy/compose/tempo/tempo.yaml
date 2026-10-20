@@ -22,5 +22,17 @@ storage:
     local:
       path: /tmp/tempo/blocks
 
+# Appendix A: traces are kept 14 days, as the privacy contract says
+# (Chapter 7). This is Tempo's default; set here so a new default
+# cannot change it unseen.
+backend_scheduler:
+  provider:
+    compaction:
+      compaction:
+        block_retention: 336h
+backend_worker:
+  compaction:
+    block_retention: 336h
+
 usage_report:
   reporting_enabled: false
