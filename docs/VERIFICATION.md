@@ -1,21 +1,22 @@
 # Verification log
 
 Every listing in the book maps to a file, the test or command that
-checks it, an interpreter, a date and a result. Phase 2 rows were
-executed in the authoring sandbox. Phase 3 repeats every row before
-publication, and the book uses the words "tested" and "verified"
-only for rows recorded here. Results from the mock provider are
-SIMULATED.
+checks it, an interpreter, a date and a result. Each row was first
+executed when its chapter was written, then repeated in the final
+validation before publication (20 Oct 2026); the last two columns
+of each table give both results. The book uses the words "tested"
+and "verified" only for rows recorded here. Results from the mock
+provider are SIMULATED.
 
 ## Chapter 1: Why LLM Systems Fail Differently
 
 - Command: `make verify-ch01` (or the commands under that target)
 - Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
-- Dependencies: `uv.lock` as frozen in Phase 1.5, then amended by
-  decision 17 (see below); groups dev + lab
+- Dependencies: `uv.lock` as frozen on 2026-09-30, then amended on
+  2026-10-01 (see below); groups dev + lab
 - Date: 2026-10-01
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L01-01 | FS-01 fault plan | `services/mock_llm/faults.py` | `tests/unit/test_mock_provider.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L01-02 | Mock provider fault injection and request log | `services/mock_llm/app.py` | `tests/unit/test_mock_provider.py`, `tests/unit/test_baseline_smoke.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -42,11 +43,11 @@ Same run, other checks:
   retry-after waits dominate. Listing L01-05 and Figure 1.2 use
   the 2,019.3 ms run.
 
-## Baseline amendment: decision 17 (2026-10-01)
+## Baseline amendment (2026-10-01)
 
 `pyyaml==6.0.3` (runtime) and `types-pyyaml==6.0.12.20260906` (dev)
 were added. The blueprint keeps failure scenarios, the SLI catalogue
-and SLO specifications in YAML, and the Phase 1.5 lock had no YAML
+and SLO specifications in YAML, and the frozen lock had no YAML
 parser. PyYAML 6.0.3 (released 2025-09-25) is the latest release and
 ships CPython 3.12 to 3.14 wheels for Linux, macOS and Windows.
 
@@ -63,11 +64,11 @@ ships CPython 3.12 to 3.14 wheels for Linux, macOS and Windows.
 
 - Command: `make verify-ch02` (or the commands under that target)
 - Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
-- Dependencies: `uv.lock` with decision 17 (96 packages); the
+- Dependencies: `uv.lock` with the 2026-10-01 amendment (96 packages); the
   Chapter 2 code needs only the default dev group
 - Date: 2026-10-02
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L02-01 | Request map: deadline, budgets, dependencies | `src/wrenholt/slo/request_map.yaml` | `tests/slo/test_catalog_and_map.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L02-02 | SLI catalog entries | `src/wrenholt/slo/sli_catalog.yaml` | `tests/slo/test_catalog_and_map.py`, `tests/slo/test_sli_calculators.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -101,7 +102,7 @@ Same run, other checks:
   the `lab` group
 - Date: 2026-10-02
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L03-01 | `linnet-api` service | `deploy/compose/docker-compose.yml` | `tests/unit/test_config_lint.py`; `docker compose config` (v5.5.1); native run of checks 10-17 | pass; Compose run in CI pending the push | pass: ran in CI run 39411828181 (checks 10-15) |
 | L03-02 | `start_telemetry()` | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_telemetry_setup.py`, `tests/resilience/test_collector_outage.py`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -133,7 +134,7 @@ Same run, other checks:
   exit with the lifespan flush: 0.21 s.
 - Outage lab, 2026-10-02 11:33-11:35 UTC: the output in L03-05.
 - Behaviours of pinned packages, read from source and confirmed by
-  execution (`versions.toml`, `[behaviours]`; decisions 19-21):
+  execution (`versions.toml`, `[behaviours]`):
   FastAPI 0.142.1 adds its own exporters to existing providers;
   uvicorn 0.54.0 re-raises SIGTERM (exit code -15, atexit skipped);
   the OTLP/HTTP exporter 1.45.0 reads `OTEL_EXPORTER_OTLP_TIMEOUT`
@@ -158,7 +159,7 @@ Same run, other checks:
   lab and `tests/lab` need the `lab` group
 - Date: 2026-10-06
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L04-01 | Closed `error.type` set and retry rules | `src/wrenholt/gateway/errors.py` | `tests/unit/test_error_map.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L04-02 | OpenAI-compatible classifier | `src/wrenholt/gateway/openai_compat.py` | `tests/unit/test_error_map.py` (19 cases) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -212,7 +213,7 @@ Same run, other checks:
   on `PATH` and `SEMCONV_GENAI_DIR` pointing at a pinned checkout
 - Date: 2026-10-06
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L05-01 | The registry | `src/wrenholt/telemetry/conventions.py` | `tests/drift/test_conventions_drift.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L05-02 | Snapshot check | `src/wrenholt/telemetry/drift.py` | `tests/drift/test_conventions_drift.py`, `tests/drift/test_rename_drill.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -259,7 +260,7 @@ Same run, other checks:
   the `lab` group
 - Date: 2026-10-06
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L06-01 | Trace-context-only propagation | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_correlation.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L06-02 | The model pin check | `src/wrenholt/gateway/client.py` | `tests/unit/test_fs11.py`; drift suite | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -309,7 +310,7 @@ Same run, other checks:
   the `lab` group
 - Date: 2026-10-07
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L07-01 | Redaction of one value | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py`, `tests/privacy/test_privacy_scan.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L07-02 | The span redactor | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py` (attributes set after start) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -361,7 +362,7 @@ Same run, other checks:
   the `lab` group
 - Date: 2026-10-08
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L08-01 | The stream clock | `src/wrenholt/gateway/streaming.py` | `tests/unit/test_stream_clock.py`, `tests/unit/test_streaming.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L08-02 | Reading an attempt | `src/wrenholt/gateway/client.py` | `tests/unit/test_streaming.py`, `tests/unit/test_stream_context.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -423,7 +424,7 @@ Same run, other checks:
   the `lab` group
 - Date: 2026-10-12
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L09-01 | The retrieval span | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py` (attributes without text; FS-08); drift suite; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L09-02 | The start-up check | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py`; native run (a second API process refused the re-indexed build) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -519,14 +520,14 @@ Same run, other checks:
   the `lab` group; the Collector labs need otelcol-contrib 0.162.0
 - Date: 2026-10-13
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L10-01 | Tail sampling | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (policies against `sampling.POLICIES`, thresholds, sizing); `otelcol-contrib validate`; FS-15 lab; native runs | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L10-02 | The coverage map | `src/wrenholt/telemetry/sampling.py` | `tests/unit/test_pipeline_config.py` (every gateway panel names a policy) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L10-03 | Export queues | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (the queues hold what the comment says); native run (capacity reported in items) | pass | superseded by L11-08 (approved) |
+| L10-03 | Export queues | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (the queues hold what the comment says); native run (capacity reported in items) | pass | superseded by L11-08 |
 | L10-04 | The budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py`; `tests/drift/test_budget_drift.py`; native run (221 series, none outside the budget) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L10-05 | The guard | `src/wrenholt/telemetry/budget.py` | `tests/unit/test_cardinality.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L10-06 | The first tier | `deploy/compose/otelcol/loadbalancing.yaml` | `otelcol-contrib validate`; `tests/unit/test_pipeline_config.py`; not run (decisions 4 and 8) | pass (validated) | pass: native load-balancing exercise, 20 Oct 2026 |
+| L10-06 | The first tier | `deploy/compose/otelcol/loadbalancing.yaml` | `otelcol-contrib validate`; `tests/unit/test_pipeline_config.py`; not run when written | pass (validated) | pass: native load-balancing exercise, 20 Oct 2026 |
 | L10-07 | Pipeline queries | `deploy/compose/grafana/provisioning/dashboards/telemetry-pipeline.json` (the same expressions on one line) | `promtool check rules` on the four wrapped expressions; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
 | L10-08 | FS-15 lab | `scripts/fs15_sampling_blind_spot.py` | run command (2026-10-13 03:17 UTC, identical to the earlier run); `tests/resilience/test_collector_pipeline.py` asserts every line | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 | L10-09 | Collector overload lab | `scripts/collector_overload.py` | run command (2026-10-13 04:11 UTC); `tests/resilience/test_collector_pipeline.py` asserts the counts | pass (SIMULATED); waiting times vary | pass: output re-run 20 Oct 2026, only timings differ |
@@ -547,8 +548,7 @@ Same run, other checks:
   is checked only by `tests/unit/test_pipeline_config.py`.
 - Every source listing in Chapters 1 to 10 is verbatim in the
   repository (56 checked; 23 captured outputs and queries skipped).
-- L08-02 changed with the author's approval (13 Oct 2026, decision
-  60): the stream reader passes `record_exception=False` and
+- L08-02 changed on 13 Oct 2026: the stream reader passes `record_exception=False` and
   `set_status_on_exception=False` to `use_span`, because
   `StopAsyncIteration` ended every completed attempt as ERROR. The
   new `test_a_completed_attempt_is_not_an_error` fails without the
@@ -634,7 +634,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-13
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L11-01 | The price table | `src/wrenholt/gateway/prices.yaml` | `tests/unit/test_cost.py` (every routed model priced; a table that looks wrong refused) | pass (SIMULATED prices) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L11-02 | One call's cost | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py` (the policy answer by hand, cached rate, five times on the large model) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -643,7 +643,7 @@ Same run, other checks:
 | L11-05 | The ledger | `src/wrenholt/gateway/limits.py` | `tests/unit/test_limits.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L11-06 | Refused at the limit | `src/wrenholt/api/app.py` | `tests/unit/test_limits.py` (429 with `Retry-After`); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L11-07 | Chapter 11's budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py` (combinations from the code; 1,955 of 2,000) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L11-08 | The metrics queue | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (187 points × 60 exports); `otelcol-contrib validate` | pass | superseded by L13-08 (approved) |
+| L11-08 | The metrics queue | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (187 points × 60 exports); `otelcol-contrib validate` | pass | superseded by L13-08 |
 | L11-09 | Two dashboard queries | `deploy/compose/grafana/provisioning/dashboards/cost.json` (the same expressions on one line) | `promtool check rules` on every dashboard expression; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
 | L11-10 | FS-12 lab | `scripts/fs12_token_explosion.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 | L11-11 | FS-13 lab | `scripts/fs13_costly_fallback.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
@@ -663,8 +663,7 @@ Same run, other checks:
   checked; 26 captured outputs and queries skipped), except L10-03,
   which `tools/check_listings.py` reports as superseded by L11-08: the
   metrics queue grew from 10,000 to 12,000 because Chapter 11's
-  metrics take an instance from 151 to 187 points an export. This
-  needs the author's approval, as L08-02 did.
+  metrics take an instance from 151 to 187 points an export.
 - Chapter 10's tests changed with the budget: the worked numbers of
   Table 10.2 are asserted over Chapter 10's eleven metrics, and the
   queue test over all of them. The drift run now gives every gateway
@@ -704,7 +703,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-13
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L12-01 | Burn rate and how long a budget lasts | `src/wrenholt/slo/errorbudget.py` | `tests/slo/test_error_budget.py` (every worked number) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L12-02 | The SLO file: header, availability, latency by request class | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` (Table 12.1; thresholds are the catalogue's and bucket boundaries) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -732,7 +731,7 @@ Same run, other checks:
   `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 12 is in the repository (76
   checked; 29 captured outputs and queries skipped), except L10-03,
-  superseded by L11-08 as approved. No Chapter 12 change supersedes
+  superseded by L11-08. No Chapter 12 change supersedes
   a listing.
 - Chapter 11's budget test now leaves out Chapter 12's two metrics,
   Chapter 10's combinations test includes them, and the queue test
@@ -769,7 +768,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-13
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L13-01 | Evaluation sampling by trace ID | `src/wrenholt/evaluation/sampling.py` | `tests/unit/test_evaluation.py` (the rule; a rate of 0.1 within 0.01 over 10,000 IDs) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L13-02 | A verdict and the evaluator interface | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (known answers); `mypy --strict` | pass (SIMULATED evaluators) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -794,7 +793,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 13 is in the repository (84
   checked; 32 captured outputs and queries skipped), except L10-03,
-  superseded by L11-08 as approved, and L11-08, superseded by L13-08
+  superseded by L11-08, and L11-08, superseded by L13-08
   (proposed with this chapter).
 - Chapter 12's tests now expect groundedness's objective (0.99,
   counted from evaluation results) and 10 groups of 86 rules; the
@@ -833,7 +832,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-13
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L14-01 | The three tiers | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (windows, burn rates, a short window a twelfth of the long one) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L14-02 | Which tiers an SLO gets | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.2; 18 alerts) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -857,7 +856,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 14 is in the repository (93
   checked; 33 captured outputs and queries skipped), except L10-03
-  and L11-08, superseded as approved. No Chapter 14 change
+  and L11-08, superseded. No Chapter 14 change
   supersedes a listing.
 - `promtool test rules tests/slo/slo_alerts.test.yaml` (promtool
   3.15.0, from `tests/slo`): 4 cases pass through the generated
@@ -878,7 +877,7 @@ Same run, other checks:
 - Grafana was not run: its 13.2.3 release is downloaded from
   dl.grafana.com, which this environment's proxy refuses (HTTP 403).
   The provisioning file follows the v13.2.3 documentation and the
-  shape the Phase 1.5 alert smoke used; the CI stack job provisions
+  shape the baseline alert smoke used; the CI stack job provisions
   it after the push. No native run for Chapter 14.
 - Sources read: SRE Workbook chapter 5 (re-read 2026-10-13); Grafana
   v13.2.3 alert file provisioning (fetched at the tag); Prometheus
@@ -891,7 +890,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-19
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L15-01 | Nearest-rank percentiles and the spread | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (18 answers; mean 1.70, p50 0.40, p95 3.00; 9 over 2.5 s) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L15-02 | The provider check (L1) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (median +2.60 s; own time +0.00 s; gone once the brownout is removed) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -913,7 +912,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 15 is in the repository (98
   checked; 35 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved.
+  superseded.
 - The fixture `tests/fixtures/diagnosis/fs08_behind_fs02.json` was
   recorded on 2026-10-19 from an in-process Linnet with the mock
   provider; `captured.json` holds the synthetic questions. The CLI
@@ -931,7 +930,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-19
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L16-01 | One deadline per answer | `src/wrenholt/gateway/deadlines.py` | `tests/unit/test_guarded.py` (spent deadline refused; attempt cut at the deadline) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L16-02 | The process-wide retry budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (Hypothesis: grants exactly its rolling minute) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -952,7 +951,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 16 is in the repository (104
   checked; 36 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved. The availability runbook's Chapter 16 note
+  superseded. The availability runbook's Chapter 16 note
   follows the block Listing L14-08 shows, which is unchanged.
 - No native run: the lab uses a fake clock, and the TraceQL query in
   Section 16.4 was not executed against Tempo.
@@ -968,7 +967,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-19
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L17-01 | The chain's walk, with exercise | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (A rate-limited: B answers, then A; exercise; retired fallback; spent deadline) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L17-02 | Price ratio, affordability, when to move | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (B affordable, `mock-a-large` refused at start-up) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -988,7 +987,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 17 is in the repository (109
   checked; 37 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved. The `degraded` policy follows the baseline,
+  superseded. The `degraded` policy follows the baseline,
   after the block Listing L10-01 shows; the runbook note follows the
   block Listing L14-08 shows.
 - The mock provider can now serve provider B's models in process
@@ -1006,7 +1005,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-20
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L18-01 | Gradual and impulse arrivals | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (7,200 on the ramp; 4,500 on the impulse; the same every time) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L18-02 | `drive`, without waiting | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (every call starts before the first ends; an exception is a result) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -1026,7 +1025,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 18 is in the repository (114
   checked; 39 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved.
+  superseded.
 - The experiment run: 18 run, 0 hypotheses failed, about two minutes;
   FS-15 runs the Collector binary from `.native/bin`, as in Chapter
   10. No other native run, and no Compose stack.
@@ -1040,7 +1039,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-20
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L19-01 | AI severities | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (severity follows the SLO and only rises) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L19-02 | Grafana's notifications into one record | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (open, repeat, join, mitigate, reopen; restart) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -1059,7 +1058,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 19 is in the repository (119
   checked; 40 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved.
+  superseded.
 - No Docker run: the compose file is parsed, not started. The game
   day's trace comes from a real gateway call to two addresses that
   refuse connections; its FS-07 finding comes from Chapter 9's lab.
@@ -1075,7 +1074,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-20
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L20-01 | Change types and their CI gates | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (classification by path; `ci` runs only the gates needed) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L20-02 | The evaluation gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (FS-10 blocked, version 1 passes; cases weighted by the mix) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -1095,7 +1094,7 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 20 is in the repository (124
   checked; 42 captured outputs skipped), except L10-03 and L11-08,
-  superseded as approved.
+  superseded.
 - No Docker run, and no GitHub Actions run: the workflow is parsed,
   and `ci` runs with a stand-in for its subprocesses. The canary's
   spans come from real gateway calls to two in-process mock
@@ -1111,7 +1110,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-20
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | LA-01 | Tempo's 14-day retention | `deploy/compose/tempo/tempo.yaml` | `tests/drift/test_reference_drift.py` (retention); native Tempo 3.1.0 started, `/status/config` shows `block_retention: 336h0m0s` twice, ready | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LA-02 | Loki's 14-day retention | `deploy/compose/loki/loki.yaml` | `tests/drift/test_reference_drift.py` (retention); native Loki 3.7.8 `-verify-config` passed (`retention_enabled: true`, `retention_period: 2w`), started ready | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -1128,8 +1127,8 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 20 and Appendix A is in the
   repository (126 checked; 43 captured outputs skipped), except
-  L10-03 and L11-08, superseded as approved.
-- Retention corrected with the author's approval: the privacy
+  L10-03 and L11-08, superseded.
+- Retention corrected: the privacy
   contract said metrics 30 days while Prometheus keeps 35, and
   neither Tempo nor Loki set a retention. Neither ran long enough
   to delete anything; no Docker run.
@@ -1141,7 +1140,7 @@ Same run, other checks:
 - Dependencies: `uv.lock` unchanged (96 packages)
 - Date: 2026-10-20
 
-| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+| Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
@@ -1160,10 +1159,10 @@ Same run, other checks:
   files): clean. `uv lock --check`: 96 packages.
 - Every source listing in Chapters 1 to 20 and Appendices A to H is
   in the repository (130 checked; 43 captured outputs skipped),
-  except L10-03 and L11-08, superseded as approved.
+  except L10-03 and L11-08, superseded.
 - Not run: Docker, the Jaeger override, the otel-lgtm quick start.
 
-## Phase 3: Technical Validation (closed 20 Oct 2026)
+## Final validation (20 Oct 2026)
 
 Results are Passed (executed), Failed (executed, failure recorded),
 Static (configuration or parse only), Not run, or Blocked. Provider
@@ -1171,8 +1170,7 @@ results come from the mock and stay SIMULATED.
 
 ### GitHub Actions: compose-smoke run 39392390376
 
-Branch `phase2-sync`, commit 3c83f57, 20 Oct 2026; read from the
-run's job logs as shared by the author.
+Commit 3c83f57, 20 Oct 2026; read from the run's job logs.
 
 | Item | Result | Evidence |
 |---|---|---|
@@ -1188,7 +1186,7 @@ run's job logs as shared by the author.
 | Config lint: promtool, drift suite | Not run | skipped after the failure |
 | Release gates | Not run | no pull request yet |
 
-### Corrections approved by the author (20 Oct 2026)
+### Corrections (20 Oct 2026)
 
 - `.github/workflows/compose-smoke.yml`: the validate step passes
   the development-only key compose already uses; production sets
@@ -1226,12 +1224,12 @@ run's job logs as shared by the author.
 - `ruff check`, `ruff format --check` and `mypy --strict` (248
   files): clean. `uv lock --check`: 96 packages. Listings: 130
   checked, 43 captured outputs skipped, 0 missing, L10-03 and
-  L11-08 superseded as approved. `scripts/contract_reference.py
+  L11-08 superseded. `scripts/contract_reference.py
   --check`: reference is current.
 
 ### GitHub Actions: compose-smoke run 39411828181
 
-Branch `phase2-sync`, commit e602e8c, 20 Oct 2026: success in 5 m 43
+Commit e602e8c, 20 Oct 2026: success in 5 m 43
 s. Config lint 29 s, Stack smoke (checks 1-8, 10-17) 2 m 55 s, Alert
 smoke (check 9) 2 m 43 s, read from the public run page; the step
 logs need a sign-in and were not read. A job succeeds only when every
@@ -1360,9 +1358,9 @@ is recommended.
 
 ### GitHub Actions: pull request #1 (20 Oct 2026)
 
-Draft pull request #1, `phase2-sync` at 3560934 into `main` at
-0fb7cac, not merged. Read from the public run pages and the author's
-screenshots; the step logs need a sign-in.
+Pull request #1, commit 3560934 into `main` at 0fb7cac. Read from
+the public run pages and the pull request's Checks tab; the step
+logs need a sign-in.
 
 - compose-smoke on the pull request: Config lint, Stack smoke and
   Alert smoke succeeded. Passed.
@@ -1381,7 +1379,7 @@ screenshots; the step logs need a sign-in.
   provider replies SIMULATED.
 - alternatives run 39418580084, Jaeger v2 in place of Tempo (H.3):
   failed. The layered model validated and the stack started with
-  Jaeger (44 s); the smoke step's log, from the author's screenshot:
+  Jaeger (44 s); the smoke step's log:
 
       PASS  H.3 Linnet answers              HTTP 200 '{"answer":"Refunds reach your card within five working days.'
       FAIL  H.3 Jaeger lists linnet-api     HTTP 404, services []
@@ -1393,7 +1391,7 @@ screenshots; the step logs need a sign-in.
 Jaeger v2.21.0 (14 Sep 2026) removed the HTTP routes its UI no
 longer calls, `/api/services` and the `/api/traces` search among
 them (changelog: "remove v1 http endpoints the ui no longer calls",
-#9260). Its API v3 serves both: `/api/v3/services`, and
+Jaeger #9260). Its API v3 serves both: `/api/v3/services`, and
 `/api/v3/traces` with `query.serviceName` and a required
 `query.startTimeMin`/`query.startTimeMax` window, answering OTLP
 JSON, or 404 when nothing matches. Appendix H names only the UI on
@@ -1424,8 +1422,8 @@ port 16686, so no book text changes, and the pin stays 2.21.0.
 
 ### GitHub Actions: pull request #1 at 17eb713 (20 Oct 2026)
 
-All 9 checks succeeded, from the author's screenshot of the Checks
-tab: compose-smoke on the push and on the pull request (3 jobs
+All 9 checks succeeded on the pull request's Checks tab:
+compose-smoke on the push and on the pull request (3 jobs
 each), gates, and alternatives (Jaeger and the quick start). The
 public run pages were still cached, so the run IDs were not
 captured: they are the runs for commit 17eb713 on pull request #1.
@@ -1433,31 +1431,38 @@ The Jaeger job's smoke step exits 1 if any check fails, so all three
 H.3 checks passed: Linnet answered (SIMULATED), and Jaeger listed
 `linnet-api` and held its traces. Passed.
 
-### Phase 3 result (20 Oct 2026)
+### Result (20 Oct 2026)
 
-All ten validation items have run. Listings, Phase 3 column: 173
-rows. 160 pass; 2 superseded as approved (L10-03, L11-08); 2 static
+All ten validation items have run. Listings, final-check column: 173
+rows. 160 pass; 2 superseded (L10-03, L11-08); 2 static
 (L14-05, L14-06: Grafana loaded them in CI, rules not seen firing);
 8 not re-run, needing a running stack with data or a manual run
 (L01-06, L04-08, L06-07, L08-06, L09-07, L10-07, L11-09, L12-06); 1
 differs (L05-04).
 
-Decisions, approved by the author on 20 Oct 2026:
+Outcomes:
 
-- L05-04: keep Chapter 5's output and add a one-line note that the
-  finished repository reports a third finding; Phase 4 adds it.
-- The GenAI conventions: keep the pin, `bcc7f9c`.
-- Newer releases of pinned components: none adopted; versions stay
-  frozen through Phase 5.
-- `alternatives.yml`: keeps its pull-request trigger; its header
-  comment now says why.
-- Appendix H: the "has not been run" sentences in H.3, H.4 and
-  Listing LH-01's comment now say the alternatives workflow runs
-  them, in the repository, the book's files and the Appendices B-H
-  doc. LH-01 changed only in a comment; the alternatives workflow
-  runs again when it is pushed.
+- L05-04 keeps Chapter 5's output. The finished repository reports a
+  third finding, from a dashboard panel that a later chapter adds.
+- The GenAI conventions stay pinned at `bcc7f9c`.
+- No newer release of a pinned component was adopted.
+- `alternatives.yml` runs on pull requests that change the workflow,
+  the Jaeger override or its smoke script.
+- Appendix H and Listing LH-01 say the alternatives workflow runs
+  both alternatives.
 
-Phase 3 closed on 20 Oct 2026 with the author's approval.
+### Repository cleanup (20 Oct 2026)
+
+Before publication the repository dropped three internal files (a
+superseded CI log, a smoke runner used only while writing, and an
+empty-folder marker), replaced production wording in comments and
+version notes with reader wording, and added `LICENSE`, `NOTICE` and
+`.gitattributes`. Appendix B's component table lost one internal
+reference; nothing else in the book changed. Afterwards:
+`pytest tests/unit tests/slo tests/resilience tests/drift
+tests/privacy` 367 passed; `pytest tests/lab` 8 passed; `ruff
+check`, `ruff format --check` and `mypy --strict` clean; `uv lock
+--check` 96 packages; listings 130 checked, 0 missing.
 - L05-04: keep it as Chapter 5's snapshot, or update its output.
 - The GenAI conventions' renames since the pin: keep the pin, or move
   it under Appendix B.
