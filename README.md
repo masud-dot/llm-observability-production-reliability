@@ -13,7 +13,6 @@ written.
   Collector, Prometheus, Tempo, Loki, Grafana). Jaeger is a
   documented alternative only.
 - `.github/workflows/compose-smoke.yml`: the Phase 1.5 gate.
-- `docs/PHASE-1.5-CI.md`: exact run sequence and current status.
 
 ## Chapter 1: Why LLM Systems Fail Differently
 

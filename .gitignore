@@ -5,5 +5,5 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 
-# Binaries downloaded by scripts/native_smoke.sh
+# Binaries downloaded by scripts/fetch_collector.sh
 .native/
