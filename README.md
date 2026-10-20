@@ -1,20 +1,96 @@
-# llm-observability-production-reliability
+# LLM Observability & Production AI Reliability: companion code
 
-Companion repository for *LLM Observability & Production AI
-Reliability*. It holds the frozen technical baseline, the CI gate
-for the local stack, and the code for each chapter as it is
-written.
+[![compose-smoke](https://github.com/masud-dot/llm-observability-production-reliability/actions/workflows/compose-smoke.yml/badge.svg)](https://github.com/masud-dot/llm-observability-production-reliability/actions/workflows/compose-smoke.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.12 to 3.14](https://img.shields.io/badge/python-3.12%20to%203.14-blue.svg)](pyproject.toml)
 
-- `versions.toml`: frozen versions with release and verification
-  dates, stability and Phase 3 recheck flags.
-- `uv.lock`: produced by uv 0.11.7 from the exact pins in
-  `pyproject.toml`.
-- `deploy/compose/`: the locked local stack (OpenTelemetry
-  Collector, Prometheus, Tempo, Loki, Grafana). Jaeger is a
-  documented alternative only.
-- `.github/workflows/compose-smoke.yml`: the Phase 1.5 gate.
+The runnable code for *LLM Observability & Production AI
+Reliability* by Masud Mondal. Wrenholt Goods is a fictional online
+retailer of home and outdoor goods, and Linnet is its
+customer-support assistant. The book follows Linnet from its first
+trace to a reliability programme: OpenTelemetry instrumentation of
+an LLM gateway, the GenAI semantic conventions, privacy-safe
+telemetry, SLOs and burn-rate alerts, evaluation signals, failure
+labs, resilience controls and release gates in CI.
 
-## Chapter 1: Why LLM Systems Fail Differently
+Every model call goes to a local mock provider, so nothing needs an
+API key, and every provider result is labelled SIMULATED.
+
+## Quick start
+
+You need Git, Python 3.12 to 3.14, [uv](https://docs.astral.sh/uv/)
+0.11.7 and, for the telemetry stack, Docker with Compose. On
+Windows, work inside WSL 2 with Docker Desktop's WSL integration:
+the shell scripts and `make` targets assume a Linux shell. Without
+`make`, run the commands under a target in the `Makefile` one by
+one.
+
+```bash
+git clone https://github.com/masud-dot/llm-observability-production-reliability.git
+cd llm-observability-production-reliability
+uv sync --group dev --group lab
+make verify-ch01
+```
+
+Start the local stack: the OpenTelemetry Collector, Prometheus,
+Tempo, Loki, Grafana, the mock providers, the orders service and
+Linnet.
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml up --build --wait
+curl -s http://localhost:8080/chat -H 'Content-Type: application/json' \
+  -d '{"message": "How long does a refund take?"}'
+```
+
+Open Grafana at http://localhost:3000 and sign in as `admin` with
+the password `smoke-only-password`; both are for this local stack
+only. Stop the stack with
+`docker compose -f deploy/compose/docker-compose.yml down --volumes`.
+
+## Repository layout
+
+| Path | What it holds |
+| --- | --- |
+| `src/wrenholt/` | Linnet, the LLM gateway, telemetry, privacy, SLOs, evaluation and the chapter labs |
+| `services/` | Mock LLM providers A and B, the orders service, a webhook sink and the smoke app |
+| `deploy/compose/` | The Docker Compose stack, with alerting, Jaeger and production overrides |
+| `scripts/` | One script per lab and failure scenario, the smoke checks and `fetch_collector.sh` |
+| `tests/` | Unit, SLO, resilience, drift, privacy and lab tests, with their fixtures |
+| `docs/` | Runbooks, the error-budget policy, the telemetry contract and the verification log |
+| `versions.toml`, `uv.lock` | Every pinned version, with release dates and the behaviours the book relies on |
+| `Makefile` | `verify-ch01` to `verify-ch20`, `verify-appA`, `verify-appendices` and one target per lab |
+
+## Versions and verification
+
+Every dependency, image and tool is pinned: Python packages in
+`pyproject.toml` and `uv.lock` (produced by uv 0.11.7), container
+images in `deploy/compose/`, and all of them, with release dates
+and the package behaviours the book relies on, in `versions.toml`.
+Newer releases may behave differently; Appendix B of the book
+explains how to move a pin.
+
+CI runs the stack end to end on every change (`compose-smoke`), the
+release gates on every pull request (`gates`), and the Jaeger and
+single-container alternatives of Appendix H (`alternatives`).
+`docs/VERIFICATION.md` records how each listing in the book was
+checked.
+
+`make experiments` (Chapter 18) rewrites `experiments/latest.json`,
+a tracked file that the Chapter 20 self-assessment reads, so Git
+shows it as modified after a run.
+
+## Licence
+
+The code is released under the [MIT License](LICENSE). [NOTICE](NOTICE)
+lists the OpenTelemetry material it includes. The book's text is not
+covered by this licence.
+
+## Chapter guide
+
+What each chapter adds to the repository, and the commands that run
+it.
+
+### Chapter 1: Why LLM Systems Fail Differently
 
 - `services/mock_llm/`: deterministic OpenAI-compatible mock provider
   with fault plans (SIMULATED), including FS-01.
@@ -26,7 +102,7 @@ written.
   `uv run --group lab python scripts/fs01_hidden_retry.py`.
 - Checks: `make verify-ch01`; results in `docs/VERIFICATION.md`.
 
-## Chapter 2: A Four-Layer Reliability Model for LLM Applications
+### Chapter 2: A Four-Layer Reliability Model for LLM Applications
 
 - `src/wrenholt/slo/request_map.yaml`: the refund journey's steps,
   candidate budgets under one deadline, and its dependencies.
@@ -37,7 +113,7 @@ written.
 - Run it: `uv run python scripts/fs09_sli_report.py`.
 - Checks: `make verify-ch02`; results in `docs/VERIFICATION.md`.
 
-## Chapter 3: The Reference Architecture and the Wrenholt Baseline
+### Chapter 3: The Reference Architecture and the Wrenholt Baseline
 
 - `deploy/compose/docker-compose.yml`: the telemetry plane (Collector,
   Prometheus, Tempo, Loki, Grafana) and the application plane (Linnet
@@ -54,7 +130,7 @@ written.
 - Collector outage lab: `uv run python scripts/collector_outage.py`.
 - Checks: `make verify-ch03`; CI: `.github/workflows/compose-smoke.yml`.
 
-## Chapter 4: Instrumenting the LLM Gateway with OpenTelemetry
+### Chapter 4: Instrumenting the LLM Gateway with OpenTelemetry
 
 - `src/wrenholt/gateway/`: the gateway. One CLIENT span per request,
   one INTERNAL span per attempt, a closed set of eight `error.type`
@@ -69,7 +145,7 @@ written.
 - Comparison lab: `uv run --group lab python scripts/gateway_lab.py`.
 - Checks: `make verify-ch04`.
 
-## Chapter 5: GenAI Semantic Conventions and the Compatibility Module
+### Chapter 5: GenAI Semantic Conventions and the Compatibility Module
 
 - `src/wrenholt/telemetry/conventions.py`: the registry of every
   emitted name, with its source (`genai`, `core` or `book`) and, for
@@ -86,7 +162,7 @@ written.
   `uv run --group lab python scripts/names_lab.py`.
 - Checks: `make verify-ch05`.
 
-## Chapter 6: Context Propagation, Correlation and Reproducibility
+### Chapter 6: Context Propagation, Correlation and Reproducibility
 
 - Propagation: W3C trace context only (`telemetry/setup.py`); baggage is
   neither accepted nor forwarded.
@@ -105,7 +181,7 @@ written.
   `uv run python scripts/fs11_model_change.py`.
 - Checks: `make verify-ch06`.
 
-## Chapter 7: Safe Telemetry: Privacy-Aware Observability by Design
+### Chapter 7: Safe Telemetry: Privacy-Aware Observability by Design
 
 - `src/wrenholt/privacy/`: the classifier, keyed pseudonyms
   (`WRENHOLT_PSEUDONYM_KEYS`, current key first), redaction for logs
@@ -124,7 +200,7 @@ written.
   `uv run python scripts/hash_reversal.py`.
 - Checks: `make verify-ch07`.
 
-## Chapter 8: Streaming and Asynchronous Workloads
+### Chapter 8: Streaming and Asynchronous Workloads
 
 - `POST /chat` with `"stream": true` answers with server-sent events:
   `chunk` events, then exactly one `done` or `error`
@@ -149,7 +225,7 @@ written.
   `uv run python scripts/fs04_stream_cut.py`.
 - Checks: `make verify-ch08`.
 
-## Chapter 9: Observing Retrieval, Tools and Agent Loops
+### Chapter 9: Observing Retrieval, Tools and Agent Loops
 
 - Linnet is an agent (`src/wrenholt/orchestrator/linnet.py`): one
   `invoke_agent Linnet` span per answer. It retrieves help-centre
@@ -185,7 +261,7 @@ written.
   `uv run python scripts/fs08_empty_retrieval.py`.
 - Checks: `make verify-ch09`.
 
-## Chapter 10: Metrics, Cardinality and the Telemetry Pipeline
+### Chapter 10: Metrics, Cardinality and the Telemetry Pipeline
 
 - `deploy/compose/otelcol/config.production.yaml`, the
   production-like profile: tail sampling keeps every trace with an
@@ -223,7 +299,7 @@ written.
   `MOCK_LLM_PLAN=fs15` rate-limits one attempt in four (SIMULATED).
 - Checks: `make verify-ch10`.
 
-## Chapter 11: Tokens, Cost and Latency Economics
+### Chapter 11: Tokens, Cost and Latency Economics
 
 - Token metrics from the GenAI token-metric redesign (Development
   at the pinned commit): usage counters for input, output and
@@ -259,7 +335,7 @@ written.
   `uv run python scripts/fs13_costly_fallback.py`.
 - Checks: `make verify-ch11`.
 
-## Chapter 12: SLIs, SLOs and Error Budgets Across Four Layers
+### Chapter 12: SLIs, SLOs and Error Budgets Across Four Layers
 
 - `src/wrenholt/slo/objectives.yaml`: the SLO file. Every candidate
   SLI gets a decision: an objective over 28 days and an owner, or
@@ -288,7 +364,7 @@ written.
   `uv run python scripts/fs17_over_blocking.py`.
 - Checks: `make verify-ch12`.
 
-## Chapter 13: Evaluation Signals and Drift in Production
+### Chapter 13: Evaluation Signals and Drift in Production
 
 - `src/wrenholt/evaluation/`: evaluation results as telemetry.
   `Evaluating` wraps the guardrail's wrapper and evaluates a sample
@@ -320,7 +396,7 @@ written.
   `uv run python scripts/fs16_intent_drift.py`.
 - Checks: `make verify-ch13`.
 
-## Chapter 14: Alerting on Burn Rates and Symptoms
+### Chapter 14: Alerting on Burn Rates and Symptoms
 
 - `src/wrenholt/slo/alerts.py`: multiwindow, multi-burn-rate alerts
   from the SLO file, with the SRE Workbook's starting parameters: a
@@ -345,7 +421,7 @@ written.
 - Lab: `uv run python scripts/fs02_fs03_paging.py`.
 - Checks: `make verify-ch14`.
 
-## Chapter 15: Diagnosing Production AI Failures
+### Chapter 15: Diagnosing Production AI Failures
 
 - `uv run python scripts/wrenholt_cli.py diagnose [FIXTURE]`: attribute
   the layer first. It compares the window before an alert with the
@@ -363,7 +439,7 @@ written.
   the bundle's index build and on the build that should serve.
 - Checks: `make verify-ch15`.
 
-## Chapter 16: Timeouts, Retries, Rate Limits and Circuit Breakers
+### Chapter 16: Timeouts, Retries, Rate Limits and Circuit Breakers
 
 - `src/wrenholt/gateway/deadlines.py`: one deadline per answer, in a
   context variable; the API sets `WRENHOLT_DEADLINE_S` (10 s) around
@@ -385,7 +461,7 @@ written.
   8's path.
 - Checks: `make verify-ch16`.
 
-## Chapter 17: Fallbacks, Degraded Modes and Load Shedding
+### Chapter 17: Fallbacks, Degraded Modes and Load Shedding
 
 - `src/wrenholt/gateway/fallback.py`: `FallbackGateway` walks each
   model's chain (`WRENHOLT_FALLBACKS`, `mock-a-fast` to
@@ -410,7 +486,7 @@ written.
   queue and with admission (SIMULATED).
 - Checks: `make verify-ch17`.
 
-## Chapter 18: Failure Injection, Load and Chaos Experiments
+### Chapter 18: Failure Injection, Load and Chaos Experiments
 
 - `uv run --group lab python scripts/experiments.py [FS-03 ...]`: the
   eighteen failure scenarios as experiments. Each states its
@@ -428,7 +504,7 @@ written.
   queue and with admission control (SIMULATED).
 - Checks: `make verify-ch18`.
 
-## Chapter 19: Incident Response and Postmortems for AI Systems
+### Chapter 19: Incident Response and Postmortems for AI Systems
 
 - `src/wrenholt/incidents.py`: incident records. Grafana's
   notifications are grouped by SLO; a page opens an incident at its
@@ -446,7 +522,7 @@ written.
   FS-07 (SIMULATED): Chapter 14's alerts, the responders' steps, and
   a postmortem that closes the incident.
 
-## Chapter 20: Reliability in CI/CD and the Reliability Programme
+### Chapter 20: Reliability in CI/CD and the Reliability Programme
 
 - `src/wrenholt/gates.py`: release gates. A change is classified by
   the paths it touches (prompt, model, index, configuration, code);
@@ -466,7 +542,7 @@ written.
   answered from the repository.
 - Checks: `make verify-ch19`.
 
-## Appendix A: Telemetry Contract Reference
+### Appendix A: Telemetry Contract Reference
 
 - `docs/telemetry_contract.md`: every resource attribute, span,
   event, attribute and metric Wrenholt exports, with its status,
@@ -480,7 +556,7 @@ written.
   their configurations and held to `RETENTION_DAYS` in the privacy
   contract by `tests/drift/test_reference_drift.py`.
 
-## Appendices B to H
+### Appendices B to H
 
 - `src/wrenholt/appendices.py`: every table in Appendices B to H,
   generated from the repository: the conventions pins and mapping,
