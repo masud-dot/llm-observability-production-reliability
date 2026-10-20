@@ -1163,7 +1163,7 @@ Same run, other checks:
   except L10-03 and L11-08, superseded as approved.
 - Not run: Docker, the Jaeger override, the otel-lgtm quick start.
 
-## Phase 3: Technical Validation (checks complete; closes on the author's approval)
+## Phase 3: Technical Validation (closed 20 Oct 2026)
 
 Results are Passed (executed), Failed (executed, failure recorded),
 Static (configuration or parse only), Not run, or Blocked. Provider
@@ -1442,17 +1442,22 @@ rows. 160 pass; 2 superseded as approved (L10-03, L11-08); 2 static
 (L01-06, L04-08, L06-07, L08-06, L09-07, L10-07, L11-09, L12-06); 1
 differs (L05-04).
 
-Open for the author's decision:
+Decisions, approved by the author on 20 Oct 2026:
 
-- L05-04: keep it as Chapter 5's snapshot, or update its output.
-- The GenAI conventions' renames since the pin: keep the pin, or
-  move it under Appendix B.
-- Newer releases of pinned components: adopt none, or some.
-- `alternatives.yml`: keep or drop its pull-request trigger.
-- Appendix H's "has not been run" sentences (H.3, H.4 and Listing
-  LH-01's comment), now that both alternatives have run.
+- L05-04: keep Chapter 5's output and add a one-line note that the
+  finished repository reports a third finding; Phase 4 adds it.
+- The GenAI conventions: keep the pin, `bcc7f9c`.
+- Newer releases of pinned components: none adopted; versions stay
+  frozen through Phase 5.
+- `alternatives.yml`: keeps its pull-request trigger; its header
+  comment now says why.
+- Appendix H: the "has not been run" sentences in H.3, H.4 and
+  Listing LH-01's comment now say the alternatives workflow runs
+  them, in the repository, the book's files and the Appendices B-H
+  doc. LH-01 changed only in a comment; the alternatives workflow
+  runs again when it is pushed.
 
-Phase 3 closes on the author's approval.
+Phase 3 closed on 20 Oct 2026 with the author's approval.
 - L05-04: keep it as Chapter 5's snapshot, or update its output.
 - The GenAI conventions' renames since the pin: keep the pin, or move
   it under Appendix B.

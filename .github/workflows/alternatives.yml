@@ -1,9 +1,9 @@
 # Appendix H alternatives (mock provider: SIMULATED): Jaeger v2 in
 # place of Tempo (H.3), and the single-container quick start (H.4).
-# Neither is part of the smoke stack. Run it by hand from the Actions
-# tab: GitHub offers manual runs only for workflows on the default
-# branch, so until this file is there it also runs on pull requests
-# that change it, the Jaeger override or the smoke script.
+# Neither is part of the smoke stack. It runs on pull requests that
+# change this file, the Jaeger override or the smoke script, so a
+# version bump is checked before it merges. Once this file is on the
+# default branch, it can also be run by hand from the Actions tab.
 name: alternatives
 
 on:
