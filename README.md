@@ -481,3 +481,15 @@ written.
   their configurations and held to `RETENTION_DAYS` in the privacy
   contract by `tests/drift/test_reference_drift.py`.
 
+## Appendices B to H
+
+- `src/wrenholt/appendices.py`: every table in Appendices B to H,
+  generated from the repository: the conventions pins and mapping,
+  the Collector's components and their stability (from the native
+  binary), the dashboards' queries, the failure scenarios with their
+  last experiment evidence, the runbooks, the incident record and a
+  blank postmortem, the mock provider's endpoints, models and plans,
+  and the compose services, pinned images and known behaviours.
+- `deploy/compose/docker-compose.jaeger.yml`: Jaeger v2 in place of
+  Tempo, layered over the main compose file. The tests parse it; it
+  has not been run.

@@ -1133,3 +1133,32 @@ Same run, other checks:
   contract said metrics 30 days while Prometheus keeps 35, and
   neither Tempo nor Loki set a retention. Neither ran long enough
   to delete anything; no Docker run.
+
+## Appendices B to H
+
+- Command: `make verify-appendices` (or the commands under that target)
+- Interpreter: CPython 3.14.4 via uv 0.11.7, Linux sandbox
+- Dependencies: `uv.lock` unchanged (96 packages)
+- Date: 2026-10-20
+
+| Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
+|---|---|---|---|---|---|
+| LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pending |
+| LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pending |
+| LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pending |
+| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | pending |
+| Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pending |
+| Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pending |
+
+Same run, other checks:
+
+- `pytest tests/unit tests/slo tests/resilience tests/drift
+  tests/privacy`: 365 passed. `pytest tests/lab`: 8 passed. 373
+  tests: unit 246, slo 65, resilience 11, drift 29, lab 8, privacy 14.
+  Five are new.
+- `ruff check`, `ruff format --check` and `mypy --strict` (247
+  files): clean. `uv lock --check`: 96 packages.
+- Every source listing in Chapters 1 to 20 and Appendices A to H is
+  in the repository (130 checked; 43 captured outputs skipped),
+  except L10-03 and L11-08, superseded as approved.
+- Not run: Docker, the Jaeger override, the otel-lgtm quick start.

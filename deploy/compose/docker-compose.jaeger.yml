@@ -1,0 +1,17 @@
+# Appendix H: Jaeger v2 in place of Tempo for traces, layered over
+# the main file:
+#   docker compose -f deploy/compose/docker-compose.yml \
+#     -f deploy/compose/docker-compose.jaeger.yml up
+# The Collector's trace exporter is pointed at Jaeger's OTLP/HTTP
+# port; Jaeger's UI is on 16686. Not in the smoke stack: the tests
+# parse this file, but it has not been run.
+services:
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    ports:
+      - "16686:16686"
+  otel-collector:
+    environment:
+      TEMPO_OTLP_HTTP: http://jaeger:4318
+    depends_on:
+      - jaeger
