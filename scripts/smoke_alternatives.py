@@ -21,6 +21,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 
 Probe = Callable[[], tuple[bool, str]]
 
@@ -82,22 +83,36 @@ def linnet_answers() -> tuple[bool, str]:
 
 
 def jaeger_lists_linnet() -> tuple[bool, str]:
-    status, body = call(f"{JAEGER}/api/services")
+    # Jaeger 2.21.0 removed the old /api/services and /api/traces
+    # search routes (#9260): its API v3 answers both questions.
+    status, body = call(f"{JAEGER}/api/v3/services")
     names = (
-        (json.loads(body).get("data") or []) if status == 200 else []
+        (json.loads(body).get("services") or [])
+        if status == 200
+        else []
     )
     return SERVICE in names, f"HTTP {status}, services {names}"
 
 
 def jaeger_has_traces() -> tuple[bool, str]:
-    query = urllib.parse.urlencode(
-        {"service": SERVICE, "limit": "20"}
-    )
-    status, body = call(f"{JAEGER}/api/traces?{query}")
-    traces = (
-        (json.loads(body).get("data") or []) if status == 200 else []
-    )
-    return bool(traces), f"HTTP {status}, {len(traces)} trace(s)"
+    # API v3 requires a time window; 404 means no traces yet.
+    now = datetime.now(UTC)
+    window = {
+        "query.startTimeMin": now - timedelta(hours=1),
+        "query.startTimeMax": now + timedelta(minutes=1),
+    }
+    params = {k: v.isoformat() for k, v in window.items()}
+    params["query.serviceName"] = SERVICE
+    query = urllib.parse.urlencode(params)
+    status, body = call(f"{JAEGER}/api/v3/traces?{query}")
+    data = json.loads(body).get("result", {}) if status == 200 else {}
+    ids = {
+        span.get("traceId")
+        for group in data.get("resourceSpans", [])
+        for scope in group.get("scopeSpans", [])
+        for span in scope.get("spans", [])
+    }
+    return bool(ids), f"HTTP {status}, {len(ids)} trace(s)"
 
 
 def grafana(path: str) -> tuple[int, str]:

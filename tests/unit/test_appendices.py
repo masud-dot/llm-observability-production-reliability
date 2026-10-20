@@ -127,9 +127,12 @@ def test_alternative_probes_read_the_backends(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     alt = smoke()
+    # Jaeger 2.21.0 answers only on API v3 (OTLP JSON traces).
+    span = {"traceId": "4bf9"}
+    found = {"resourceSpans": [{"scopeSpans": [{"spans": [span]}]}]}
     replies = {
-        "/api/services": {"data": ["linnet-api", "orders"]},
-        "/api/traces": {"data": [{"traceID": "4bf9"}]},
+        "/api/v3/services": {"services": ["linnet-api", "orders"]},
+        "/api/v3/traces": {"result": found},
         "/api/datasources": [
             {"type": "tempo", "uid": "t1"},
             {"type": "prometheus", "uid": "p1"},
@@ -156,3 +159,9 @@ def test_alternative_probes_read_the_backends(
     assert any(
         "job%3D%22wrenholt%2Flinnet-api%22" in u for u in asked
     )
+    traces = next(u for u in asked if "/api/v3/traces?" in u)
+    keys = ("serviceName=linnet-api", "startTimeMin", "startTimeMax")
+    assert all(f"query.{k}" in traces for k in keys)
+    gone = json.dumps({"error": {"message": "No traces found"}})
+    monkeypatch.setattr(alt, "call", lambda *_: (404, gone))
+    assert alt.jaeger_has_traces() == (False, "HTTP 404, 0 trace(s)")

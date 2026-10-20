@@ -1081,7 +1081,7 @@ Same run, other checks:
 | L20-02 | The evaluation gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (FS-10 blocked, version 1 passes; cases weighted by the mix) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L20-03 | Canary signals, the split by version, the decision | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (wait, promote, roll back; one-sided; inside the budget; FS-11) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L20-04 | The budget gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (held; fix ships; outside cause; nothing exhausted) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L20-05 | The gates workflow | `.github/workflows/gates.yml` | `tests/unit/test_gates.py` (parsed); not run in GitHub Actions | pass (parsed only) | not run: the release gates need the pull request |
+| L20-05 | The gates workflow | `.github/workflows/gates.yml` | `tests/unit/test_gates.py` (parsed); not run in GitHub Actions | pass (parsed only) | pass: gates run 39418580071 on pull request #1 (log not read); local mirror: contract, drift (3 skipped) and evaluation passed |
 | L20-06 | The gates lab, FS-10 and FS-11 | `scripts/gates.py lab` | run command (2026-10-20); `tests/unit/test_gates.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 | L20-07 | The self-assessment | `scripts/gates.py assess` | run command (2026-10-20); `tests/unit/test_gates.py` | pass | pass: output re-run 20 Oct 2026, identical |
 
@@ -1146,7 +1146,7 @@ Same run, other checks:
 | LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pass: native load-balancing exercise, 20 Oct 2026 |
-| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | not run: the alternatives workflow needs the pull request |
+| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | failed: alternatives run 39418580084 validated the override and started the stack, but the probes used routes Jaeger 2.21.0 removed (HTTP 404); probes corrected and passed natively; GitHub rerun pending |
 | Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pass: tests re-run 20 Oct 2026 |
 | Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pass: parse only, native backends, 20 Oct 2026 |
 
@@ -1358,10 +1358,74 @@ backends; Chapter 19's cited lifecycle, outage patterns and
 blameless postmortems. No content gap was found, and no expansion
 is recommended.
 
+### GitHub Actions: pull request #1 (20 Oct 2026)
+
+Draft pull request #1, `phase2-sync` at 3560934 into `main` at
+0fb7cac, not merged. Read from the public run pages and the author's
+screenshots; the step logs need a sign-in.
+
+- compose-smoke on the pull request: Config lint, Stack smoke and
+  Alert smoke succeeded. Passed.
+- gates run 39418580071: Gates for this change succeeded in 49 s.
+  `changed()` runs `git diff` with `check=True`, so a missing base
+  fails the job rather than skipping the gates. The same command run
+  locally against `origin/main` (0fb7cac), without `promtool` or the
+  conventions checkout, as on the runner: contract 36 passed; drift
+  38 passed, 3 skipped (two need `promtool`, one the checkout;
+  compose-smoke's config lint supplies both); evaluation passed.
+  Passed.
+- alternatives run 39418580084, Single-container quick start (H.4):
+  succeeded. The script exits 1 if any check fails, so Grafana was
+  healthy, Linnet answered, and its traces and HTTP metric reached
+  the bundled Tempo and Prometheus, read through Grafana. Passed;
+  provider replies SIMULATED.
+- alternatives run 39418580084, Jaeger v2 in place of Tempo (H.3):
+  failed. The layered model validated and the stack started with
+  Jaeger (44 s); the smoke step's log, from the author's screenshot:
+
+      PASS  H.3 Linnet answers              HTTP 200 '{"answer":"Refunds reach your card within five working days.'
+      FAIL  H.3 Jaeger lists linnet-api     HTTP 404, services []
+      FAIL  H.3 Jaeger holds Linnet traces  HTTP 404, 0 trace(s)
+      2 failed, 3 total
+
+### Correction: the Jaeger probes use API v3 (20 Oct 2026)
+
+Jaeger v2.21.0 (14 Sep 2026) removed the HTTP routes its UI no
+longer calls, `/api/services` and the `/api/traces` search among
+them (changelog: "remove v1 http endpoints the ui no longer calls",
+#9260). Its API v3 serves both: `/api/v3/services`, and
+`/api/v3/traces` with `query.serviceName` and a required
+`query.startTimeMin`/`query.startTimeMax` window, answering OTLP
+JSON, or 404 when nothing matches. Appendix H names only the UI on
+port 16686, so no book text changes, and the pin stays 2.21.0.
+
+- `scripts/smoke_alternatives.py`: the two Jaeger probes query API
+  v3 and count distinct trace IDs.
+- `tests/unit/test_appendices.py`: canned v3 replies, the required
+  query parameters, and the 404 answer.
+- Native exercise, no Docker: the Jaeger 2.21.0 release binary with
+  its built-in configuration, ports shifted because the Collector
+  uses the same defaults on one machine (OTLP 24317/24318, health
+  23133, metrics 28888); Collector 0.162.0 with the committed
+  configuration and `TEMPO_OTLP_HTTP` pointed at Jaeger; mock
+  provider A and Linnet under uvicorn. `smoke_alternatives.py
+  jaeger`: 3 passed (services `jaeger`, `linnet-api`; 12 traces). On
+  the same Jaeger, `/api/services` and
+  `/api/traces?service=linnet-api` answered 404, as in CI. No errors
+  in Jaeger's log, and no trace-export errors in the Collector's
+  (its metric and log exporters had no backends). Passed natively;
+  the GitHub rerun is pending.
+- Local checks: `pytest tests/unit tests/slo tests/resilience
+  tests/drift tests/privacy`, native binaries on `PATH`: 367 passed.
+  `pytest tests/lab`: 8 passed. `ruff check` and `ruff format
+  --check` (254 files) and `mypy --strict src scripts tests` (223
+  files): clean. `uv lock --check`: 96 packages. Listings: 130
+  checked, 43 skipped, 0 missing.
+
 ### Still open in Phase 3
 
-- The release gates and the alternatives workflow: both need the
-  pull request from `phase2-sync` into `main`.
+- The Jaeger alternative (LH-01): rerun on pull request #1 with the
+  corrected probes.
 - L05-04: keep it as Chapter 5's snapshot, or update its output.
 - The GenAI conventions' renames since the pin: keep the pin, or move
   it under Appendix B.
