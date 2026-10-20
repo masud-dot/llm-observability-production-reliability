@@ -1144,7 +1144,7 @@ Same run, other checks:
 |---|---|---|---|---|---|
 | LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pass: native load-balancing exercise, 20 Oct 2026 |
+| LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run when written; listing check | pass (validated only) | pass: native load-balancing exercise, 20 Oct 2026 |
 | LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | pass: alternatives on pull request #1 at 17eb713 (Jaeger job succeeded; log not read); the first run, 39418580084, failed on routes Jaeger 2.21.0 removed, and the probes were corrected |
 | Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pass: tests re-run 20 Oct 2026 |
 | Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pass: parse only, native backends, 20 Oct 2026 |
@@ -1457,8 +1457,9 @@ Before publication the repository dropped three internal files (a
 superseded CI log, a smoke runner used only while writing, and an
 empty-folder marker), replaced production wording in comments and
 version notes with reader wording, and added `LICENSE`, `NOTICE` and
-`.gitattributes`. Appendix B's component table lost one internal
-reference; nothing else in the book changed. Afterwards:
+`.gitattributes`. In the book, Appendix B's component table lost one
+internal reference, and Appendix B and Listing LC-03 now say the
+load-balancing tier was run natively, as the final validation did. Afterwards:
 `pytest tests/unit tests/slo tests/resilience tests/drift
 tests/privacy` 367 passed; `pytest tests/lab` 8 passed; `ruff
 check`, `ruff format --check` and `mypy --strict` clean; `uv lock

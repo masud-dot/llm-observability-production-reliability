@@ -1,5 +1,5 @@
 # First tier for a scaled deployment (Chapter 10): validated with
-# `otelcol-contrib validate`, not run in this book. Every span of a
+# `otelcol-contrib validate` and run natively. Every span of a
 # trace goes to the same sampling Collector, chosen by trace ID from
 # the addresses DNS returns for otel-sampler; each of those runs
 # config.production.yaml. Only traces need routing: services send
