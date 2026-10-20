@@ -17,13 +17,13 @@ SIMULATED.
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L01-01 | FS-01 fault plan | `services/mock_llm/faults.py` | `tests/unit/test_mock_provider.py` | pass | pending |
-| L01-02 | Mock provider fault injection and request log | `services/mock_llm/app.py` | `tests/unit/test_mock_provider.py`, `tests/unit/test_baseline_smoke.py` | pass | pending |
-| L01-03 | Linnet baseline answer path (SDK defaults) | `src/wrenholt/orchestrator/baseline.py` | `tests/unit/test_baseline_smoke.py`, `tests/unit/test_retry_layers_multiply.py` | pass | pending |
-| L01-04 | Layered default instrumentation | `src/wrenholt/labs/layered.py` | `tests/lab/test_fs01_hidden_retry.py` | pass | pending |
-| L01-05 | FS-01 lab output | `scripts/fs01_hidden_retry.py` | run command; output matches the listing except millisecond timings | pass (SIMULATED) | pending |
-| L01-06 | Manual three-terminal run | `services/mock_llm/main.py`, `src/wrenholt/api/main.py` | executed as printed; reply in about 2 s; mock log 429, 429, 200 with retry counts 0, 1, 2 | pass (SIMULATED) | pending |
-| L01-07 | Blind-spot test | `tests/lab/test_fs01_hidden_retry.py` | itself (2 tests) | pass | pending |
+| L01-01 | FS-01 fault plan | `services/mock_llm/faults.py` | `tests/unit/test_mock_provider.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L01-02 | Mock provider fault injection and request log | `services/mock_llm/app.py` | `tests/unit/test_mock_provider.py`, `tests/unit/test_baseline_smoke.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L01-03 | Linnet baseline answer path (SDK defaults) | `src/wrenholt/orchestrator/baseline.py` | `tests/unit/test_baseline_smoke.py`, `tests/unit/test_retry_layers_multiply.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L01-04 | Layered default instrumentation | `src/wrenholt/labs/layered.py` | `tests/lab/test_fs01_hidden_retry.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L01-05 | FS-01 lab output | `scripts/fs01_hidden_retry.py` | run command; output matches the listing except millisecond timings | pass (SIMULATED) | pass: output re-run 20 Oct 2026, only timings differ |
+| L01-06 | Manual three-terminal run | `services/mock_llm/main.py`, `src/wrenholt/api/main.py` | executed as printed; reply in about 2 s; mock log 429, 429, 200 with retry counts 0, 1, 2 | pass (SIMULATED) | not re-run: needs two terminals and a running provider |
+| L01-07 | Blind-spot test | `tests/lab/test_fs01_hidden_retry.py` | itself (2 tests) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -69,12 +69,12 @@ ships CPython 3.12 to 3.14 wheels for Linux, macOS and Windows.
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L02-01 | Request map: deadline, budgets, dependencies | `src/wrenholt/slo/request_map.yaml` | `tests/slo/test_catalog_and_map.py` | pass | pending |
-| L02-02 | SLI catalog entries | `src/wrenholt/slo/sli_catalog.yaml` | `tests/slo/test_catalog_and_map.py`, `tests/slo/test_sli_calculators.py` | pass | pending |
-| L02-03 | `SliResult` and the low-traffic guard | `src/wrenholt/slo/sli.py` | `tests/slo/test_sli_calculators.py` | pass | pending |
-| L02-04 | Rules and counting | `src/wrenholt/slo/sli.py` | `tests/slo/test_sli_calculators.py`, `tests/slo/test_fs09_slis.py` | pass | pending |
-| L02-05 | FS-09 SLI report | `scripts/fs09_sli_report.py` | run command; output identical to the listing | pass (SIMULATED) | pending |
-| L02-06 | FS-09 worked numbers | `tests/slo/test_fs09_slis.py` | itself | pass | pending |
+| L02-01 | Request map: deadline, budgets, dependencies | `src/wrenholt/slo/request_map.yaml` | `tests/slo/test_catalog_and_map.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L02-02 | SLI catalog entries | `src/wrenholt/slo/sli_catalog.yaml` | `tests/slo/test_catalog_and_map.py`, `tests/slo/test_sli_calculators.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L02-03 | `SliResult` and the low-traffic guard | `src/wrenholt/slo/sli.py` | `tests/slo/test_sli_calculators.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L02-04 | Rules and counting | `src/wrenholt/slo/sli.py` | `tests/slo/test_sli_calculators.py`, `tests/slo/test_fs09_slis.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L02-05 | FS-09 SLI report | `scripts/fs09_sli_report.py` | run command; output identical to the listing | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L02-06 | FS-09 worked numbers | `tests/slo/test_fs09_slis.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -103,14 +103,14 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L03-01 | `linnet-api` service | `deploy/compose/docker-compose.yml` | `tests/unit/test_config_lint.py`; `docker compose config` (v5.5.1); native run of checks 10-17 | pass; Compose run in CI pending the push | pending |
-| L03-02 | `start_telemetry()` | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_telemetry_setup.py`, `tests/resilience/test_collector_outage.py`; native run | pass | pending |
-| L03-03 | Lifespan flush | `src/wrenholt/telemetry/setup.py` | `tests/resilience/test_collector_outage.py` | pass | pending |
-| L03-04 | FastAPI's built-in telemetry off | `src/wrenholt/telemetry/framework.py` | `tests/unit/test_telemetry_setup.py`; single-request probe: 1 span per request (2 before) | pass | pending |
-| L03-05 | Collector outage lab | `scripts/collector_outage.py` | run command; output identical to the listing | pass (workload SIMULATED; SDK behaviour measured) | pending |
-| L03-06 | CI checks 16-17 | `.github/workflows/compose-smoke.yml` | workflow parses; same checks run natively against the real Collector | pass natively; CI run pending the push | pending |
-| L03-07 | Uvicorn and the flush | `tests/resilience/test_collector_outage.py` | itself | pass | pending |
-| L03-08 | Config lint rules | `tests/unit/test_config_lint.py` | itself | pass | pending |
+| L03-01 | `linnet-api` service | `deploy/compose/docker-compose.yml` | `tests/unit/test_config_lint.py`; `docker compose config` (v5.5.1); native run of checks 10-17 | pass; Compose run in CI pending the push | pass: ran in CI run 39411828181 (checks 10-15) |
+| L03-02 | `start_telemetry()` | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_telemetry_setup.py`, `tests/resilience/test_collector_outage.py`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-03 | Lifespan flush | `src/wrenholt/telemetry/setup.py` | `tests/resilience/test_collector_outage.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-04 | FastAPI's built-in telemetry off | `src/wrenholt/telemetry/framework.py` | `tests/unit/test_telemetry_setup.py`; single-request probe: 1 span per request (2 before) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-05 | Collector outage lab | `scripts/collector_outage.py` | run command; output identical to the listing | pass (workload SIMULATED; SDK behaviour measured) | pass: output re-run 20 Oct 2026, only timings differ |
+| L03-06 | CI checks 16-17 | `.github/workflows/compose-smoke.yml` | workflow parses; same checks run natively against the real Collector | pass natively; CI run pending the push | pass: CI run 39411828181 (checks 16-17) |
+| L03-07 | Uvicorn and the flush | `tests/resilience/test_collector_outage.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-08 | Config lint rules | `tests/unit/test_config_lint.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -160,14 +160,14 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L04-01 | Closed `error.type` set and retry rules | `src/wrenholt/gateway/errors.py` | `tests/unit/test_error_map.py` | pass | pending |
-| L04-02 | OpenAI-compatible classifier | `src/wrenholt/gateway/openai_compat.py` | `tests/unit/test_error_map.py` (19 cases) | pass | pending |
-| L04-03 | Retry policy | `src/wrenholt/gateway/policy.py` | `tests/unit/test_error_map.py`, `tests/unit/test_gateway_contract.py` | pass | pending |
-| L04-04 | Request span and retry loop | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pending |
-| L04-05 | Attempt span on failure and success | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pending |
-| L04-06 | Gateway comparison lab | `scripts/gateway_lab.py` | run command (2026-10-06 02:51 UTC); `tests/lab/test_gateway_comparison.py` | pass (SIMULATED); counts identical on re-run, timings vary by milliseconds | pending |
-| L04-07 | FS-18 contract test | `tests/unit/test_gateway_contract.py` | itself | pass | pending |
-| L04-08 | Prometheus and TraceQL queries | none (queries) | native run, 2026-10-06 02:56 UTC | pass natively; Compose run pending the push | pending |
+| L04-01 | Closed `error.type` set and retry rules | `src/wrenholt/gateway/errors.py` | `tests/unit/test_error_map.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-02 | OpenAI-compatible classifier | `src/wrenholt/gateway/openai_compat.py` | `tests/unit/test_error_map.py` (19 cases) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-03 | Retry policy | `src/wrenholt/gateway/policy.py` | `tests/unit/test_error_map.py`, `tests/unit/test_gateway_contract.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-04 | Request span and retry loop | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-05 | Attempt span on failure and success | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-06 | Gateway comparison lab | `scripts/gateway_lab.py` | run command (2026-10-06 02:51 UTC); `tests/lab/test_gateway_comparison.py` | pass (SIMULATED); counts identical on re-run, timings vary by milliseconds | pass: output re-run 20 Oct 2026, only timings differ |
+| L04-07 | FS-18 contract test | `tests/unit/test_gateway_contract.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L04-08 | Prometheus and TraceQL queries | none (queries) | native run, 2026-10-06 02:56 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
 
 Same run, other checks:
 
@@ -214,12 +214,12 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L05-01 | The registry | `src/wrenholt/telemetry/conventions.py` | `tests/drift/test_conventions_drift.py` | pass | pending |
-| L05-02 | Snapshot check | `src/wrenholt/telemetry/drift.py` | `tests/drift/test_conventions_drift.py`, `tests/drift/test_rename_drill.py` | pass | pending |
-| L05-03 | Names lab | `scripts/names_lab.py` | run command (2026-10-06 08:17 UTC; identical at 08:55); `tests/lab/test_names_lab.py` | pass (SIMULATED workload) | pending |
-| L05-04 | Rename drill | `scripts/rename_drill.py` | run command (08:17 UTC; identical at 08:55); `tests/drift/test_rename_drill.py` | pass (SIMULATED workload) | pending |
-| L05-05 | Drift tests | `tests/drift/test_conventions_drift.py` | itself | pass | pending |
-| L05-06 | CI drift step | `.github/workflows/compose-smoke.yml` | workflow parses; the same suite run locally with `promtool` and the checkout: 17 passed | pass locally; CI run pending the push | pending |
+| L05-01 | The registry | `src/wrenholt/telemetry/conventions.py` | `tests/drift/test_conventions_drift.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L05-02 | Snapshot check | `src/wrenholt/telemetry/drift.py` | `tests/drift/test_conventions_drift.py`, `tests/drift/test_rename_drill.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L05-03 | Names lab | `scripts/names_lab.py` | run command (2026-10-06 08:17 UTC; identical at 08:55); `tests/lab/test_names_lab.py` | pass (SIMULATED workload) | pass: output re-run 20 Oct 2026, identical |
+| L05-04 | Rename drill | `scripts/rename_drill.py` | run command (08:17 UTC; identical at 08:55); `tests/drift/test_rename_drill.py` | pass (SIMULATED workload) | differs: re-run 20 Oct 2026 finds 3 drift problems, the listing 2 (decision needed) |
+| L05-05 | Drift tests | `tests/drift/test_conventions_drift.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L05-06 | CI drift step | `.github/workflows/compose-smoke.yml` | workflow parses; the same suite run locally with `promtool` and the checkout: 17 passed | pass locally; CI run pending the push | pass: CI run 39411828181 (drift suite, pinned checkout) |
 
 Same run, other checks:
 
@@ -261,13 +261,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L06-01 | Trace-context-only propagation | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_correlation.py` | pass | pending |
-| L06-02 | The model pin check | `src/wrenholt/gateway/client.py` | `tests/unit/test_fs11.py`; drift suite | pass | pending |
-| L06-03 | Recording the bundle off the request path | `src/wrenholt/repro.py` | `tests/unit/test_correlation.py`, `tests/unit/test_repro.py` | pass | pending |
-| L06-04 | Correlation lab | `scripts/correlation_lab.py` | run command (2026-10-06 09:10 UTC); `tests/unit/test_correlation.py` | pass (SIMULATED workload); IDs differ per run | pending |
-| L06-05 | FS-11 lab | `scripts/fs11_model_change.py` | run command (14:58 UTC); `tests/unit/test_fs11.py` | pass (SIMULATED workload) | pending |
-| L06-06 | Correlation test | `tests/unit/test_correlation.py` | itself | pass | pending |
-| L06-07 | Exemplar, trace and log queries | none (queries) | native run, 2026-10-06 14:53 UTC | pass natively; Compose run pending the push | pending |
+| L06-01 | Trace-context-only propagation | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_correlation.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L06-02 | The model pin check | `src/wrenholt/gateway/client.py` | `tests/unit/test_fs11.py`; drift suite | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L06-03 | Recording the bundle off the request path | `src/wrenholt/repro.py` | `tests/unit/test_correlation.py`, `tests/unit/test_repro.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L06-04 | Correlation lab | `scripts/correlation_lab.py` | run command (2026-10-06 09:10 UTC); `tests/unit/test_correlation.py` | pass (SIMULATED workload); IDs differ per run | pass: output re-run 20 Oct 2026, only random trace IDs differ |
+| L06-05 | FS-11 lab | `scripts/fs11_model_change.py` | run command (14:58 UTC); `tests/unit/test_fs11.py` | pass (SIMULATED workload) | pass: output re-run 20 Oct 2026, identical |
+| L06-06 | Correlation test | `tests/unit/test_correlation.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L06-07 | Exemplar, trace and log queries | none (queries) | native run, 2026-10-06 14:53 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
 
 Same run, other checks:
 
@@ -311,13 +311,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L07-01 | Redaction of one value | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py`, `tests/privacy/test_privacy_scan.py` | pass | pending |
-| L07-02 | The span redactor | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py` (attributes set after start) | pass | pending |
-| L07-03 | The vault's audited read | `src/wrenholt/privacy/vault.py` | `tests/privacy/test_vault_and_redact.py` | pass | pending |
-| L07-04 | Collector redaction | `deploy/compose/otelcol/config.yaml` | `tests/unit/test_config_lint.py`; `otelcol-contrib validate`; native run | pass | pending |
-| L07-05 | FS-14 lab | `scripts/fs14_pii.py` | run command (2026-10-07 12:10 UTC); `tests/privacy/test_privacy_scan.py` | pass (SIMULATED workload) | pending |
-| L07-06 | Hash lab | `scripts/hash_reversal.py` | run command (12:23 UTC); `tests/privacy/test_classify_and_pseudonym.py` | pass; timings vary by machine | pending |
-| L07-07 | Privacy scan test | `tests/privacy/test_privacy_scan.py` | itself | pass | pending |
+| L07-01 | Redaction of one value | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py`, `tests/privacy/test_privacy_scan.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L07-02 | The span redactor | `src/wrenholt/privacy/redact.py` | `tests/privacy/test_vault_and_redact.py` (attributes set after start) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L07-03 | The vault's audited read | `src/wrenholt/privacy/vault.py` | `tests/privacy/test_vault_and_redact.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L07-04 | Collector redaction | `deploy/compose/otelcol/config.yaml` | `tests/unit/test_config_lint.py`; `otelcol-contrib validate`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L07-05 | FS-14 lab | `scripts/fs14_pii.py` | run command (2026-10-07 12:10 UTC); `tests/privacy/test_privacy_scan.py` | pass (SIMULATED workload) | pass: output re-run 20 Oct 2026, identical |
+| L07-06 | Hash lab | `scripts/hash_reversal.py` | run command (12:23 UTC); `tests/privacy/test_classify_and_pseudonym.py` | pass; timings vary by machine | pass: output re-run 20 Oct 2026, only timings differ |
+| L07-07 | Privacy scan test | `tests/privacy/test_privacy_scan.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -363,15 +363,15 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L08-01 | The stream clock | `src/wrenholt/gateway/streaming.py` | `tests/unit/test_stream_clock.py`, `tests/unit/test_streaming.py` | pass | pending |
-| L08-02 | Reading an attempt | `src/wrenholt/gateway/client.py` | `tests/unit/test_streaming.py`, `tests/unit/test_stream_context.py` | pass | pending |
-| L08-03 | Ending an attempt | `src/wrenholt/gateway/client.py` | `tests/unit/test_streaming.py`; FS-04 lab | pass | pending |
-| L08-04 | The status code waits for the first chunk | `src/wrenholt/api/app.py` | `tests/unit/test_sse_api.py` (a 503 before the stream) | pass | pending |
-| L08-05 | The server-sent events relay | `src/wrenholt/api/app.py` | `tests/unit/test_sse_api.py`; FS-04 lab | pass | pending |
-| L08-06 | The `ttfc` SLI query | `deploy/compose/grafana/provisioning/dashboards/llm-gateway.json` (the same expression on one line) | `promtool check rules` on the wrapped listing; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
-| L08-07 | FS-02 lab | `scripts/fs02_brownout.py` | run command (2026-10-08 15:01 UTC) | pass (SIMULATED); timings vary by machine | pending |
-| L08-08 | FS-04 lab | `scripts/fs04_stream_cut.py` | run command (15:15 UTC, identical to the 14:32 run); `tests/unit/test_sse_api.py` | pass (SIMULATED) | pending |
-| L08-09 | A cut before the first chunk is retried | `tests/unit/test_streaming.py` | itself | pass | pending |
+| L08-01 | The stream clock | `src/wrenholt/gateway/streaming.py` | `tests/unit/test_stream_clock.py`, `tests/unit/test_streaming.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L08-02 | Reading an attempt | `src/wrenholt/gateway/client.py` | `tests/unit/test_streaming.py`, `tests/unit/test_stream_context.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L08-03 | Ending an attempt | `src/wrenholt/gateway/client.py` | `tests/unit/test_streaming.py`; FS-04 lab | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L08-04 | The status code waits for the first chunk | `src/wrenholt/api/app.py` | `tests/unit/test_sse_api.py` (a 503 before the stream) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L08-05 | The server-sent events relay | `src/wrenholt/api/app.py` | `tests/unit/test_sse_api.py`; FS-04 lab | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L08-06 | The `ttfc` SLI query | `deploy/compose/grafana/provisioning/dashboards/llm-gateway.json` (the same expression on one line) | `promtool check rules` on the wrapped listing; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
+| L08-07 | FS-02 lab | `scripts/fs02_brownout.py` | run command (2026-10-08 15:01 UTC) | pass (SIMULATED); timings vary by machine | pass: output re-run 20 Oct 2026, only timings differ |
+| L08-08 | FS-04 lab | `scripts/fs04_stream_cut.py` | run command (15:15 UTC, identical to the 14:32 run); `tests/unit/test_sse_api.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L08-09 | A cut before the first chunk is retried | `tests/unit/test_streaming.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -425,17 +425,17 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L09-01 | The retrieval span | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py` (attributes without text; FS-08); drift suite; native run | pass | pending |
-| L09-02 | The start-up check | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py`; native run (a second API process refused the re-indexed build) | pass | pending |
-| L09-03 | The loop guard | `src/wrenholt/orchestrator/guard.py` | `tests/unit/test_loop_guard.py` | pass | pending |
-| L09-04 | The tool loop | `src/wrenholt/orchestrator/linnet.py` | `tests/unit/test_agent.py`, `tests/unit/test_loop_guard.py` | pass | pending |
-| L09-05 | One span per tool call | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py` (invalid arguments), `tests/privacy/test_privacy_scan.py` | pass | pending |
-| L09-06 | The idempotent refund | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py`; FS-07 lab; native run | pass | pending |
-| L09-07 | Retrieval and agent queries | `deploy/compose/grafana/provisioning/dashboards/llm-gateway.json` (the same expressions on one line) | `promtool check rules` on the two wrapped PromQL expressions; the TraceQL query equals the replay panel's; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
-| L09-08 | FS-06 lab | `scripts/fs06_tool_loop.py` | run command (2026-10-12 08:13 UTC; rerun at 16:30 UTC differs only in the 1.44 s timing, then 1.28 s); `tests/unit/test_loop_guard.py` | pass (SIMULATED); timings vary by machine | pending |
-| L09-09 | FS-07 lab | `scripts/fs07_duplicate_refund.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_idempotent_refund.py` | pass (SIMULATED) | pending |
-| L09-10 | FS-08 lab | `scripts/fs08_empty_retrieval.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_retrieval.py` | pass (SIMULATED) | pending |
-| L09-11 | FS-07 tests | `tests/unit/test_idempotent_refund.py` | itself | pass | pending |
+| L09-01 | The retrieval span | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py` (attributes without text; FS-08); drift suite; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-02 | The start-up check | `src/wrenholt/rag/retriever.py` | `tests/unit/test_retrieval.py`; native run (a second API process refused the re-indexed build) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-03 | The loop guard | `src/wrenholt/orchestrator/guard.py` | `tests/unit/test_loop_guard.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-04 | The tool loop | `src/wrenholt/orchestrator/linnet.py` | `tests/unit/test_agent.py`, `tests/unit/test_loop_guard.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-05 | One span per tool call | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py` (invalid arguments), `tests/privacy/test_privacy_scan.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-06 | The idempotent refund | `src/wrenholt/tools/toolbox.py` | `tests/unit/test_idempotent_refund.py`; FS-07 lab; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L09-07 | Retrieval and agent queries | `deploy/compose/grafana/provisioning/dashboards/llm-gateway.json` (the same expressions on one line) | `promtool check rules` on the two wrapped PromQL expressions; the TraceQL query equals the replay panel's; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
+| L09-08 | FS-06 lab | `scripts/fs06_tool_loop.py` | run command (2026-10-12 08:13 UTC; rerun at 16:30 UTC differs only in the 1.44 s timing, then 1.28 s); `tests/unit/test_loop_guard.py` | pass (SIMULATED); timings vary by machine | pass: output re-run 20 Oct 2026, only timings differ |
+| L09-09 | FS-07 lab | `scripts/fs07_duplicate_refund.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_idempotent_refund.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L09-10 | FS-08 lab | `scripts/fs08_empty_retrieval.py` | run command (08:13 UTC; identical at 16:30 UTC); `tests/unit/test_retrieval.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L09-11 | FS-07 tests | `tests/unit/test_idempotent_refund.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -521,16 +521,16 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L10-01 | Tail sampling | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (policies against `sampling.POLICIES`, thresholds, sizing); `otelcol-contrib validate`; FS-15 lab; native runs | pass | pending |
-| L10-02 | The coverage map | `src/wrenholt/telemetry/sampling.py` | `tests/unit/test_pipeline_config.py` (every gateway panel names a policy) | pass | pending |
-| L10-03 | Export queues | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (the queues hold what the comment says); native run (capacity reported in items) | pass | pending |
-| L10-04 | The budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py`; `tests/drift/test_budget_drift.py`; native run (221 series, none outside the budget) | pass | pending |
-| L10-05 | The guard | `src/wrenholt/telemetry/budget.py` | `tests/unit/test_cardinality.py` | pass | pending |
-| L10-06 | The first tier | `deploy/compose/otelcol/loadbalancing.yaml` | `otelcol-contrib validate`; `tests/unit/test_pipeline_config.py`; not run (decisions 4 and 8) | pass (validated) | pending |
-| L10-07 | Pipeline queries | `deploy/compose/grafana/provisioning/dashboards/telemetry-pipeline.json` (the same expressions on one line) | `promtool check rules` on the four wrapped expressions; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
-| L10-08 | FS-15 lab | `scripts/fs15_sampling_blind_spot.py` | run command (2026-10-13 03:17 UTC, identical to the earlier run); `tests/resilience/test_collector_pipeline.py` asserts every line | pass (SIMULATED) | pending |
-| L10-09 | Collector overload lab | `scripts/collector_overload.py` | run command (2026-10-13 04:11 UTC); `tests/resilience/test_collector_pipeline.py` asserts the counts | pass (SIMULATED); waiting times vary | pending |
-| L10-10 | Sizing tests | `tests/unit/test_pipeline_config.py` | itself | pass | pending |
+| L10-01 | Tail sampling | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (policies against `sampling.POLICIES`, thresholds, sizing); `otelcol-contrib validate`; FS-15 lab; native runs | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L10-02 | The coverage map | `src/wrenholt/telemetry/sampling.py` | `tests/unit/test_pipeline_config.py` (every gateway panel names a policy) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L10-03 | Export queues | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (the queues hold what the comment says); native run (capacity reported in items) | pass | superseded by L11-08 (approved) |
+| L10-04 | The budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py`; `tests/drift/test_budget_drift.py`; native run (221 series, none outside the budget) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L10-05 | The guard | `src/wrenholt/telemetry/budget.py` | `tests/unit/test_cardinality.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L10-06 | The first tier | `deploy/compose/otelcol/loadbalancing.yaml` | `otelcol-contrib validate`; `tests/unit/test_pipeline_config.py`; not run (decisions 4 and 8) | pass (validated) | pass: native load-balancing exercise, 20 Oct 2026 |
+| L10-07 | Pipeline queries | `deploy/compose/grafana/provisioning/dashboards/telemetry-pipeline.json` (the same expressions on one line) | `promtool check rules` on the four wrapped expressions; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
+| L10-08 | FS-15 lab | `scripts/fs15_sampling_blind_spot.py` | run command (2026-10-13 03:17 UTC, identical to the earlier run); `tests/resilience/test_collector_pipeline.py` asserts every line | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L10-09 | Collector overload lab | `scripts/collector_overload.py` | run command (2026-10-13 04:11 UTC); `tests/resilience/test_collector_pipeline.py` asserts the counts | pass (SIMULATED); waiting times vary | pass: output re-run 20 Oct 2026, only timings differ |
+| L10-10 | Sizing tests | `tests/unit/test_pipeline_config.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -636,18 +636,18 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L11-01 | The price table | `src/wrenholt/gateway/prices.yaml` | `tests/unit/test_cost.py` (every routed model priced; a table that looks wrong refused) | pass (SIMULATED prices) | pending |
-| L11-02 | One call's cost | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py` (the policy answer by hand, cached rate, five times on the large model) | pass | pending |
-| L11-03 | Recording a call | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py`; `tests/drift` (every emitted key in its budget) | pass | pending |
-| L11-04 | Charging a call | `src/wrenholt/gateway/client.py` | `tests/unit/test_cost.py` (whole and streamed calls charged, a cut stream not) | pass | pending |
-| L11-05 | The ledger | `src/wrenholt/gateway/limits.py` | `tests/unit/test_limits.py` | pass | pending |
-| L11-06 | Refused at the limit | `src/wrenholt/api/app.py` | `tests/unit/test_limits.py` (429 with `Retry-After`); native run | pass | pending |
-| L11-07 | Chapter 11's budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py` (combinations from the code; 1,955 of 2,000) | pass | pending |
-| L11-08 | The metrics queue | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (187 points × 60 exports); `otelcol-contrib validate` | pass | pending |
-| L11-09 | Two dashboard queries | `deploy/compose/grafana/provisioning/dashboards/cost.json` (the same expressions on one line) | `promtool check rules` on every dashboard expression; `tests/drift/test_dashboard_lint.py`; native run | pass | pending |
-| L11-10 | FS-12 lab | `scripts/fs12_token_explosion.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pending |
-| L11-11 | FS-13 lab | `scripts/fs13_costly_fallback.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pending |
-| L11-12 | The normal hour by hand | `tests/unit/test_economics.py` | itself | pass | pending |
+| L11-01 | The price table | `src/wrenholt/gateway/prices.yaml` | `tests/unit/test_cost.py` (every routed model priced; a table that looks wrong refused) | pass (SIMULATED prices) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-02 | One call's cost | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py` (the policy answer by hand, cached rate, five times on the large model) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-03 | Recording a call | `src/wrenholt/gateway/cost.py` | `tests/unit/test_cost.py`; `tests/drift` (every emitted key in its budget) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-04 | Charging a call | `src/wrenholt/gateway/client.py` | `tests/unit/test_cost.py` (whole and streamed calls charged, a cut stream not) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-05 | The ledger | `src/wrenholt/gateway/limits.py` | `tests/unit/test_limits.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-06 | Refused at the limit | `src/wrenholt/api/app.py` | `tests/unit/test_limits.py` (429 with `Retry-After`); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-07 | Chapter 11's budget | `src/wrenholt/telemetry/conventions.py` | `tests/unit/test_cardinality.py` (combinations from the code; 1,955 of 2,000) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L11-08 | The metrics queue | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (187 points × 60 exports); `otelcol-contrib validate` | pass | superseded by L13-08 (approved) |
+| L11-09 | Two dashboard queries | `deploy/compose/grafana/provisioning/dashboards/cost.json` (the same expressions on one line) | `promtool check rules` on every dashboard expression; `tests/drift/test_dashboard_lint.py`; native run | pass | not re-run: needs a running stack with data |
+| L11-10 | FS-12 lab | `scripts/fs12_token_explosion.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L11-11 | FS-13 lab | `scripts/fs13_costly_fallback.py` | run command (2026-10-13); `tests/unit/test_economics.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L11-12 | The normal hour by hand | `tests/unit/test_economics.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -706,20 +706,20 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L12-01 | Burn rate and how long a budget lasts | `src/wrenholt/slo/errorbudget.py` | `tests/slo/test_error_budget.py` (every worked number) | pass | pending |
-| L12-02 | The SLO file: header, availability, latency by request class | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` (Table 12.1; thresholds are the catalogue's and bucket boundaries) | pass | pending |
-| L12-03 | An objective and a reason for none | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` | pass (SIMULATED cost threshold) | pending |
-| L12-04 | The rules a reviewer would check | `src/wrenholt/slo/objectives.py` | `tests/slo/test_objectives.py` (five broken files refused) | pass | pending |
-| L12-05 | The error-ratio expression | `src/wrenholt/slo/rules.py` | `tests/slo/test_rules.py`; `promtool test rules` (6 cases) | pass | pending |
-| L12-06 | Two generated rules, wrapped | `deploy/compose/prometheus/rules/slo.rules.yaml` (the same rules on one line each) | `tests/slo/test_rules.py` (exact expressions); `promtool check rules`; native run | pass | pending |
-| L12-07 | Rule files and retention | `deploy/compose/prometheus/prometheus.yml` | `tests/slo/test_rules.py`; `promtool check config`; native run | pass | pending |
-| L12-08 | The SLI recorder | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (series at zero; one event per SLI); native run | pass | pending |
-| L12-09 | The guardrail in front of Linnet | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (refusals whole and streamed; 429 spends availability) | pass | pending |
-| L12-10 | The error budget policy | `docs/error_budget_policy.md` | `tests/slo/test_error_budget.py` (the policy's thresholds) | pass | pending |
-| L12-11 | FS-05 fault in the mock | `services/mock_llm/malformed.py` | `tests/slo/test_slo_labs.py` | pass (SIMULATED) | pending |
-| L12-12 | FS-05 lab | `scripts/fs05_malformed_refund.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pending |
-| L12-13 | Guardrail versions | `src/wrenholt/guardrail.py` | `tests/unit/test_slo_api.py` (rule ids on spans, never words) | pass (SIMULATED) | pending |
-| L12-14 | FS-17 lab | `scripts/fs17_over_blocking.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pending |
+| L12-01 | Burn rate and how long a budget lasts | `src/wrenholt/slo/errorbudget.py` | `tests/slo/test_error_budget.py` (every worked number) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-02 | The SLO file: header, availability, latency by request class | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` (Table 12.1; thresholds are the catalogue's and bucket boundaries) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-03 | An objective and a reason for none | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py` | pass (SIMULATED cost threshold) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-04 | The rules a reviewer would check | `src/wrenholt/slo/objectives.py` | `tests/slo/test_objectives.py` (five broken files refused) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-05 | The error-ratio expression | `src/wrenholt/slo/rules.py` | `tests/slo/test_rules.py`; `promtool test rules` (6 cases) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-06 | Two generated rules, wrapped | `deploy/compose/prometheus/rules/slo.rules.yaml` (the same rules on one line each) | `tests/slo/test_rules.py` (exact expressions); `promtool check rules`; native run | pass | not re-run: needs a running stack with data |
+| L12-07 | Rule files and retention | `deploy/compose/prometheus/prometheus.yml` | `tests/slo/test_rules.py`; `promtool check config`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-08 | The SLI recorder | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (series at zero; one event per SLI); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-09 | The guardrail in front of Linnet | `src/wrenholt/slo/recorder.py` | `tests/unit/test_slo_api.py` (refusals whole and streamed; 429 spends availability) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-10 | The error budget policy | `docs/error_budget_policy.md` | `tests/slo/test_error_budget.py` (the policy's thresholds) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-11 | FS-05 fault in the mock | `services/mock_llm/malformed.py` | `tests/slo/test_slo_labs.py` | pass (SIMULATED) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-12 | FS-05 lab | `scripts/fs05_malformed_refund.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L12-13 | Guardrail versions | `src/wrenholt/guardrail.py` | `tests/unit/test_slo_api.py` (rule ids on spans, never words) | pass (SIMULATED) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L12-14 | FS-17 lab | `scripts/fs17_over_blocking.py` | run command (2026-10-13); `tests/slo/test_slo_labs.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -771,17 +771,17 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L13-01 | Evaluation sampling by trace ID | `src/wrenholt/evaluation/sampling.py` | `tests/unit/test_evaluation.py` (the rule; a rate of 0.1 within 0.01 over 10,000 IDs) | pass | pending |
-| L13-02 | A verdict and the evaluator interface | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (known answers); `mypy --strict` | pass (SIMULATED evaluators) | pending |
-| L13-03 | The adapter for outside evaluators | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (label and score mapped; unmapped label refused) | pass | pending |
-| L13-04 | The result emitter | `src/wrenholt/evaluation/emitter.py` | `tests/unit/test_evaluation.py` (linked, no content, series at zero, slices); `tests/drift/test_events_drift.py`; native run | pass | pending |
-| L13-05 | Evaluating online | `src/wrenholt/evaluation/online.py` | `tests/unit/test_evaluation.py` (sampled, not sampled, no span, streamed, failing evaluator); native run | pass | pending |
-| L13-06 | The share check | `src/wrenholt/evaluation/drift.py` | `tests/unit/test_evaluation.py` (waits for 30; stable series; new baseline); `tests/slo/test_eval_labs.py` (z 22.5 and 21.7) | pass | pending |
-| L13-07 | Groundedness's objective | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py`; `tests/slo/test_rules.py` (10 groups, 86 rules); native run | pass | pending |
-| L13-08 | The metrics queue, superseding L11-08 | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (213 points; 12,780 within 13,000); native run | pass | pending |
-| L13-09 | FS-10 lab | `scripts/fs10_prompt_regression.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
-| L13-10 | FS-09 lab, index swap | `scripts/fs09_index_swap.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
-| L13-11 | FS-16 lab | `scripts/fs16_intent_drift.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pending |
+| L13-01 | Evaluation sampling by trace ID | `src/wrenholt/evaluation/sampling.py` | `tests/unit/test_evaluation.py` (the rule; a rate of 0.1 within 0.01 over 10,000 IDs) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-02 | A verdict and the evaluator interface | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (known answers); `mypy --strict` | pass (SIMULATED evaluators) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-03 | The adapter for outside evaluators | `src/wrenholt/evaluation/evaluators.py` | `tests/unit/test_evaluation.py` (label and score mapped; unmapped label refused) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-04 | The result emitter | `src/wrenholt/evaluation/emitter.py` | `tests/unit/test_evaluation.py` (linked, no content, series at zero, slices); `tests/drift/test_events_drift.py`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-05 | Evaluating online | `src/wrenholt/evaluation/online.py` | `tests/unit/test_evaluation.py` (sampled, not sampled, no span, streamed, failing evaluator); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-06 | The share check | `src/wrenholt/evaluation/drift.py` | `tests/unit/test_evaluation.py` (waits for 30; stable series; new baseline); `tests/slo/test_eval_labs.py` (z 22.5 and 21.7) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-07 | Groundedness's objective | `src/wrenholt/slo/objectives.yaml` | `tests/slo/test_objectives.py`; `tests/slo/test_rules.py` (10 groups, 86 rules); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-08 | The metrics queue, superseding L11-08 | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py` (213 points; 12,780 within 13,000); native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L13-09 | FS-10 lab | `scripts/fs10_prompt_regression.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L13-10 | FS-09 lab, index swap | `scripts/fs09_index_swap.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L13-11 | FS-16 lab | `scripts/fs16_intent_drift.py` | run command (2026-10-13); `tests/slo/test_eval_labs.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -835,16 +835,16 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L14-01 | The three tiers | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (windows, burn rates, a short window a twelfth of the long one) | pass | pending |
-| L14-02 | Which tiers an SLO gets | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.2; 18 alerts) | pass | pending |
-| L14-03 | The alert expression | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (exact lines; thresholds; recorded series only); promtool | pass | pending |
-| L14-04 | Detection time and budget spent | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.1; Section 14.3.3) | pass | pending |
-| L14-05 | A generated Grafana rule | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (committed equals generated; structure). Grafana not run | pass (format per v13.2.3 docs) | pending |
-| L14-06 | Contact point and notification policy | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (webhook setting; routes). Grafana not run | pass (format per v13.2.3 docs) | pending |
-| L14-07 | FS-03's promtool test | `tests/slo/slo_alerts.test.yaml` | promtool 3.15.0 `test rules` (4 cases), run by `tests/slo/test_alerts.py` | pass | pending |
-| L14-08 | The availability runbook | `docs/runbooks.md` | `tests/slo/test_alerts.py` (every alert's link has a section) | pass | pending |
-| L14-09 | The lab's alert question | `src/wrenholt/labs/paging_lab.py` | `tests/slo/test_paging_lab.py` | pass (SIMULATED) | pending |
-| L14-10 | Paging lab | `scripts/fs02_fs03_paging.py` | run command (2026-10-13); `tests/slo/test_paging_lab.py` asserts every number | pass (SIMULATED) | pending |
+| L14-01 | The three tiers | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (windows, burn rates, a short window a twelfth of the long one) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-02 | Which tiers an SLO gets | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.2; 18 alerts) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-03 | The alert expression | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (exact lines; thresholds; recorded series only); promtool | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-04 | Detection time and budget spent | `src/wrenholt/slo/alerts.py` | `tests/slo/test_alerts.py` (Table 14.1; Section 14.3.3) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-05 | A generated Grafana rule | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (committed equals generated; structure). Grafana not run | pass (format per v13.2.3 docs) | static: format per v13.2.3 docs; Grafana ran with it in CI run 39411828181, rules not seen firing |
+| L14-06 | Contact point and notification policy | `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml` | `tests/slo/test_alerts.py` (webhook setting; routes). Grafana not run | pass (format per v13.2.3 docs) | static: format per v13.2.3 docs; Grafana ran with it in CI run 39411828181, rules not seen firing |
+| L14-07 | FS-03's promtool test | `tests/slo/slo_alerts.test.yaml` | promtool 3.15.0 `test rules` (4 cases), run by `tests/slo/test_alerts.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-08 | The availability runbook | `docs/runbooks.md` | `tests/slo/test_alerts.py` (every alert's link has a section) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-09 | The lab's alert question | `src/wrenholt/labs/paging_lab.py` | `tests/slo/test_paging_lab.py` | pass (SIMULATED) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L14-10 | Paging lab | `scripts/fs02_fs03_paging.py` | run command (2026-10-13); `tests/slo/test_paging_lab.py` asserts every number | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -893,13 +893,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L15-01 | Nearest-rank percentiles and the spread | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (18 answers; mean 1.70, p50 0.40, p95 3.00; 9 over 2.5 s) | pass | pending |
-| L15-02 | The provider check (L1) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (median +2.60 s; own time +0.00 s; gone once the brownout is removed) | pass | pending |
-| L15-03 | The retrieval check (L3) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (12 of 12 empty; embedders) | pass | pending |
-| L15-04 | The vault's gate | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (no reason, wrong role, granted; log without content) | pass | pending |
-| L15-05 | Bundle replay against the mock | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (0 passages, then 2; changed prompt refused) | pass (SIMULATED) | pending |
-| L15-06 | `wrenholt diagnose` on the recorded hour | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pending |
-| L15-07 | `wrenholt replay` of one trace | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pending |
+| L15-01 | Nearest-rank percentiles and the spread | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (18 answers; mean 1.70, p50 0.40, p95 3.00; 9 over 2.5 s) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L15-02 | The provider check (L1) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (median +2.60 s; own time +0.00 s; gone once the brownout is removed) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L15-03 | The retrieval check (L3) | `src/wrenholt/diagnosis.py` | `tests/unit/test_diagnosis.py` (12 of 12 empty; embedders) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L15-04 | The vault's gate | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (no reason, wrong role, granted; log without content) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L15-05 | Bundle replay against the mock | `src/wrenholt/labs/diagnosis_lab.py` | `tests/unit/test_diagnosis.py` (0 passages, then 2; changed prompt refused) | pass (SIMULATED) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L15-06 | `wrenholt diagnose` on the recorded hour | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L15-07 | `wrenholt replay` of one trace | `scripts/wrenholt_cli.py` | run command (2026-10-19); `tests/unit/test_diagnosis.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -933,13 +933,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L16-01 | One deadline per answer | `src/wrenholt/gateway/deadlines.py` | `tests/unit/test_guarded.py` (spent deadline refused; attempt cut at the deadline) | pass | pending |
-| L16-02 | The process-wide retry budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (Hypothesis: grants exactly its rolling minute) | pass | pending |
-| L16-03 | Retry decisions under the deadline and the budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (backoff bounds; never past the deadline); `tests/unit/test_guarded.py` (6 s retry-after: Chapter 4 stops, 9 s left retries, 5 s left stops) | pass | pending |
-| L16-04 | The breaker's states | `src/wrenholt/gateway/breaker.py` | `tests/resilience/test_controls.py` (opens on the fifth, one probe, closes; only the provider's failures; Hypothesis) | pass | pending |
-| L16-05 | The guarded attempt | `src/wrenholt/gateway/guarded.py` | `tests/unit/test_guarded.py` (breaker, bulkhead and deadline refusals send nothing; FS-18 not retried) | pass | pending |
-| L16-06 | The refund under the deadline and the budget | `src/wrenholt/tools/guarded.py` | `tests/unit/test_guarded.py` (cut at the deadline; retry refused with the budget spent) | pass | pending |
-| L16-07 | The protective controls under load | `scripts/protect_lab.py` | run command (2026-10-19); `tests/unit/test_guarded.py` (every figure) | pass (SIMULATED) | pending |
+| L16-01 | One deadline per answer | `src/wrenholt/gateway/deadlines.py` | `tests/unit/test_guarded.py` (spent deadline refused; attempt cut at the deadline) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-02 | The process-wide retry budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (Hypothesis: grants exactly its rolling minute) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-03 | Retry decisions under the deadline and the budget | `src/wrenholt/gateway/retry.py` | `tests/resilience/test_controls.py` (backoff bounds; never past the deadline); `tests/unit/test_guarded.py` (6 s retry-after: Chapter 4 stops, 9 s left retries, 5 s left stops) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-04 | The breaker's states | `src/wrenholt/gateway/breaker.py` | `tests/resilience/test_controls.py` (opens on the fifth, one probe, closes; only the provider's failures; Hypothesis) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-05 | The guarded attempt | `src/wrenholt/gateway/guarded.py` | `tests/unit/test_guarded.py` (breaker, bulkhead and deadline refusals send nothing; FS-18 not retried) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-06 | The refund under the deadline and the budget | `src/wrenholt/tools/guarded.py` | `tests/unit/test_guarded.py` (cut at the deadline; retry refused with the budget spent) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L16-07 | The protective controls under load | `scripts/protect_lab.py` | run command (2026-10-19); `tests/unit/test_guarded.py` (every figure) | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -970,12 +970,12 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L17-01 | The chain's walk, with exercise | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (A rate-limited: B answers, then A; exercise; retired fallback; spent deadline) | pass | pending |
-| L17-02 | Price ratio, affordability, when to move | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (B affordable, `mock-a-large` refused at start-up) | pass | pending |
-| L17-03 | The ladder without a model | `src/wrenholt/orchestrator/degraded.py` | `tests/unit/test_fallback.py` (brief, citation, stale, no passage, refund) | pass | pending |
-| L17-04 | Admission and the degraded path in the API | `src/wrenholt/api/app.py` | `tests/unit/test_fallback.py` (no room: brief and 503; A and B down: brief); Hypothesis property of `Admission` | pass | pending |
-| L17-05 | The `degraded` tail-sampling policy | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py`; `otelcol-contrib validate` with dummy endpoints and key | pass | pending |
-| L17-06 | Fallbacks, costs and shedding | `scripts/fallback_lab.py` | run command (2026-10-19); `tests/unit/test_fallback.py` (every figure) | pass (SIMULATED) | pending |
+| L17-01 | The chain's walk, with exercise | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (A rate-limited: B answers, then A; exercise; retired fallback; spent deadline) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L17-02 | Price ratio, affordability, when to move | `src/wrenholt/gateway/fallback.py` | `tests/unit/test_fallback.py` (B affordable, `mock-a-large` refused at start-up) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L17-03 | The ladder without a model | `src/wrenholt/orchestrator/degraded.py` | `tests/unit/test_fallback.py` (brief, citation, stale, no passage, refund) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L17-04 | Admission and the degraded path in the API | `src/wrenholt/api/app.py` | `tests/unit/test_fallback.py` (no room: brief and 503; A and B down: brief); Hypothesis property of `Admission` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L17-05 | The `degraded` tail-sampling policy | `deploy/compose/otelcol/config.production.yaml` | `tests/unit/test_pipeline_config.py`; `otelcol-contrib validate` with dummy endpoints and key | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L17-06 | Fallbacks, costs and shedding | `scripts/fallback_lab.py` | run command (2026-10-19); `tests/unit/test_fallback.py` (every figure) | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -1008,13 +1008,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L18-01 | Gradual and impulse arrivals | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (7,200 on the ramp; 4,500 on the impulse; the same every time) | pass | pending |
-| L18-02 | `drive`, without waiting | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (every call starts before the first ends; an exception is a result) | pass | pending |
-| L18-03 | Experiments as data | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (FS-01 to FS-18; 14.4 and 0.99 read from the book's files) | pass | pending |
-| L18-04 | Judging and running | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (held, BROKEN, no evidence; detected, MISSED; FS-09, FS-11, FS-18 run and recorded) | pass | pending |
-| L18-05 | The breaking-point model | `src/wrenholt/labs/breaking_lab.py` | `tests/unit/test_experiments.py` (windows and recovery) | pass (SIMULATED) | pending |
-| L18-06 | The eighteen experiments | `scripts/experiments.py` | run command (2026-10-20), recorded in `experiments/latest.json` | pass (SIMULATED) | pending |
-| L18-07 | The breaking point, and past it | `scripts/breaking_lab.py` | run command (2026-10-20); `tests/unit/test_experiments.py` | pass (SIMULATED) | pending |
+| L18-01 | Gradual and impulse arrivals | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (7,200 on the ramp; 4,500 on the impulse; the same every time) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L18-02 | `drive`, without waiting | `src/wrenholt/load.py` | `tests/unit/test_experiments.py` (every call starts before the first ends; an exception is a result) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L18-03 | Experiments as data | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (FS-01 to FS-18; 14.4 and 0.99 read from the book's files) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L18-04 | Judging and running | `src/wrenholt/experiments.py` | `tests/unit/test_experiments.py` (held, BROKEN, no evidence; detected, MISSED; FS-09, FS-11, FS-18 run and recorded) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L18-05 | The breaking-point model | `src/wrenholt/labs/breaking_lab.py` | `tests/unit/test_experiments.py` (windows and recovery) | pass (SIMULATED) | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L18-06 | The eighteen experiments | `scripts/experiments.py` | run command (2026-10-20), recorded in `experiments/latest.json` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, same verdicts; header shows today's version (appH) |
+| L18-07 | The breaking point, and past it | `scripts/breaking_lab.py` | run command (2026-10-20); `tests/unit/test_experiments.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -1042,12 +1042,12 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L19-01 | AI severities | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (severity follows the SLO and only rises) | pass | pending |
-| L19-02 | Grafana's notifications into one record | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (open, repeat, join, mitigate, reopen; restart) | pass | pending |
-| L19-03 | The incident service | `src/wrenholt/api/incidents.py` | `tests/unit/test_incidents.py` (POST /alerts, GET /incidents, the draft, 404) | pass | pending |
-| L19-04 | The service in compose | `deploy/compose/docker-compose.yml` | `tests/unit/test_incidents.py` (parsed; Grafana's default webhook); not started | pass (parsed only) | pending |
-| L19-05 | The postmortem's completeness check | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (nine gaps; end-user data blocks the close) | pass | pending |
-| L19-06 | The game day, FS-03 and FS-07 | `scripts/game_day.py` | run command (2026-10-20); `tests/unit/test_incidents.py` | pass (SIMULATED) | pending |
+| L19-01 | AI severities | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (severity follows the SLO and only rises) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L19-02 | Grafana's notifications into one record | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (open, repeat, join, mitigate, reopen; restart) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L19-03 | The incident service | `src/wrenholt/api/incidents.py` | `tests/unit/test_incidents.py` (POST /alerts, GET /incidents, the draft, 404) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L19-04 | The service in compose | `deploy/compose/docker-compose.yml` | `tests/unit/test_incidents.py` (parsed; Grafana's default webhook); not started | pass (parsed only) | pass: stack ran in CI run 39411828181 |
+| L19-05 | The postmortem's completeness check | `src/wrenholt/incidents.py` | `tests/unit/test_incidents.py` (nine gaps; end-user data blocks the close) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L19-06 | The game day, FS-03 and FS-07 | `scripts/game_day.py` | run command (2026-10-20); `tests/unit/test_incidents.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -1077,13 +1077,13 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| L20-01 | Change types and their CI gates | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (classification by path; `ci` runs only the gates needed) | pass | pending |
-| L20-02 | The evaluation gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (FS-10 blocked, version 1 passes; cases weighted by the mix) | pass | pending |
-| L20-03 | Canary signals, the split by version, the decision | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (wait, promote, roll back; one-sided; inside the budget; FS-11) | pass | pending |
-| L20-04 | The budget gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (held; fix ships; outside cause; nothing exhausted) | pass | pending |
-| L20-05 | The gates workflow | `.github/workflows/gates.yml` | `tests/unit/test_gates.py` (parsed); not run in GitHub Actions | pass (parsed only) | pending |
-| L20-06 | The gates lab, FS-10 and FS-11 | `scripts/gates.py lab` | run command (2026-10-20); `tests/unit/test_gates.py` | pass (SIMULATED) | pending |
-| L20-07 | The self-assessment | `scripts/gates.py assess` | run command (2026-10-20); `tests/unit/test_gates.py` | pass | pending |
+| L20-01 | Change types and their CI gates | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (classification by path; `ci` runs only the gates needed) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L20-02 | The evaluation gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (FS-10 blocked, version 1 passes; cases weighted by the mix) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L20-03 | Canary signals, the split by version, the decision | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (wait, promote, roll back; one-sided; inside the budget; FS-11) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L20-04 | The budget gate | `src/wrenholt/gates.py` | `tests/unit/test_gates.py` (held; fix ships; outside cause; nothing exhausted) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L20-05 | The gates workflow | `.github/workflows/gates.yml` | `tests/unit/test_gates.py` (parsed); not run in GitHub Actions | pass (parsed only) | not run: the release gates need the pull request |
+| L20-06 | The gates lab, FS-10 and FS-11 | `scripts/gates.py lab` | run command (2026-10-20); `tests/unit/test_gates.py` | pass (SIMULATED) | pass: output re-run 20 Oct 2026, identical |
+| L20-07 | The self-assessment | `scripts/gates.py assess` | run command (2026-10-20); `tests/unit/test_gates.py` | pass | pass: output re-run 20 Oct 2026, identical |
 
 Same run, other checks:
 
@@ -1113,10 +1113,10 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| LA-01 | Tempo's 14-day retention | `deploy/compose/tempo/tempo.yaml` | `tests/drift/test_reference_drift.py` (retention); native Tempo 3.1.0 started, `/status/config` shows `block_retention: 336h0m0s` twice, ready | pass | pending |
-| LA-02 | Loki's 14-day retention | `deploy/compose/loki/loki.yaml` | `tests/drift/test_reference_drift.py` (retention); native Loki 3.7.8 `-verify-config` passed (`retention_enabled: true`, `retention_period: 2w`), started ready | pass | pending |
-| LA-03 | The reference check | `scripts/contract_reference.py --check` | run command (2026-10-20); `tests/drift/test_reference_drift.py` | pass | pending |
-| Tables | Every table of the appendix | `docs/telemetry_contract.md` | generated by `src/wrenholt/telemetry/reference.py`; `tests/drift/test_reference_drift.py` (current; spans; events; counts) | pass | pending |
+| LA-01 | Tempo's 14-day retention | `deploy/compose/tempo/tempo.yaml` | `tests/drift/test_reference_drift.py` (retention); native Tempo 3.1.0 started, `/status/config` shows `block_retention: 336h0m0s` twice, ready | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| LA-02 | Loki's 14-day retention | `deploy/compose/loki/loki.yaml` | `tests/drift/test_reference_drift.py` (retention); native Loki 3.7.8 `-verify-config` passed (`retention_enabled: true`, `retention_period: 2w`), started ready | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| LA-03 | The reference check | `scripts/contract_reference.py --check` | run command (2026-10-20); `tests/drift/test_reference_drift.py` | pass | pass: output re-run 20 Oct 2026, identical |
+| Tables | Every table of the appendix | `docs/telemetry_contract.md` | generated by `src/wrenholt/telemetry/reference.py`; `tests/drift/test_reference_drift.py` (current; spans; events; counts) | pass | pass: tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -1143,12 +1143,12 @@ Same run, other checks:
 
 | Listing | What it shows | File | Checked by | Phase 2 | Phase 3 |
 |---|---|---|---|---|---|
-| LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pending |
-| LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pending |
-| LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pending |
-| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | pending |
-| Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pending |
-| Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pending |
+| LC-01 | The development pipeline | `deploy/compose/otelcol/config.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| LC-02 | The production-like pipeline | `deploy/compose/otelcol/config.production.yaml` | earlier chapters' tests; listing check | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| LC-03 | The load-balancing tier | `deploy/compose/otelcol/loadbalancing.yaml` | validated in Chapter 10, not run; listing check | pass (validated only) | pass: native load-balancing exercise, 20 Oct 2026 |
+| LH-01 | Jaeger v2 in place of Tempo | `deploy/compose/docker-compose.jaeger.yml` | `tests/unit/test_appendices.py` (parsed); not run | pass (parsed only) | not run: the alternatives workflow needs the pull request |
+| Tables | Every generated table of Appendices B to H | `src/wrenholt/appendices.py` | `tests/unit/test_appendices.py` | pass | pass: tests re-run 20 Oct 2026 |
+| Queries | 45 PromQL, 7 TraceQL, 3 LogQL, as printed | Appendix D | sent to native Prometheus 3.15.0, Tempo 3.1.0 and Loki 3.7.8 on empty stores: all accepted (parse only, no data) | pass | pass: parse only, native backends, 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -1229,13 +1229,139 @@ run's job logs as shared by the author.
   L11-08 superseded as approved. `scripts/contract_reference.py
   --check`: reference is current.
 
-### Still to run in Phase 3
+### GitHub Actions: compose-smoke run 39411828181
 
-- compose-smoke and the release gates on GitHub after this commit.
-- The alternatives workflow: Jaeger (H.3) and the quick start (H.4);
-  neither has run yet.
-- The Collector load-balancing tier: validated only.
-- The 41 version pins marked `recheck = true`, including the GenAI
-  conventions' release status.
-- The Phase 3 column of the listing tables above.
-- Chapters 15, 18 and 19 against their objectives.
+Branch `phase2-sync`, commit e602e8c, 20 Oct 2026: success in 5 m 43
+s. Config lint 29 s, Stack smoke (checks 1-8, 10-17) 2 m 55 s, Alert
+smoke (check 9) 2 m 43 s, read from the public run page; the step
+logs need a sign-in and were not read. A job succeeds only when every
+step it ran succeeded, and none of these steps continues on error, so
+every check passed: the Collector validate, promtool and the drift
+suite against the pinned GenAI checkout, checks 1-8 and 10-17 on
+Docker (16 and 17 for the first time), and check 9.
+
+### Collector load-balancing tier: native exercise (20 Oct 2026)
+
+Passed, natively, not on Docker. `loadbalancing.yaml` and two
+samplers running `config.production.yaml`, on otelcol-contrib
+0.162.0. Harness changes only: listen addresses (the tier on
+127.0.0.1, the samplers on 127.0.0.2 and 127.0.0.3, their health
+checks and own metrics too); `/etc/hosts` gave `otel-sampler` both
+sampler addresses; each sampler's trace exporter reached a local
+OTLP sink through `TEMPO_OTLP_HTTP`. The committed files are
+unchanged, and `/etc/hosts` was restored.
+
+- 40 traces of 3 spans, every span in its own request, every span
+  with ERROR status so the errors policy keeps every trace.
+- The tier resolved two backends. One sampler received 21 traces (63
+  spans), the other 19 (57); no trace was split; every trace arrived
+  complete at one sampler and was kept.
+- A first attempt's sink could not read gzip bodies (a harness
+  defect, fixed); the Collectors' own counters already showed whole
+  traces then: 72 and 48 spans, 24 and 16 traces sampled.
+
+### Version pins
+
+There are 40 pins marked `recheck = true`; the count of 41 reported
+earlier included the `[meta]` line that names the flag. Every pin is
+a published release, none yanked, checked against the PyPI JSON API
+and the projects' release tags on 20 Oct 2026. No pin was changed:
+newer releases are listed for a decision, not adopted.
+
+| Pin | Pinned | Release found | Newest seen (20 Oct 2026) |
+|---|---|---|---|
+| `opentelemetry-api` | 1.45.0 | PyPI, uploaded 2026-09-25 | 1.45.1 |
+| `opentelemetry-sdk` | 1.45.0 | PyPI, uploaded 2026-09-25 | 1.45.1 |
+| `opentelemetry-exporter-otlp-proto-http` | 1.45.0 | PyPI, uploaded 2026-09-25 | 1.45.1 |
+| `opentelemetry-semantic-conventions` | 0.66b0 | PyPI, uploaded 2026-09-25 | 0.66b1 |
+| `opentelemetry-instrumentation-fastapi` | 0.66b0 | PyPI, uploaded 2026-09-25 | 0.66b1 |
+| `opentelemetry-instrumentation-httpx` | 0.66b0 | PyPI, uploaded 2026-09-25 | 0.66b1 |
+| `opentelemetry-instrumentation-logging` | 0.66b0 | PyPI, uploaded 2026-09-25 | 0.66b1 |
+| `openai` | 3.22.1 | PyPI, uploaded 2026-09-30 | 3.35.1 |
+| `anthropic` | 1.9.0 | PyPI, uploaded 2026-09-28 | 1.15.0 |
+| `httpx2` | 2.13.1 | PyPI, uploaded 2026-09-23 | 2.15.1 |
+| `fastapi` | 0.142.1 | PyPI, uploaded 2026-09-29 | 0.151.0 |
+| `uvicorn` | 0.54.0 | PyPI, uploaded 2026-09-25 | same |
+| `pydantic` | 2.13.5 | PyPI, uploaded 2026-08-28 | 2.14.1 |
+| `pydantic-settings` | 2.15.0 | PyPI, uploaded 2026-08-07 | 2.16.0 |
+| `pyyaml` | 6.0.3 | PyPI, uploaded 2025-09-25 | same |
+| `pytest` | 9.1.1 | PyPI, uploaded 2026-06-19 | same |
+| `pytest-asyncio` | 1.4.0 | PyPI, uploaded 2026-05-26 | same |
+| `hypothesis` | 6.168.3 | PyPI, uploaded 2026-09-28 | 6.170.5 |
+| `mypy` | 2.3.1 | PyPI, uploaded 2026-08-15 | 2.4.0 |
+| `ruff` | 0.16.9 | PyPI, uploaded 2026-09-24 | 0.17.1 |
+| `types-pyyaml` | 6.0.12.20260906 | PyPI, uploaded 2026-09-06 | same |
+| `opentelemetry-instrumentation-openai-v2` | 2.4b0 | PyPI, uploaded 2026-05-01 | same |
+| `opentelemetry-util-genai` | 0.4b0 | PyPI, uploaded 2026-05-01 | 1.2b0 |
+| `httpx` | 0.28.1 | PyPI, uploaded 2024-12-06 | same |
+| `locust` | 2.46.6 | PyPI, uploaded 2026-09-17 | 2.46.7 |
+| `uv` | 0.11.7 | PyPI, uploaded 2026-04-15 | 0.13.3 |
+| `presidio-analyzer` | 2.2.364 | PyPI, uploaded 2026-07-22 | same |
+| `python` | v3.14.7 | tag in `python/cpython` | v3.15.0 |
+| `otelcol` | v0.162.0 | tag in `open-telemetry/opentelemetry-collector-releases` | v0.163.1 |
+| `prometheus` | v3.15.0 | tag in `prometheus/prometheus` | same |
+| `tempo` | v3.1.0 | tag in `grafana/tempo` | same |
+| `loki` | v3.7.8 | tag in `grafana/loki` | same |
+| `grafana` | v13.2.3 | tag in `grafana/grafana` | v13.2.4 |
+| `jaeger` | v2.21.0 | tag in `jaegertracing/jaeger` | v2.22.0 |
+| `otel-lgtm` | v0.34.0 | tag in `grafana/docker-otel-lgtm` | v0.37.0 |
+| `compose` | v5.5.1 | tag in `docker/compose` | v5.6.0 |
+| `semconv` | v1.44.0 | tag in `open-telemetry/semantic-conventions` | same |
+| otelcol-contrib binary | 0.162.0 | release archives, SHA-256 checked by `scripts/fetch_collector.sh` | 0.163.1 |
+| `python:3.14.7-slim` | 3.14.7 | pulled by run 39411828181 | 3.14.8 |
+| GenAI conventions | bcc7f9c | commit in `semantic-conventions-genai`, which has no release tags | HEAD 547934a (18 Oct 2026), 23 commits later |
+
+Run 39411828181 pulled the Prometheus, Tempo, Loki, Grafana,
+Collector and Python images, so those tags exist. The Jaeger and
+otel-lgtm images are pulled first by the alternatives workflow.
+
+The GenAI conventions are still unreleased. Since the pin, HEAD has
+renamed two metrics Wrenholt emits,
+`gen_ai.client.operation.time_to_first_chunk` and
+`gen_ai.client.operation.time_per_output_chunk`, to
+`gen_ai.client.inference.time_to_first_chunk` and
+`gen_ai.client.inference.time_per_output_chunk`; added
+`gen_ai.client.inference.duration` and three `gen_ai.main_agent.*`
+attributes; and renamed the span model `gen_ai.inference.client` to
+`gen_ai.client.inference`. Nothing breaks at the pinned commit;
+moving the pin follows Appendix B and needs a decision.
+
+### Captured outputs (43 listings)
+
+Every listing that shows a command's output was re-run on 20 Oct 2026
+from the repository root and compared with the listing:
+
+- 25 identical.
+- 7 identical apart from timings (L01-05, L03-05, L04-06, L07-06,
+  L08-07, L09-08, L10-09).
+- 1 identical apart from random trace IDs (L06-04).
+- L18-06: the same eighteen verdicts; its header prints the package
+  version, `ch18` when captured and `appH` now.
+- L05-04 differs: the rename drill now reports 3 drift problems, not
+  2. The third is the gateway dashboard's panel "Time to first chunk
+  p95 by provider", added after Chapter 5, which groups by
+  `gen_ai_provider_name`. Chapter 5's text gives no count.
+- 8 not re-run here: seven show queries against a running stack with
+  data, and L01-06 needs two terminals.
+
+Re-running `scripts/experiments.py` rewrote `experiments/latest.json`
+(its version and timings only); the committed file was restored.
+
+### Chapters 15, 18 and 19
+
+Each was read against its plan: objective, key concepts, practical
+implementation, failure scenario, tests and production lesson. All
+are covered, including Chapter 15's access-controlled vault (role,
+tenant and reason, every attempt logged) and the limits of replay
+under non-determinism; Chapter 18's blackholing of noncritical
+backends; Chapter 19's cited lifecycle, outage patterns and
+blameless postmortems. No content gap was found, and no expansion
+is recommended.
+
+### Still open in Phase 3
+
+- The release gates and the alternatives workflow: both need the
+  pull request from `phase2-sync` into `main`.
+- L05-04: keep it as Chapter 5's snapshot, or update its output.
+- The GenAI conventions' renames since the pin: keep the pin, or move
+  it under Appendix B.
