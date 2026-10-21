@@ -7,3 +7,6 @@ __pycache__/
 
 # Binaries downloaded by scripts/fetch_collector.sh
 .native/
+
+# Local overrides for the Compose stack (see deploy/compose/.env.example)
+.env

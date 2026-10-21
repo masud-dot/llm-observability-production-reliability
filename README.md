@@ -16,6 +16,10 @@ labs, resilience controls and release gates in CI.
 Every model call goes to a local mock provider, so nothing needs an
 API key, and every provider result is labelled SIMULATED.
 
+It is for backend, platform and SRE engineers who run LLM features
+in production, and for readers who want to run each chapter's code
+as they read.
+
 ## Quick start
 
 You need Git, Python 3.12 to 3.14, [uv](https://docs.astral.sh/uv/)
@@ -46,6 +50,41 @@ Open Grafana at http://localhost:3000 and sign in as `admin` with
 the password `smoke-only-password`; both are for this local stack
 only. Stop the stack with
 `docker compose -f deploy/compose/docker-compose.yml down --volumes`.
+
+## Configuration
+
+The stack runs without any configuration: no model API keys are
+needed, and every value has a development default in
+`deploy/compose/docker-compose.yml`. To override one, copy
+`deploy/compose/.env.example` to `deploy/compose/.env` (ignored by
+Git) and set:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `REDACTION_HMAC_KEY` | a development-only key | Key for the Collector's pseudonymising redaction; at least 32 bytes. Set your own outside development and never commit it |
+| `WRENHOLT_INCIDENT_WEBHOOK` | `http://incidents:8300/alerts` | Where Grafana's contact point sends alerts |
+
+The Grafana login and the redaction key in the Compose file are for
+a local machine only.
+
+## Explore the telemetry
+
+With the stack up:
+
+| Service | Address |
+| --- | --- |
+| Linnet API (`POST /chat`) | http://localhost:8080 |
+| Grafana: dashboards for the LLM gateway, cost, SLOs, evaluation and the telemetry pipeline; SLO burn-rate alert rules | http://localhost:3000 |
+| Prometheus (metrics, recording rules) | http://localhost:9090 |
+| Tempo (traces; search with TraceQL in Grafana) | http://localhost:3200 |
+| Loki (logs; query with LogQL in Grafana) | http://localhost:3100 |
+| OpenTelemetry Collector (OTLP gRPC and HTTP) | localhost:4317, localhost:4318 |
+| Mock providers A and B, orders service, incident service | localhost:8101, 8102, 8200, 8300 |
+
+`deploy/compose/docker-compose.production.yml` switches the Collector
+to the production-like profile of Chapter 10;
+`docker-compose.alerting.yml` adds the alert smoke overlay and
+`docker-compose.jaeger.yml` the Jaeger alternative (Appendix H).
 
 ## Repository layout
 
@@ -79,6 +118,14 @@ checked.
 a tracked file that the Chapter 20 self-assessment reads, so Git
 shows it as modified after a run.
 
+## Labs and failure scenarios
+
+Each lab and failure scenario has a `make` target, such as `make fs01`
+(the hidden retry storm of Chapter 1), `make gateway-lab` or
+`make overload`; the chapter guide below lists them chapter by
+chapter. `make experiments` runs all eighteen scenarios (Chapter 18).
+Results from the mock providers are SIMULATED.
+
 ## Running the checks
 
 ```bash
@@ -92,6 +139,22 @@ a pinned tool is missing: the native Collector
 (`scripts/fetch_collector.sh`), `promtool` from Prometheus 3.15.0
 on `PATH`, or a checkout of the pinned GenAI conventions in
 `SEMCONV_GENAI_DIR`. The Compose smoke checks need Docker.
+
+## Troubleshooting
+
+- **An ARM host cannot pull the Collector.** 0.162.0 was published
+  with per-architecture tags only; use the `0.162.0-arm64` tag.
+- **The Collector refuses the redaction key.** The HMAC key must be
+  at least 32 bytes; set `REDACTION_HMAC_KEY` outside development.
+- **Prometheus forgets after a restart.** Compose keeps its samples
+  inside the container; give it a volume before relying on 35 days.
+- **A fresh trace is not in search yet.** Tempo can fetch a trace by
+  ID before TraceQL search returns it; wait, or fetch by ID.
+- **The lab tests stop with a usage error.** They need the `lab`
+  group: `uv sync --group dev --group lab`.
+
+Appendix H of the book lists more, with the version-specific
+behaviours of the pinned packages.
 
 ## Known limitations
 

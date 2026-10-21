@@ -27,7 +27,7 @@ source = "https://peps.python.org/pep-0745/"
 status = "bugfix"
 ci_matrix = ["3.12", "3.13", "3.14"]
 recheck = true
-notes = "3.14.8 due 2026-10-06; 3.15.0 due 2026-10-01 (PEP 790). Sandbox checks ran on uv-managed CPython 3.14.4."
+notes = "3.14.8 due 2026-10-06; 3.15.0 due 2026-10-01 (PEP 790). Checks ran on uv-managed CPython 3.14.4."
 
 # ---- Python packages (all pinned exactly in pyproject.toml) ----
 
