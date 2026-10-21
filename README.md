@@ -5,9 +5,9 @@
 [![Python 3.12 to 3.14](https://img.shields.io/badge/python-3.12%20to%203.14-blue.svg)](pyproject.toml)
 
 The runnable code for *LLM Observability & Production AI
-Reliability* by Masud Mondal. Wrenholt Goods is a fictional online
-retailer of home and outdoor goods, and Linnet is its
-customer-support assistant. The book follows Linnet from its first
+Reliability* by Braylen Corvick and Masud Mondal. Wrenholt Goods is
+a fictional online retailer of home and outdoor goods, and Linnet
+is its customer-support assistant. The book follows Linnet from its first
 trace to a reliability programme: OpenTelemetry instrumentation of
 an LLM gateway, the GenAI semantic conventions, privacy-safe
 telemetry, SLOs and burn-rate alerts, evaluation signals, failure
@@ -78,6 +78,44 @@ checked.
 `make experiments` (Chapter 18) rewrites `experiments/latest.json`,
 a tracked file that the Chapter 20 self-assessment reads, so Git
 shows it as modified after a run.
+
+## Running the checks
+
+```bash
+uv sync --group dev --group lab
+scripts/fetch_collector.sh   # the pinned Collector, for the tests that need it
+make verify-ch20             # lint, format, mypy --strict, every suite, the gates
+```
+
+`make verify-chNN` runs one chapter's checks. A few tests skip when
+a pinned tool is missing: the native Collector
+(`scripts/fetch_collector.sh`), `promtool` from Prometheus 3.15.0
+on `PATH`, or a checkout of the pinned GenAI conventions in
+`SEMCONV_GENAI_DIR`. The Compose smoke checks need Docker.
+
+## Known limitations
+
+- Results from the mock providers are SIMULATED: a word counts as
+  a token, streams follow fixed schedules and faults come from plans.
+- The dashboard, TraceQL and LogQL queries of Appendix D were
+  checked against the pinned backends on empty stores: they parse,
+  but their answers need Wrenholt's data.
+- Retention is set in the Prometheus, Tempo and Loki configuration
+  and applied at start-up; no run lasted long enough to see data
+  expire, and the Compose stores keep data only as long as their
+  containers.
+- The FastAPI and HTTPX instrumentations add spans of their own; the
+  privacy tests check their attribute keys, not every span.
+- `experiments/latest.json` is the last committed experiment run.
+- The `grafana/otel-lgtm` quick start has none of the book's
+  redaction, tail sampling or SLO rules: send it synthetic data only.
+
+## Reporting a problem
+
+Open an issue at
+https://github.com/masud-dot/llm-observability-production-reliability/issues
+with the command you ran, its output, and your operating system and
+Python, uv and Docker versions.
 
 ## Licence
 

@@ -27,7 +27,10 @@ except ImportError as exc:  # fail loudly, never skip silently
 PROVIDERS: list[TracerProvider] = []
 
 
-@pytest.fixture(scope="session")
+# Package scope: the official instrumentation patches the OpenAI and
+# httpx2 clients for the whole process, so it is removed as soon as
+# the lab's own tests are done and cannot reach other suites.
+@pytest.fixture(scope="package")
 def exporter() -> Iterator[InMemorySpanExporter]:
     spans = InMemorySpanExporter()
     PROVIDERS.append(instrument_default(spans))
