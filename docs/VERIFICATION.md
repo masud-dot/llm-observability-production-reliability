@@ -106,12 +106,12 @@ Same run, other checks:
 |---|---|---|---|---|---|
 | L03-01 | `linnet-api` service | `deploy/compose/docker-compose.yml` | `tests/unit/test_config_lint.py`; `docker compose config` (v5.5.1); native run of checks 10-17 | pass; Compose run in CI pending the push | pass: ran in CI run 39411828181 (checks 10-15) |
 | L03-02 | `start_telemetry()` | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_telemetry_setup.py`, `tests/resilience/test_collector_outage.py`; native run | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L03-03 | Lifespan flush | `src/wrenholt/telemetry/setup.py` | `tests/resilience/test_collector_outage.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L03-04 | FastAPI's built-in telemetry off | `src/wrenholt/telemetry/framework.py` | `tests/unit/test_telemetry_setup.py`; single-request probe: 1 span per request (2 before) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L03-05 | Collector outage lab | `scripts/collector_outage.py` | run command; output identical to the listing | pass (workload SIMULATED; SDK behaviour measured) | pass: output re-run 20 Oct 2026, only timings differ |
-| L03-06 | CI checks 16-17 | `.github/workflows/compose-smoke.yml` | workflow parses; same checks run natively against the real Collector | pass natively; CI run pending the push | pass: CI run 39411828181 (checks 16-17) |
+| L03-03 | FastAPI's built-in telemetry off | `src/wrenholt/telemetry/framework.py` | `tests/unit/test_telemetry_setup.py`; single-request probe: 1 span per request (2 before) | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-04 | Collector outage lab | `scripts/collector_outage.py` | run command; output identical to the listing | pass (workload SIMULATED; SDK behaviour measured) | pass: output re-run 20 Oct 2026, only timings differ |
+| L03-05 | Lifespan flush | `src/wrenholt/telemetry/setup.py` | `tests/resilience/test_collector_outage.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-06 | Config lint rules | `tests/unit/test_config_lint.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L03-07 | Uvicorn and the flush | `tests/resilience/test_collector_outage.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L03-08 | Config lint rules | `tests/unit/test_config_lint.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L03-08 | CI checks 16-17 | `.github/workflows/compose-smoke.yml` | workflow parses; same checks run natively against the real Collector | pass natively; CI run pending the push | pass: CI run 39411828181 (checks 16-17) |
 
 Same run, other checks:
 
@@ -132,7 +132,7 @@ Same run, other checks:
   Check 16, Collector stopped: 20 of 20 answered, slowest 7 ms.
   Check 17, Collector restarted: accepted spans 20 -> 25. Linnet's
   exit with the lifespan flush: 0.21 s.
-- Outage lab, 2026-10-02 11:33-11:35 UTC: the output in L03-05.
+- Outage lab, 2026-10-02 11:33-11:35 UTC: the output in L03-04.
 - Behaviours of pinned packages, read from source and confirmed by
   execution (`versions.toml`, `[behaviours]`):
   FastAPI 0.142.1 adds its own exporters to existing providers;
@@ -167,8 +167,8 @@ Same run, other checks:
 | L04-04 | Request span and retry loop | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L04-05 | Attempt span on failure and success | `src/wrenholt/gateway/client.py` | `tests/unit/test_gateway_contract.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L04-06 | Gateway comparison lab | `scripts/gateway_lab.py` | run command (2026-10-06 02:51 UTC); `tests/lab/test_gateway_comparison.py` | pass (SIMULATED); counts identical on re-run, timings vary by milliseconds | pass: output re-run 20 Oct 2026, only timings differ |
-| L04-07 | FS-18 contract test | `tests/unit/test_gateway_contract.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L04-08 | Prometheus and TraceQL queries | none (queries) | native run, 2026-10-06 02:56 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
+| L04-07 | Prometheus and TraceQL queries | none (queries) | native run, 2026-10-06 02:56 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
+| L04-08 | FS-18 contract test | `tests/unit/test_gateway_contract.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -193,7 +193,7 @@ Same run, other checks:
   same counter was undefined in this short run (no increase between
   exports) and is not used in the chapter.
 - Chapter 3's outage lab re-run on the Chapter 4 code (2026-10-06
-  01:41 UTC): the same pattern as L03-05 (30, 0, 0 and 30 request spans
+  01:41 UTC): the same pattern as L03-04 (30, 0, 0 and 30 request spans
   arrived; 0 of 10 kept without the flush and 10 of 10 with it; 20.6 s
   and 4.5 s exits against a hung receiver). The harness now counts one
   server span per request, because a request produces four spans.
@@ -263,12 +263,12 @@ Same run, other checks:
 | Listing | What it shows | File | Checked by | When written | Final check |
 |---|---|---|---|---|---|
 | L06-01 | Trace-context-only propagation | `src/wrenholt/telemetry/setup.py` | `tests/unit/test_correlation.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L06-02 | The model pin check | `src/wrenholt/gateway/client.py` | `tests/unit/test_fs11.py`; drift suite | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L06-03 | Recording the bundle off the request path | `src/wrenholt/repro.py` | `tests/unit/test_correlation.py`, `tests/unit/test_repro.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L06-04 | Correlation lab | `scripts/correlation_lab.py` | run command (2026-10-06 09:10 UTC); `tests/unit/test_correlation.py` | pass (SIMULATED workload); IDs differ per run | pass: output re-run 20 Oct 2026, only random trace IDs differ |
+| L06-02 | Recording the bundle off the request path | `src/wrenholt/repro.py` | `tests/unit/test_correlation.py`, `tests/unit/test_repro.py` | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
+| L06-03 | Correlation lab | `scripts/correlation_lab.py` | run command (2026-10-06 09:10 UTC); `tests/unit/test_correlation.py` | pass (SIMULATED workload); IDs differ per run | pass: output re-run 20 Oct 2026, only random trace IDs differ |
+| L06-04 | The model pin check | `src/wrenholt/gateway/client.py` | `tests/unit/test_fs11.py`; drift suite | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 | L06-05 | FS-11 lab | `scripts/fs11_model_change.py` | run command (14:58 UTC); `tests/unit/test_fs11.py` | pass (SIMULATED workload) | pass: output re-run 20 Oct 2026, identical |
-| L06-06 | Correlation test | `tests/unit/test_correlation.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
-| L06-07 | Exemplar, trace and log queries | none (queries) | native run, 2026-10-06 14:53 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
+| L06-06 | Exemplar, trace and log queries | none (queries) | native run, 2026-10-06 14:53 UTC | pass natively; Compose run pending the push | not re-run: needs a running stack with data |
+| L06-07 | Correlation test | `tests/unit/test_correlation.py` | itself | pass | pass: listing verbatim in repo; tests re-run 20 Oct 2026 |
 
 Same run, other checks:
 
@@ -468,11 +468,11 @@ Same run, other checks:
   FS-01, the outage lab, the gateway lab, the hash lab and FS-02
   differ only in timings (the outage lab's SDK warning counts, 18 and
   13 against 17 and 12, follow its timings). The correlation lab now
-  reports 17 spans where L06-04 shows 6, with a new trace ID and
+  reports 17 spans where L06-03 shows 6, with a new trace ID and
   `service.version` ch09: the agent adds `invoke_agent`, retrieval,
   embeddings, build context, two deciding model calls (chat, attempt
   and HTTP each) and an `execute_tool` span around the orders call.
-  L06-04 stays the Chapter 6 capture, as L05-04 stays Chapter 5's
+  L06-03 stays the Chapter 6 capture, as L05-04 stays Chapter 5's
   (the rename drill reports three problems, as in Chapter 8).
 - Native run, 2026-10-12 08:05 UTC: Collector 0.162.0, Prometheus
   3.15.0 (OTLP receiver, exemplar storage), Tempo 3.1.0 and Loki
@@ -1330,9 +1330,9 @@ Every listing that shows a command's output was re-run on 20 Oct 2026
 from the repository root and compared with the listing:
 
 - 25 identical.
-- 7 identical apart from timings (L01-05, L03-05, L04-06, L07-06,
+- 7 identical apart from timings (L01-05, L03-04, L04-06, L07-06,
   L08-07, L09-08, L10-09).
-- 1 identical apart from random trace IDs (L06-04).
+- 1 identical apart from random trace IDs (L06-03).
 - L18-06: the same eighteen verdicts; its header prints the package
   version, `ch18` when captured and `appH` now.
 - L05-04 differs: the rename drill now reports 3 drift problems, not
@@ -1437,7 +1437,7 @@ All ten validation items have run. Listings, final-check column: 173
 rows. 160 pass; 2 superseded (L10-03, L11-08); 2 static
 (L14-05, L14-06: Grafana loaded them in CI, rules not seen firing);
 8 not re-run, needing a running stack with data or a manual run
-(L01-06, L04-08, L06-07, L08-06, L09-07, L10-07, L11-09, L12-06); 1
+(L01-06, L04-07, L06-06, L08-06, L09-07, L10-07, L11-09, L12-06); 1
 differs (L05-04).
 
 Outcomes:
