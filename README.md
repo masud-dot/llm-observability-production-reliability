@@ -1,16 +1,676 @@
-# llm-observability-production-reliability
+# LLM Observability & Production AI Reliability: companion code
 
-Companion repository for *LLM Observability & Production AI
-Reliability*. This is the Phase 1.5 skeleton: the frozen technical
-baseline and the CI gate for the local stack. Chapter code arrives
-from Phase 2 onwards.
+[![compose-smoke](https://github.com/masud-dot/llm-observability-production-reliability/actions/workflows/compose-smoke.yml/badge.svg)](https://github.com/masud-dot/llm-observability-production-reliability/actions/workflows/compose-smoke.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.12 to 3.14](https://img.shields.io/badge/python-3.12%20to%203.14-blue.svg)](pyproject.toml)
 
-- `versions.toml`: frozen versions with release and verification
-  dates, stability and Phase 3 recheck flags.
-- `uv.lock`: produced by uv 0.11.7 from the exact pins in
-  `pyproject.toml`.
-- `deploy/compose/`: the locked local stack (OpenTelemetry
-  Collector, Prometheus, Tempo, Loki, Grafana). Jaeger is a
-  documented alternative only.
-- `.github/workflows/compose-smoke.yml`: the Phase 1.5 gate.
-- `docs/PHASE-1.5-CI.md`: exact run sequence and current status.
+The runnable code for *LLM Observability & Production AI
+Reliability* by Braylen Corvick and Masud Mondal. Wrenholt Goods is
+a fictional online retailer of home and outdoor goods, and Linnet
+is its customer-support assistant. The book follows Linnet from its first
+trace to a reliability programme: OpenTelemetry instrumentation of
+an LLM gateway, the GenAI semantic conventions, privacy-safe
+telemetry, SLOs and burn-rate alerts, evaluation signals, failure
+labs, resilience controls and release gates in CI.
+
+Every model call goes to a local mock provider, so nothing needs an
+API key, and every provider result is labelled SIMULATED.
+
+It is for backend, platform and SRE engineers who run LLM features
+in production, and for readers who want to run each chapter's code
+as they read.
+
+## Quick start
+
+You need Git, Python 3.12 to 3.14, [uv](https://docs.astral.sh/uv/)
+0.11.7 and, for the telemetry stack, Docker with Compose. On
+Windows, work inside WSL 2 with Docker Desktop's WSL integration:
+the shell scripts and `make` targets assume a Linux shell. Without
+`make`, run the commands under a target in the `Makefile` one by
+one.
+
+```bash
+git clone https://github.com/masud-dot/llm-observability-production-reliability.git
+cd llm-observability-production-reliability
+uv sync --group dev --group lab
+make verify-ch01
+```
+
+Start the local stack: the OpenTelemetry Collector, Prometheus,
+Tempo, Loki, Grafana, the mock providers, the orders service and
+Linnet.
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml up --build --wait
+curl -s http://localhost:8080/chat -H 'Content-Type: application/json' \
+  -d '{"message": "How long does a refund take?"}'
+```
+
+Open Grafana at http://localhost:3000 and sign in as `admin` with
+the password `smoke-only-password`; both are for this local stack
+only. Stop the stack with
+`docker compose -f deploy/compose/docker-compose.yml down --volumes`.
+
+## Configuration
+
+The stack runs without any configuration: no model API keys are
+needed, and every value has a development default in
+`deploy/compose/docker-compose.yml`. To override one, copy
+`deploy/compose/.env.example` to `deploy/compose/.env` (ignored by
+Git) and set:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `REDACTION_HMAC_KEY` | a development-only key | Key for the Collector's pseudonymising redaction; at least 32 bytes. Set your own outside development and never commit it |
+| `WRENHOLT_INCIDENT_WEBHOOK` | `http://incidents:8300/alerts` | Where Grafana's contact point sends alerts |
+
+The Grafana login and the redaction key in the Compose file are for
+a local machine only.
+
+## Explore the telemetry
+
+With the stack up:
+
+| Service | Address |
+| --- | --- |
+| Linnet API (`POST /chat`) | http://localhost:8080 |
+| Grafana: dashboards for the LLM gateway, cost, SLOs, evaluation and the telemetry pipeline; SLO burn-rate alert rules | http://localhost:3000 |
+| Prometheus (metrics, recording rules) | http://localhost:9090 |
+| Tempo (traces; search with TraceQL in Grafana) | http://localhost:3200 |
+| Loki (logs; query with LogQL in Grafana) | http://localhost:3100 |
+| OpenTelemetry Collector (OTLP gRPC and HTTP) | localhost:4317, localhost:4318 |
+| Mock providers A and B, orders service, incident service | localhost:8101, 8102, 8200, 8300 |
+
+`deploy/compose/docker-compose.production.yml` switches the Collector
+to the production-like profile of Chapter 10;
+`docker-compose.alerting.yml` adds the alert smoke overlay and
+`docker-compose.jaeger.yml` the Jaeger alternative (Appendix H).
+
+## Repository layout
+
+| Path | What it holds |
+| --- | --- |
+| `src/wrenholt/` | Linnet, the LLM gateway, telemetry, privacy, SLOs, evaluation and the chapter labs |
+| `services/` | Mock LLM providers A and B, the orders service, a webhook sink and the smoke app |
+| `deploy/compose/` | The Docker Compose stack, with alerting, Jaeger and production overrides |
+| `scripts/` | One script per lab and failure scenario, the smoke checks and `fetch_collector.sh` |
+| `tests/` | Unit, SLO, resilience, drift, privacy and lab tests, with their fixtures |
+| `docs/` | Runbooks, the error-budget policy, the telemetry contract and the verification log |
+| `versions.toml`, `uv.lock` | Every pinned version, with release dates and the behaviours the book relies on |
+| `Makefile` | `verify-ch01` to `verify-ch20`, `verify-appA`, `verify-appendices` and one target per lab |
+
+## Versions and verification
+
+Every dependency, image and tool is pinned: Python packages in
+`pyproject.toml` and `uv.lock` (produced by uv 0.11.7), container
+images in `deploy/compose/`, and all of them, with release dates
+and the package behaviours the book relies on, in `versions.toml`.
+Newer releases may behave differently; Appendix B of the book
+explains how to move a pin.
+
+CI runs the stack end to end on every change (`compose-smoke`), the
+release gates on every pull request (`gates`), and the Jaeger and
+single-container alternatives of Appendix H (`alternatives`).
+`docs/VERIFICATION.md` records how each listing in the book was
+checked.
+
+`make experiments` (Chapter 18) rewrites `experiments/latest.json`,
+a tracked file that the Chapter 20 self-assessment reads, so Git
+shows it as modified after a run.
+
+## Labs and failure scenarios
+
+Each lab and failure scenario has a `make` target, such as `make fs01`
+(the hidden retry storm of Chapter 1), `make gateway-lab` or
+`make overload`; the chapter guide below lists them chapter by
+chapter. `make experiments` runs all eighteen scenarios (Chapter 18).
+Results from the mock providers are SIMULATED.
+
+## Running the checks
+
+```bash
+uv sync --group dev --group lab
+scripts/fetch_collector.sh   # the pinned Collector, for the tests that need it
+make verify-ch20             # lint, format, mypy --strict, every suite, the gates
+```
+
+`make verify-chNN` runs one chapter's checks. A few tests skip when
+a pinned tool is missing: the native Collector
+(`scripts/fetch_collector.sh`), `promtool` from Prometheus 3.15.0
+on `PATH`, or a checkout of the pinned GenAI conventions in
+`SEMCONV_GENAI_DIR`. The Compose smoke checks need Docker.
+
+## Troubleshooting
+
+- **An ARM host cannot pull the Collector.** 0.162.0 was published
+  with per-architecture tags only; use the `0.162.0-arm64` tag.
+- **The Collector refuses the redaction key.** The HMAC key must be
+  at least 32 bytes; set `REDACTION_HMAC_KEY` outside development.
+- **Prometheus forgets after a restart.** Compose keeps its samples
+  inside the container; give it a volume before relying on 35 days.
+- **A fresh trace is not in search yet.** Tempo can fetch a trace by
+  ID before TraceQL search returns it; wait, or fetch by ID.
+- **The lab tests stop with a usage error.** They need the `lab`
+  group: `uv sync --group dev --group lab`.
+
+Appendix H of the book lists more, with the version-specific
+behaviours of the pinned packages.
+
+## Known limitations
+
+- Results from the mock providers are SIMULATED: a word counts as
+  a token, streams follow fixed schedules and faults come from plans.
+- The dashboard, TraceQL and LogQL queries of Appendix D were
+  checked against the pinned backends on empty stores: they parse,
+  but their answers need Wrenholt's data.
+- Retention is set in the Prometheus, Tempo and Loki configuration
+  and applied at start-up; no run lasted long enough to see data
+  expire, and the Compose stores keep data only as long as their
+  containers.
+- The FastAPI and HTTPX instrumentations add spans of their own; the
+  privacy tests check their attribute keys, not every span.
+- `experiments/latest.json` is the last committed experiment run.
+- The `grafana/otel-lgtm` quick start has none of the book's
+  redaction, tail sampling or SLO rules: send it synthetic data only.
+
+## Reporting a problem
+
+Open an issue at
+https://github.com/masud-dot/llm-observability-production-reliability/issues
+with the command you ran, its output, and your operating system and
+Python, uv and Docker versions.
+
+## Licence
+
+The code is released under the [MIT License](LICENSE). [NOTICE](NOTICE)
+lists the OpenTelemetry material it includes. The book's text is not
+covered by this licence.
+
+## Chapter guide
+
+What each chapter adds to the repository, and the commands that run
+it.
+
+### Chapter 1: Why LLM Systems Fail Differently
+
+- `services/mock_llm/`: deterministic OpenAI-compatible mock provider
+  with fault plans (SIMULATED), including FS-01.
+- `src/wrenholt/api/` and `src/wrenholt/orchestrator/baseline.py`:
+  Linnet's baseline, which calls the provider SDK with its defaults.
+- `src/wrenholt/labs/`: the layered default-instrumentation lab and
+  the FS-01 reproduction (needs the `lab` group).
+- Run it: `uv sync --group dev --group lab`, then
+  `uv run --group lab python scripts/fs01_hidden_retry.py`.
+- Checks: `make verify-ch01`; results in `docs/VERIFICATION.md`.
+
+### Chapter 2: A Four-Layer Reliability Model for LLM Applications
+
+- `src/wrenholt/slo/request_map.yaml`: the refund journey's steps,
+  candidate budgets under one deadline, and its dependencies.
+- `src/wrenholt/slo/sli_catalog.yaml`: candidate SLIs for all four
+  layers, each a ratio of good events to valid events.
+- `src/wrenholt/slo/sli.py`: the SLI calculators.
+- `src/wrenholt/slo/fs09.py`: FS-09 as SLI evidence (SIMULATED).
+- Run it: `uv run python scripts/fs09_sli_report.py`.
+- Checks: `make verify-ch02`; results in `docs/VERIFICATION.md`.
+
+### Chapter 3: The Reference Architecture and the Wrenholt Baseline
+
+- `deploy/compose/docker-compose.yml`: the telemetry plane (Collector,
+  Prometheus, Tempo, Loki, Grafana) and the application plane (Linnet
+  API, mock providers A and B, orders service). Start it with
+  `docker compose -f deploy/compose/docker-compose.yml up --build --wait`.
+- `src/wrenholt/telemetry/setup.py`: SDK providers and OTLP/HTTP
+  exporters, on only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, with a
+  bounded flush when the app shuts down.
+- `src/wrenholt/telemetry/framework.py`: FastAPI's built-in telemetry,
+  switched off so that telemetry has one owner.
+- `services/orders/`: 5,000 synthetic orders (hash in
+  `data/hashes.toml`), order lookup and idempotent refunds.
+- Smoke checks 10-17: `python3 scripts/smoke_wrenholt.py`.
+- Collector outage lab: `uv run python scripts/collector_outage.py`.
+- Checks: `make verify-ch03`; CI: `.github/workflows/compose-smoke.yml`.
+
+### Chapter 4: Instrumenting the LLM Gateway with OpenTelemetry
+
+- `src/wrenholt/gateway/`: the gateway. One CLIENT span per request,
+  one INTERNAL span per attempt, a closed set of eight `error.type`
+  values with retry rules, an OpenAI-compatible adapter with SDK
+  retries off, and a retry policy that matches the SDK's backoff.
+- `src/wrenholt/telemetry/conventions.py`: every name the gateway
+  emits (Option B); Chapter 5 adds statuses and drift tests.
+- Linnet's API now answers through the gateway; a provider failure
+  returns HTTP 503.
+- FS-18 (spend cap exhausted): `MOCK_LLM_PLAN=fs18` on the mock
+  provider.
+- Comparison lab: `uv run --group lab python scripts/gateway_lab.py`.
+- Checks: `make verify-ch04`.
+
+### Chapter 5: GenAI Semantic Conventions and the Compatibility Module
+
+- `src/wrenholt/telemetry/conventions.py`: the registry of every
+  emitted name, with its source (`genai`, `core` or `book`) and, for
+  metrics, its instrument and unit.
+- `src/wrenholt/telemetry/genai_snapshot.json`: the pinned GenAI
+  conventions (commit in `conventions.GENAI_COMMIT`), regenerated by
+  `scripts/semconv_snapshot.py`.
+- `tests/drift/`: the drift suite. Fourteen tests run offline; the
+  `promtool` tests and the snapshot check run when `promtool` is on
+  `PATH` and `SEMCONV_GENAI_DIR` points at a pinned checkout, as in CI.
+- `deploy/compose/grafana/provisioning/dashboards/`: the LLM gateway
+  dashboard, whose queries the drift suite lints.
+- Labs: `uv run python scripts/rename_drill.py` and
+  `uv run --group lab python scripts/names_lab.py`.
+- Checks: `make verify-ch05`.
+
+### Chapter 6: Context Propagation, Correlation and Reproducibility
+
+- Propagation: W3C trace context only (`telemetry/setup.py`); baggage is
+  neither accepted nor forwarded.
+- Linnet looks up orders mentioned in a question
+  (`src/wrenholt/tools/orders.py`) and passes only status and date to
+  the model. Local runs set `WRENHOLT_ORDERS_URL`; in Compose the
+  default, `http://orders:8200`, already works.
+- Logs: JSON lines on stdout with trace and span IDs
+  (`telemetry/logs.py`).
+- Reproduction bundles (`src/wrenholt/repro.py`): metadata only, one
+  per answer, recorded in their own trace with a link to the request.
+- Model pins and FS-11: `MOCK_LLM_PLAN=fs11` moves `mock-a-fast` to a
+  newer version; the gateway counts the mismatch.
+- Prometheus stores exemplars (`--enable-feature=exemplar-storage`).
+- Labs: `uv run python scripts/correlation_lab.py` and
+  `uv run python scripts/fs11_model_change.py`.
+- Checks: `make verify-ch06`.
+
+### Chapter 7: Safe Telemetry: Privacy-Aware Observability by Design
+
+- `src/wrenholt/privacy/`: the classifier, keyed pseudonyms
+  (`WRENHOLT_PSEUDONYM_KEYS`, current key first), redaction for logs
+  and spans (`protect()`, installed by both entry points), the content
+  vault and the data-class contract.
+- Content capture is off by default. `WRENHOLT_CONTENT_CAPTURE=vault`
+  stores question and answer by trace ID (`WRENHOLT_VAULT_PATH`,
+  `WRENHOLT_VAULT_TTL_S`, default 72 hours) and puts
+  `wrenholt.content.ref` on the request span.
+- The Collector redacts traces and logs again with an HMAC keyed by
+  `REDACTION_HMAC_KEY` (32 bytes or more). Compose supplies a
+  development key; production injects a secret.
+- `tests/privacy/`: the privacy scan of every exported signal, the
+  vault, pseudonyms and redaction.
+- Labs: `uv run python scripts/fs14_pii.py` and
+  `uv run python scripts/hash_reversal.py`.
+- Checks: `make verify-ch07`.
+
+### Chapter 8: Streaming and Asynchronous Workloads
+
+- `POST /chat` with `"stream": true` answers with server-sent events:
+  `chunk` events, then exactly one `done` or `error`
+  (`{"error": ..., "partial": true}`). The status code waits for the
+  first chunk, so a failure before it is still a 503.
+- `Gateway.stream` records
+  `gen_ai.client.operation.time_to_first_chunk` (buckets
+  `TTFC_BUCKETS`: the specification's plus the `ttfc` SLI thresholds
+  2.5 and 4.0) and `gen_ai.client.operation.time_per_output_chunk`,
+  and puts `gen_ai.response.time_to_first_chunk`,
+  `wrenholt.stream.chunks` and `wrenholt.stream.cancelled` on the
+  request span.
+- A broken stream is retried only before its first chunk reaches the
+  caller; after that it ends as `stream_interrupted`. A departing
+  client closes the provider stream and records no duration.
+- The mock provider streams (SIMULATED): `MOCK_LLM_PLAN=fs02` delays
+  the first chunk by 3.0 s, `MOCK_LLM_PLAN=fs04` ends the stream
+  after three chunks.
+- The LLM gateway dashboard adds time to first chunk p95 by provider
+  and the `ttfc` SLI over an hour, read from `le="2.5"`.
+- Labs: `uv run python scripts/fs02_brownout.py` and
+  `uv run python scripts/fs04_stream_cut.py`.
+- Checks: `make verify-ch08`.
+
+### Chapter 9: Observing Retrieval, Tools and Agent Loops
+
+- Linnet is an agent (`src/wrenholt/orchestrator/linnet.py`): one
+  `invoke_agent Linnet` span per answer. It retrieves help-centre
+  passages, packs them into a context budget (`build context`), and
+  for a question that names an order runs a tool loop before it
+  writes the answer, whole or streamed.
+- `src/wrenholt/rag/`: a synthetic, versioned corpus of 405
+  articles (hashes in `data/hashes.toml`), a feature-hashing
+  embedder (SIMULATED), an index that records the embedder that
+  built it, and a retriever whose `retrieval help-centre` and
+  `embeddings` spans carry index and embedder versions and document
+  IDs, versions and scores, never text. A retriever refuses an
+  index built by another embedder at start-up.
+- `src/wrenholt/tools/toolbox.py`: `lookup_order`, `issue_refund`
+  and `finish`, each call checked against its schema and run in an
+  `execute_tool` span with a keyed fingerprint of its arguments.
+  A refund carries one idempotency key per logical refund and is
+  retried once after a timeout.
+- `src/wrenholt/orchestrator/guard.py`: the loop guard stops a
+  repeated call and caps decision steps
+  (5, `WRENHOLT_AGENT_MAX_STEPS`).
+- Metrics: `gen_ai.invoke_agent.duration`,
+  `gen_ai.invoke_agent.inference_calls`,
+  `gen_ai.invoke_agent.tool_calls`, `gen_ai.execute_tool.duration`,
+  and `wrenholt.retrieval.returned`; retrieval and embeddings
+  durations join `gen_ai.client.operation.duration`.
+- The orders service refunds item by item up to an order's total;
+  `ORDERS_SLOW_COMMIT_MS` answers a new refund late (FS-07). The
+  mock provider calls tools (SIMULATED); `MOCK_LLM_PLAN=fs06`
+  repeats the order lookup.
+- Labs: `uv run python scripts/fs06_tool_loop.py`,
+  `uv run python scripts/fs07_duplicate_refund.py` and
+  `uv run python scripts/fs08_empty_retrieval.py`.
+- Checks: `make verify-ch09`.
+
+### Chapter 10: Metrics, Cardinality and the Telemetry Pipeline
+
+- `deploy/compose/otelcol/config.production.yaml`, the
+  production-like profile: tail sampling keeps every trace with an
+  error, a first chunk after 2.5 s, a request past the 10 s
+  deadline, a loop the guard stopped, a replayed write or an
+  unpinned model, and one in ten of the rest. Export queues are
+  sized in items from a planning figure: 40 answers a second, each
+  two traces and 15 spans. From `deploy/compose`:
+  `docker compose -f docker-compose.yml -f docker-compose.production.yml up -d`.
+- `src/wrenholt/telemetry/sampling.py` names, for each panel of the
+  LLM gateway dashboard, the policy that keeps the traces behind it;
+  a test compares it with the profile and the dashboard.
+- `deploy/compose/otelcol/loadbalancing.yaml`: the first tier in
+  front of several sampling Collectors, routing whole traces by
+  trace ID (validated, not run).
+- The cardinality budget (`BUDGET` in the conventions module): the
+  attributes each metric may carry and how many ways their values
+  may combine, 1,871 series per instance against 2,000. Wrenholt's
+  `MeterProvider` (`src/wrenholt/telemetry/budget.py`) drops an
+  unbudgeted attribute and turns a tool name outside Linnet's tools
+  into `_OTHER`.
+- The exporters are `otlp_http`; `otlphttp` is a deprecated alias
+  in 0.162.0.
+- The telemetry pipeline dashboard: spans accepted and refused,
+  queue fill, drops at a full queue, failed sends, traces kept by
+  policy, the share kept, traces dropped undecided and Collector
+  memory. Its queries are linted against
+  `src/wrenholt/telemetry/otelcol_snapshot.json`, the Collector's
+  own metric names as Prometheus stored them.
+- `scripts/fetch_collector.sh` downloads otelcol-contrib 0.162.0
+  into `.native/bin` and checks its SHA-256 (Linux and macOS, amd64
+  and arm64). The labs need it; their tests skip without it.
+- Labs: `uv run python scripts/fs15_sampling_blind_spot.py` and
+  `uv run python scripts/collector_overload.py`.
+  `MOCK_LLM_PLAN=fs15` rate-limits one attempt in four (SIMULATED).
+- Checks: `make verify-ch10`.
+
+### Chapter 11: Tokens, Cost and Latency Economics
+
+- Token metrics from the GenAI token-metric redesign (Development
+  at the pinned commit): usage counters for input, output and
+  cached input tokens, and a histogram of output tokens per call.
+  Linnet sends text only, so `gen_ai.token.modality` is `text`.
+- `src/wrenholt/gateway/prices.yaml`: the price table, versioned
+  configuration (SIMULATED prices for the mock models). A routed
+  model without a price stops start-up.
+- `src/wrenholt/gateway/cost.py`: the cost meter. Each billed call
+  adds to `wrenholt.gateway.cost` (US dollars, by tenant, route,
+  response model and prompt version) and to its answer's bill; the
+  agent span carries `wrenholt.answer.cost`.
+- `src/wrenholt/gateway/limits.py`: per-tenant spend limits per
+  clock hour. A call over the limit is refused before any attempt,
+  and the API answers 429 with `Retry-After`. The limit is exported
+  as `wrenholt.gateway.spend_limit`. Settings: `WRENHOLT_TENANT`,
+  `WRENHOLT_SPEND_PER_HOUR` (60.00), `WRENHOLT_MAX_OUTPUT_TOKENS`
+  (512, sent as `max_completion_tokens`).
+- `src/wrenholt/economics.py`: cost per resolved ticket, the latency
+  decomposition of an answer, and PromQL's `histogram_quantile`
+  arithmetic.
+- The mock provider (SIMULATED) honours the output cap, pads its
+  answers when asked to be thorough, caches the system prompt after
+  its first use and, asked for it, sends stream usage in a last
+  chunk.
+- The tokens and cost dashboard: tokens by model, the cached share,
+  output tokens per call, spend by model and by prompt version,
+  spend against the limit, refusals and cost per answer.
+- The production profile's metrics queue grows from 10,000 to
+  12,000 points: the new metrics take an instance to 187 points an
+  export.
+- Labs: `uv run python scripts/fs12_token_explosion.py` and
+  `uv run python scripts/fs13_costly_fallback.py`.
+- Checks: `make verify-ch11`.
+
+### Chapter 12: SLIs, SLOs and Error Budgets Across Four Layers
+
+- `src/wrenholt/slo/objectives.yaml`: the SLO file. Every candidate
+  SLI gets a decision: an objective over 28 days and an owner, or
+  no objective and the reason. `objectives.py` loads and checks it.
+- `scripts/slo_rules.py` writes
+  `deploy/compose/prometheus/rules/slo.rules.yaml` from it: error
+  ratios over 5m, 30m, 1h, 6h, 3d and 28d, valid events in the last
+  hour, the objective and the budget left. Prometheus loads the
+  file and keeps 35 days of samples.
+- `src/wrenholt/slo/recorder.py`: the SLI events the API judges
+  (`wrenholt.slo.events`: availability, refusals, policy freshness,
+  answer cost and resolution), each recorded at zero when the API
+  starts, and the customer's time to first chunk by request class
+  (`wrenholt.answer.time_to_first_chunk`).
+- `src/wrenholt/guardrail.py`: a versioned input guardrail
+  (SIMULATED). Setting: `WRENHOLT_GUARDRAIL_VERSION` (1).
+- `POST /outcome {"escalated": true|false}`: the help desk reports
+  how a conversation ended.
+- `src/wrenholt/slo/errorbudget.py`: budget and burn-rate
+  arithmetic. `docs/error_budget_policy.md`: what owners do when a
+  budget runs low.
+- The SLOs and error budgets dashboard: budget left, burn rate over
+  the last hour, the 28-day SLIs, valid events per hour, resolution
+  and cost per resolved conversation.
+- Labs: `uv run python scripts/fs05_malformed_refund.py` and
+  `uv run python scripts/fs17_over_blocking.py`.
+- Checks: `make verify-ch12`.
+
+### Chapter 13: Evaluation Signals and Drift in Production
+
+- `src/wrenholt/evaluation/`: evaluation results as telemetry.
+  `Evaluating` wraps the guardrail's wrapper and evaluates a sample
+  of answers, chosen by trace ID, inside the API's process; only
+  results leave. Setting: `WRENHOLT_EVALUATION_RATE` (0.1).
+- Each result is a `gen_ai.evaluation.result` event (Development),
+  parented to the request's span, with the response ID when the
+  answer was not streamed, and a count on
+  `wrenholt.evaluation.results`. No event carries the question, the
+  answer, the passages or an explanation.
+- Evaluators (SIMULATED rules): intent, refusal, groundedness and
+  policy accuracy, each with a version and a closed set of labels;
+  `External` adapts an outside evaluator and refuses labels it
+  cannot map.
+- `src/wrenholt/evaluation/drift.py`: the share of a label by a
+  two-proportion z-test and the mix of labels by total variation
+  distance, never across evaluator versions, and only once each side
+  holds 30 results.
+- Groundedness now has its objective (0.99, owner assistant),
+  counted from evaluation results; the SLO rules grow to 86 in 10
+  groups. The production metrics queue grows to 13,000 points.
+- In Loki, find evaluation events by scope:
+  `{service_name="linnet-api"} | scope_name="wrenholt.evaluation"`.
+- The evaluation dashboard: refusals by prompt version, correct
+  policy answers by index build, the intent mix and evaluated
+  answers per hour.
+- Labs: `uv run python scripts/fs10_prompt_regression.py`,
+  `uv run python scripts/fs09_index_swap.py` and
+  `uv run python scripts/fs16_intent_drift.py`.
+- Checks: `make verify-ch13`.
+
+### Chapter 14: Alerting on Burn Rates and Symptoms
+
+- `src/wrenholt/slo/alerts.py`: multiwindow, multi-burn-rate alerts
+  from the SLO file, with the SRE Workbook's starting parameters: a
+  page at 14.4 over 1h and 5m, a page at 6 over 6h and 30m, a ticket
+  at 1 over 3d and 6h. A page also needs two bad events in its long
+  window. L1 and L2 SLOs page; groundedness, policy freshness and
+  answer cost open tickets only.
+- `scripts/slo_alerts.py` writes
+  `deploy/compose/grafana/provisioning/alerting/slo-alerts.yaml`:
+  18 Grafana-managed rules, the incident webhook contact point and a
+  notification policy by severity. Grafana fills the webhook from
+  `WRENHOLT_INCIDENT_WEBHOOK`; compose points it at the incident
+  service (Chapter 19). The same expressions go to
+  `tests/slo/slo_alerts.rules.yaml` for promtool.
+- The SLO recording rules add valid events over 6 hours: 96 rules
+  in 10 groups.
+- `docs/runbooks.md`: one runbook for each SLO that alerts; every
+  alert links to its section.
+- `promtool test rules tests/slo/slo_alerts.test.yaml` (from
+  `tests/slo`): FS-03, FS-02, a five-minute brownout and one failure
+  at ten answers an hour, through the recording rules.
+- Lab: `uv run python scripts/fs02_fs03_paging.py`.
+- Checks: `make verify-ch14`.
+
+### Chapter 15: Diagnosing Production AI Failures
+
+- `uv run python scripts/wrenholt_cli.py diagnose [FIXTURE]`: attribute
+  the layer first. It compares the window before an alert with the
+  window of it, layer by layer (the provider's wait, the model's
+  finish reasons, retrieval), and prints the latency distribution
+  rather than the mean. `src/wrenholt/diagnosis.py` holds the checks.
+- `tests/fixtures/diagnosis/fs08_behind_fs02.json`: a recorded hour
+  of FS-08 behind FS-02 (SIMULATED), registered attributes only;
+  `captured.json` beside it holds the synthetic questions, read only
+  through the vault. `uv run python scripts/wrenholt_cli.py record`
+  records it again, with new trace IDs.
+- `uv run python scripts/wrenholt_cli.py replay TRACE --reader NAME
+  --reason TEXT`: read one question through the vault as an
+  investigator, then replay the trace's bundle against the mock, on
+  the bundle's index build and on the build that should serve.
+- Checks: `make verify-ch15`.
+
+### Chapter 16: Timeouts, Retries, Rate Limits and Circuit Breakers
+
+- `src/wrenholt/gateway/deadlines.py`: one deadline per answer, in a
+  context variable; the API sets `WRENHOLT_DEADLINE_S` (10 s) around
+  each whole answer.
+- `src/wrenholt/gateway/retry.py`: `GuardedPolicy` keeps Chapter 4's
+  backoff, retries only within the deadline and a process-wide
+  budget (`WRENHOLT_RETRIES_PER_MINUTE`, 60), never retries a quota,
+  and records each decision as a `wrenholt.retry` span event.
+- `src/wrenholt/gateway/breaker.py` and `guarded.py`: a breaker per
+  provider (5 failures in a row, 30 s, one probe), a concurrency
+  limit (`WRENHOLT_IN_FLIGHT`, 64) and attempts cut to the deadline
+  (`WRENHOLT_ATTEMPT_TIMEOUT_S`, 30 s until measured). Refusals are
+  `Rejected` errors, never retried, and send nothing to the provider.
+- `src/wrenholt/tools/guarded.py`: the orders service under the same
+  deadline and budget; the refund tool's retry spends from it.
+- `uv run python scripts/protect_lab.py`: FS-01, FS-03 and FS-18,
+  the timeout from a percentile and the bulkhead (SIMULATED, fake
+  clock, the gateway's own classes). Streamed answers keep Chapter
+  8's path.
+- Checks: `make verify-ch16`.
+
+### Chapter 17: Fallbacks, Degraded Modes and Load Shedding
+
+- `src/wrenholt/gateway/fallback.py`: `FallbackGateway` walks each
+  model's chain (`WRENHOLT_FALLBACKS`, `mock-a-fast` to
+  `mock-b-standard`) on a provider's own failures and on Chapter 16's
+  refusals, starts every call at the model asked for, and sends one
+  call in `WRENHOLT_EXERCISE_EVERY` (100) to the fallback. The API
+  refuses to start with a fallback that would pass the spend limit at
+  the planning peak (`WRENHOLT_PEAK_COST_PER_HOUR`, 21.91).
+- `src/wrenholt/orchestrator/degraded.py`: the ladder without a
+  model: an approved brief for the article version in force, the
+  cited passage, or a person.
+- `src/wrenholt/api/admission.py`: no queue; `WRENHOLT_MAX_ANSWERS`
+  (90) at once a process, `WRENHOLT_RESERVED_CRITICAL` (18) kept for
+  refunds. A shed question gets the ladder, a shed refund a 503.
+- `wrenholt.degraded.mode` and `wrenholt.degraded.reason` on the
+  answer's span, `wrenholt.fallback` events, and the `degraded`
+  tail-sampling policy in the production Collector profile.
+- `running_provider(provider="b")` serves provider B's models in
+  process, beside provider A.
+- `uv run python scripts/fallback_lab.py`: FS-03 with a fallback and
+  with a retired one, FS-13's candidates priced, FS-16's surge with a
+  queue and with admission (SIMULATED).
+- Checks: `make verify-ch17`.
+
+### Chapter 18: Failure Injection, Load and Chaos Experiments
+
+- `uv run --group lab python scripts/experiments.py [FS-03 ...]`: the
+  eighteen failure scenarios as experiments. Each states its
+  hypothesis first (held by a control, or detected against Chapter
+  12's objectives and Chapter 14's page), runs the scenario's lab in
+  a process of its own, judges one line of evidence, prints a report
+  and records `experiments/latest.json`. It exits 1 when a hypothesis
+  fails. About two and a half minutes; FS-15 needs the Collector
+  binary (`scripts/fetch_collector.sh`).
+- `src/wrenholt/load.py`: a deterministic load generator: gradual and
+  impulse patterns as arrival times, and `drive()`, which starts each
+  call at its time without waiting for the calls before it.
+- `uv run python scripts/breaking_lab.py`: Chapter 17's surge model
+  past the breaking point, on a gradual ramp and an impulse, with a
+  queue and with admission control (SIMULATED).
+- Checks: `make verify-ch18`.
+
+### Chapter 19: Incident Response and Postmortems for AI Systems
+
+- `src/wrenholt/incidents.py`: incident records. Grafana's
+  notifications are grouped by SLO; a page opens an incident at its
+  SLO's severity (SEV1 availability and critical actions, SEV2
+  decision validity, refusals and interactive first chunks, SEV3
+  tickets), later alerts join its timeline, and it is mitigated when
+  every alert has resolved. It closes only on a complete postmortem:
+  every section filled, a trace link, an action with an owner and a
+  date, and no end-user data.
+- `uvicorn wrenholt.api.incidents:app --port 8300`: the incident
+  service. `POST /alerts` takes Grafana's webhook; `GET /incidents`;
+  `GET /incidents/{id}/postmortem`. Compose runs it as `incidents`,
+  and Grafana's contact point now reaches it.
+- `uv run python scripts/game_day.py`: a game day combining FS-03 and
+  FS-07 (SIMULATED): Chapter 14's alerts, the responders' steps, and
+  a postmortem that closes the incident.
+
+### Chapter 20: Reliability in CI/CD and the Reliability Programme
+
+- `src/wrenholt/gates.py`: release gates. A change is classified by
+  the paths it touches (prompt, model, index, configuration, code);
+  code and configuration face the contract and drift gates, and
+  prompts, models and the index face the evaluation gate. The
+  error-budget gate applies `docs/error_budget_policy.md`; the
+  canary compares releases by `service.version` with Chapter 13's
+  one-sided test and rolls back on errors or a model mismatch.
+- `.github/workflows/gates.yml`: runs
+  `scripts/gates.py ci --base origin/<base>` on each pull request.
+  The tests parse it; it has not run in GitHub Actions here.
+- `uv run --group lab python scripts/gates.py lab`: FS-10 blocked by
+  the evaluation gate, FS-11 rolled back by the canary, and the
+  budget policy's three cases (SIMULATED).
+- `uv run --group lab python scripts/gates.py assess`: the
+  self-assessment, one question for each stage of the spine,
+  answered from the repository.
+- Checks: `make verify-ch19`.
+
+### Appendix A: Telemetry Contract Reference
+
+- `docs/telemetry_contract.md`: every resource attribute, span,
+  event, attribute and metric Wrenholt exports, with its status,
+  data class, metric labels and series, the keys never exported,
+  handling and retention by data class, and the tail-sampling
+  policies. Generated by `src/wrenholt/telemetry/reference.py`; do
+  not edit it by hand.
+- `uv run python scripts/contract_reference.py [--check]`: writes
+  the reference, or checks that it is current.
+- Retention: Prometheus 35 days, Tempo and Loki 14 days, set in
+  their configurations and held to `RETENTION_DAYS` in the privacy
+  contract by `tests/drift/test_reference_drift.py`.
+
+### Appendices B to H
+
+- `src/wrenholt/appendices.py`: every table in Appendices B to H,
+  generated from the repository: the conventions pins and mapping,
+  the Collector's components and their stability (from the native
+  binary), the dashboards' queries, the failure scenarios with their
+  last experiment evidence, the runbooks, the incident record and a
+  blank postmortem, the mock provider's endpoints, models and plans,
+  and the compose services, pinned images and known behaviours.
+- `deploy/compose/docker-compose.jaeger.yml`: Jaeger v2 in place of
+  Tempo, layered over the main compose file. The tests parse it; it
+  has not been run.
+- `.github/workflows/alternatives.yml`: runs that override and the
+  `grafana/otel-lgtm` quick start, checked by
+  `scripts/smoke_alternatives.py`. Run it by hand from the Actions tab
+  once it is on the default branch; until then it runs on pull
+  requests that change it.

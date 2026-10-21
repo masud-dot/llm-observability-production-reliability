@@ -1,6 +1,7 @@
-# Phase 1.5 smoke stack. Locked primary stack: OpenTelemetry
-# Collector, Prometheus, Tempo, Loki, Grafana. Jaeger is the
-# documented alternative only (Appendix H).
+# Local stack. Telemetry plane: OpenTelemetry
+# Collector, Prometheus, Tempo, Loki, Grafana; Jaeger is the
+# documented alternative only (Appendix H). Application plane
+# (Chapter 3): Linnet API, mock providers A and B, orders service.
 name: llmobs-smoke
 
 services:
@@ -13,6 +14,8 @@ services:
       TEMPO_OTLP_HTTP: http://tempo:4318
       PROM_OTLP_HTTP: http://prometheus:9090/api/v1/otlp
       LOKI_OTLP_HTTP: http://loki:3100/otlp
+      # Development only; production injects a secret (Chapter 7).
+      REDACTION_HMAC_KEY: ${REDACTION_HMAC_KEY:-dev-only-redaction-key-not-for-production}
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -26,15 +29,18 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
       - --web.enable-otlp-receiver
+      # Exemplars link metrics to traces (Chapter 6).
+      - --enable-feature=exemplar-storage
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
     ports:
       - "9090:9090"
 
   tempo:
     image: grafana/tempo:3.1.0
     command: ["-config.file=/etc/tempo/tempo.yaml"]
-    # Tempo 3.1.0 needed ~30 s to stop in the Phase 1.5 native run
+    # Tempo 3.1.0 needed ~30 s to stop in the baseline native run
     # (backend worker waits out a job timeout); allow it to exit.
     stop_grace_period: 60s
     volumes:
@@ -56,11 +62,23 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: smoke-only-password
       GF_ANALYTICS_REPORTING_ENABLED: "false"
+      # Chapter 14: where SLO alerts go. Until Chapter 19's incident
+      # service, a sink that records each notification.
+      WRENHOLT_INCIDENT_WEBHOOK: >-
+        ${WRENHOLT_INCIDENT_WEBHOOK:-http://incidents:8300/alerts}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3000:3000"
-    depends_on: [prometheus, tempo, loki]
+    depends_on: [prometheus, tempo, loki, incidents]
+
+  webhook-sink:
+    image: python:3.14.7-slim
+    command: ["python", "/sink/sink.py"]
+    volumes:
+      - ../../services/webhook_sink:/sink:ro
+    ports:
+      - "8099:8099"
 
   smoke-app:
     build: ../../services/smoke_app
@@ -78,6 +96,89 @@ services:
         - python
         - -c
         - "import urllib.request as u; u.urlopen('http://localhost:8000/healthz', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  # ---- Application plane (Chapter 3): one image, four services.
+  # No service here depends on the telemetry plane: Linnet must
+  # start, and keep serving, without a Collector.
+  # Chapter 19: the incident service Grafana's alerts reach.
+  incidents:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    command: ["uvicorn", "wrenholt.api.incidents:app",
+              "--host", "0.0.0.0", "--port", "8300"]
+    environment:
+      WRENHOLT_INCIDENTS: /tmp/incidents.json
+    ports:
+      - "8300:8300"
+
+  linnet-api:
+    build: &app-image
+      context: ../..
+      dockerfile: Dockerfile
+    command: ["uvicorn", "wrenholt.api.main:app",
+              "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      WRENHOLT_PROVIDER_URL: http://mock-provider-a:8100/v1
+      OTEL_SERVICE_NAME: linnet-api
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      # Seconds: the Python exporter reads this number in seconds,
+      # though the specification says milliseconds. It bounds every
+      # export, so a dead Collector cannot stall shutdown.
+      OTEL_EXPORTER_OTLP_TIMEOUT: "2"
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+    ports:
+      - "8080:8000"
+    depends_on:
+      mock-provider-a:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "services.healthcheck", "8000"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  mock-provider-a:
+    build: *app-image
+    command: ["uvicorn", "services.mock_llm.main:app",
+              "--host", "0.0.0.0", "--port", "8100"]
+    environment:
+      MOCK_LLM_PROVIDER: a
+    ports:
+      - "8101:8100"
+    healthcheck: &provider-health
+      test: ["CMD", "python", "-m", "services.healthcheck", "8100"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  mock-provider-b:
+    build: *app-image
+    command: ["uvicorn", "services.mock_llm.main:app",
+              "--host", "0.0.0.0", "--port", "8100"]
+    environment:
+      MOCK_LLM_PROVIDER: b
+    ports:
+      - "8102:8100"
+    healthcheck: *provider-health
+
+  orders:
+    build: *app-image
+    command: ["uvicorn", "services.orders.main:app",
+              "--host", "0.0.0.0", "--port", "8200"]
+    environment:
+      OTEL_SERVICE_NAME: orders
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_TIMEOUT: "2"
+    ports:
+      - "8200:8200"
+    healthcheck:
+      test: ["CMD", "python", "-m", "services.healthcheck", "8200"]
       interval: 5s
       timeout: 3s
       retries: 24

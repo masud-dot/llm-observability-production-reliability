@@ -1,0 +1,951 @@
+# Generated from src/wrenholt/slo/objectives.yaml by
+# scripts/slo_alerts.py. Do not edit by hand.
+apiVersion: 1
+contactPoints:
+- orgId: 1
+  name: incident-webhook
+  receivers:
+  - uid: incident_webhook
+    type: webhook
+    settings:
+      url: $WRENHOLT_INCIDENT_WEBHOOK
+policies:
+- orgId: 1
+  receiver: incident-webhook
+  group_by:
+  - slo
+  - severity
+  routes:
+  - receiver: incident-webhook
+    object_matchers:
+    - - severity
+      - '='
+      - page
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 1h
+  - receiver: incident-webhook
+    object_matchers:
+    - - severity
+      - '='
+      - ticket
+    group_wait: 5m
+    group_interval: 1h
+    repeat_interval: 24h
+groups:
+- orgId: 1
+  name: slo-availability
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_availability_page_1h
+    title: slo_burn_availability_page_1h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate1h{slo="availability"}
+            > 0.0144
+          and slo:sli_error:ratio_rate5m{slo="availability"}
+            > 0.0144
+          and slo:sli_error:ratio_rate1h{slo="availability"}
+            * slo:valid_events:increase1h{slo="availability"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 1h
+    annotations:
+      summary: availability is spending its error budget 14.4
+        times too fast over 1h and 5m
+      runbook_url: docs/runbooks.md#availability
+  - uid: slo_burn_availability_page_6h
+    title: slo_burn_availability_page_6h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate6h{slo="availability"}
+            > 0.006
+          and slo:sli_error:ratio_rate30m{slo="availability"}
+            > 0.006
+          and slo:sli_error:ratio_rate6h{slo="availability"}
+            * slo:valid_events:increase6h{slo="availability"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 6h
+    annotations:
+      summary: availability is spending its error budget 6 times
+        too fast over 6h and 30m
+      runbook_url: docs/runbooks.md#availability
+  - uid: slo_burn_availability_ticket_3d
+    title: slo_burn_availability_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="availability"}
+            > 0.001
+          and slo:sli_error:ratio_rate6h{slo="availability"}
+            > 0.001
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: availability
+      layer: L1
+      owner: platform
+      window: 3d
+    annotations:
+      summary: availability is spending its error budget 1 times
+        too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#availability
+- orgId: 1
+  name: slo-ttfc_interactive
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_ttfc_interactive_page_1h
+    title: slo_burn_ttfc_interactive_page_1h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate1h{slo="ttfc_interactive"}
+            > 0.144
+          and slo:sli_error:ratio_rate5m{slo="ttfc_interactive"}
+            > 0.144
+          and slo:sli_error:ratio_rate1h{slo="ttfc_interactive"}
+            * slo:valid_events:increase1h{slo="ttfc_interactive"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 1h
+    annotations:
+      summary: ttfc_interactive is spending its error budget 14.4
+        times too fast over 1h and 5m
+      runbook_url: docs/runbooks.md#ttfc_interactive
+  - uid: slo_burn_ttfc_interactive_page_6h
+    title: slo_burn_ttfc_interactive_page_6h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+            > 0.06
+          and slo:sli_error:ratio_rate30m{slo="ttfc_interactive"}
+            > 0.06
+          and slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+            * slo:valid_events:increase6h{slo="ttfc_interactive"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 6h
+    annotations:
+      summary: ttfc_interactive is spending its error budget 6
+        times too fast over 6h and 30m
+      runbook_url: docs/runbooks.md#ttfc_interactive
+  - uid: slo_burn_ttfc_interactive_ticket_3d
+    title: slo_burn_ttfc_interactive_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="ttfc_interactive"}
+            > 0.01
+          and slo:sli_error:ratio_rate6h{slo="ttfc_interactive"}
+            > 0.01
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: ttfc_interactive
+      layer: L1
+      owner: platform
+      window: 3d
+    annotations:
+      summary: ttfc_interactive is spending its error budget 1
+        times too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#ttfc_interactive
+- orgId: 1
+  name: slo-ttfc_critical_action
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_ttfc_critical_action_page_1h
+    title: slo_burn_ttfc_critical_action_page_1h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+            > 0.144
+          and slo:sli_error:ratio_rate5m{slo="ttfc_critical_action"}
+            > 0.144
+          and slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+            * slo:valid_events:increase1h{slo="ttfc_critical_action"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 1h
+    annotations:
+      summary: ttfc_critical_action is spending its error budget
+        14.4 times too fast over 1h and 5m
+      runbook_url: docs/runbooks.md#ttfc_critical_action
+  - uid: slo_burn_ttfc_critical_action_page_6h
+    title: slo_burn_ttfc_critical_action_page_6h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+            > 0.06
+          and slo:sli_error:ratio_rate30m{slo="ttfc_critical_action"}
+            > 0.06
+          and slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+            * slo:valid_events:increase6h{slo="ttfc_critical_action"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 6h
+    annotations:
+      summary: ttfc_critical_action is spending its error budget
+        6 times too fast over 6h and 30m
+      runbook_url: docs/runbooks.md#ttfc_critical_action
+  - uid: slo_burn_ttfc_critical_action_ticket_3d
+    title: slo_burn_ttfc_critical_action_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="ttfc_critical_action"}
+            > 0.01
+          and slo:sli_error:ratio_rate6h{slo="ttfc_critical_action"}
+            > 0.01
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: ttfc_critical_action
+      layer: L1
+      owner: platform
+      window: 3d
+    annotations:
+      summary: ttfc_critical_action is spending its error budget
+        1 times too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#ttfc_critical_action
+- orgId: 1
+  name: slo-decision_validity
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_decision_validity_page_1h
+    title: slo_burn_decision_validity_page_1h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate1h{slo="decision_validity"}
+            > 0.0144
+          and slo:sli_error:ratio_rate5m{slo="decision_validity"}
+            > 0.0144
+          and slo:sli_error:ratio_rate1h{slo="decision_validity"}
+            * slo:valid_events:increase1h{slo="decision_validity"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 1h
+    annotations:
+      summary: decision_validity is spending its error budget
+        14.4 times too fast over 1h and 5m
+      runbook_url: docs/runbooks.md#decision_validity
+  - uid: slo_burn_decision_validity_page_6h
+    title: slo_burn_decision_validity_page_6h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate6h{slo="decision_validity"}
+            > 0.006
+          and slo:sli_error:ratio_rate30m{slo="decision_validity"}
+            > 0.006
+          and slo:sli_error:ratio_rate6h{slo="decision_validity"}
+            * slo:valid_events:increase6h{slo="decision_validity"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 6h
+    annotations:
+      summary: decision_validity is spending its error budget
+        6 times too fast over 6h and 30m
+      runbook_url: docs/runbooks.md#decision_validity
+  - uid: slo_burn_decision_validity_ticket_3d
+    title: slo_burn_decision_validity_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="decision_validity"}
+            > 0.001
+          and slo:sli_error:ratio_rate6h{slo="decision_validity"}
+            > 0.001
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: decision_validity
+      layer: L2
+      owner: assistant
+      window: 3d
+    annotations:
+      summary: decision_validity is spending its error budget
+        1 times too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#decision_validity
+- orgId: 1
+  name: slo-not_refused
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_not_refused_page_1h
+    title: slo_burn_not_refused_page_1h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate1h{slo="not_refused"}
+            > 0.072
+          and slo:sli_error:ratio_rate5m{slo="not_refused"}
+            > 0.072
+          and slo:sli_error:ratio_rate1h{slo="not_refused"}
+            * slo:valid_events:increase1h{slo="not_refused"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 1h
+    annotations:
+      summary: not_refused is spending its error budget 14.4 times
+        too fast over 1h and 5m
+      runbook_url: docs/runbooks.md#not_refused
+  - uid: slo_burn_not_refused_page_6h
+    title: slo_burn_not_refused_page_6h
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate6h{slo="not_refused"}
+            > 0.03
+          and slo:sli_error:ratio_rate30m{slo="not_refused"}
+            > 0.03
+          and slo:sli_error:ratio_rate6h{slo="not_refused"}
+            * slo:valid_events:increase6h{slo="not_refused"}
+            >= 2
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: page
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 6h
+    annotations:
+      summary: not_refused is spending its error budget 6 times
+        too fast over 6h and 30m
+      runbook_url: docs/runbooks.md#not_refused
+  - uid: slo_burn_not_refused_ticket_3d
+    title: slo_burn_not_refused_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="not_refused"}
+            > 0.005
+          and slo:sli_error:ratio_rate6h{slo="not_refused"}
+            > 0.005
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: not_refused
+      layer: L2
+      owner: assistant
+      window: 3d
+    annotations:
+      summary: not_refused is spending its error budget 1 times
+        too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#not_refused
+- orgId: 1
+  name: slo-groundedness
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_groundedness_ticket_3d
+    title: slo_burn_groundedness_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="groundedness"}
+            > 0.01
+          and slo:sli_error:ratio_rate6h{slo="groundedness"}
+            > 0.01
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: groundedness
+      layer: L2
+      owner: assistant
+      window: 3d
+    annotations:
+      summary: groundedness is spending its error budget 1 times
+        too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#groundedness
+- orgId: 1
+  name: slo-policy_freshness
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_policy_freshness_ticket_3d
+    title: slo_burn_policy_freshness_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="policy_freshness"}
+            > 0.01
+          and slo:sli_error:ratio_rate6h{slo="policy_freshness"}
+            > 0.01
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: policy_freshness
+      layer: L3
+      owner: help-centre
+      window: 3d
+    annotations:
+      summary: policy_freshness is spending its error budget 1
+        times too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#policy_freshness
+- orgId: 1
+  name: slo-answer_cost
+  folder: SLO alerts
+  interval: 1m
+  rules:
+  - uid: slo_burn_answer_cost_ticket_3d
+    title: slo_burn_answer_cost_ticket_3d
+    condition: B
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        refId: A
+        expr: |-
+          slo:sli_error:ratio_rate3d{slo="answer_cost"}
+            > 0.01
+          and slo:sli_error:ratio_rate6h{slo="answer_cost"}
+            > 0.01
+        instant: true
+        range: false
+        intervalMs: 60000
+        maxDataPoints: 43200
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        refId: B
+        type: threshold
+        expression: A
+        conditions:
+        - evaluator:
+            type: gt
+            params:
+            - 0
+        datasource:
+          type: __expr__
+          uid: __expr__
+    noDataState: OK
+    execErrState: Error
+    for: 0s
+    labels:
+      severity: ticket
+      slo: answer_cost
+      layer: L4
+      owner: platform
+      window: 3d
+    annotations:
+      summary: answer_cost is spending its error budget 1 times
+        too fast over 3d and 6h
+      runbook_url: docs/runbooks.md#answer_cost

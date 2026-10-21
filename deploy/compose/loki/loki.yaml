@@ -32,6 +32,14 @@ schema_config:
 
 limits_config:
   allow_structured_metadata: true
+  # Appendix A: logs are operational or identifier data, kept 14 days
+  # as the privacy contract says (Chapter 7).
+  retention_period: 336h
+
+compactor:
+  working_directory: /tmp/loki/compactor
+  retention_enabled: true
+  delete_request_store: filesystem
 
 analytics:
   reporting_enabled: false

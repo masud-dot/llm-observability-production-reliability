@@ -1,0 +1,32 @@
+# Release gates (Chapter 20). Each pull request runs the gates its
+# change types need: contract and drift for code and configuration,
+# evaluation for prompts, models and the index. The error-budget
+# gate and the canary need production data, so they belong to the
+# deploy pipeline, not here.
+name: gates
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: Gates for this change
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Run the gates the change needs
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          pipx install uv==0.11.7
+          uv sync --frozen --group lab
+          # The contract gate's Collector tests need the binary.
+          scripts/fetch_collector.sh
+          uv run --group lab python scripts/gates.py ci --base "$BASE"

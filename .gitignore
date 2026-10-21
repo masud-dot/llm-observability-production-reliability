@@ -1,0 +1,12 @@
+# Local environment and tool caches
+.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Binaries downloaded by scripts/fetch_collector.sh
+.native/
+
+# Local overrides for the Compose stack (see deploy/compose/.env.example)
+.env

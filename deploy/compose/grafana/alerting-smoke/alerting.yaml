@@ -45,4 +45,4 @@ groups:
         execErrState: Error
         for: 0s
         labels:
-          purpose: phase-1-5-smoke
+          purpose: alert-smoke

@@ -1,7 +1,9 @@
 [project]
 name = "llm-observability-production-reliability"
-version = "0.0.0"
-description = "Companion code for LLM Observability & Production AI Reliability (Phase 1.5 frozen baseline)."
+version = "1.0.0"
+description = "Companion code for the book LLM Observability & Production AI Reliability: an instrumented LLM application, its OpenTelemetry stack and the chapter labs."
+readme = "README.md"
+authors = [{ name = "Masud Mondal" }]
 requires-python = ">=3.12,<3.15"
 license = "MIT"
 dependencies = [
@@ -19,7 +21,11 @@ dependencies = [
     "openai==3.22.1",
     "anthropic==1.9.0",
     "httpx2==2.13.1",
+    "pyyaml==6.0.3",
 ]
+
+[project.urls]
+Repository = "https://github.com/masud-dot/llm-observability-production-reliability"
 
 [dependency-groups]
 dev = [
@@ -28,9 +34,10 @@ dev = [
     "hypothesis==6.168.3",
     "mypy==2.3.1",
     "ruff==0.16.9",
+    "types-pyyaml==6.0.12.20260906",
 ]
-# Chapter 4 comparison lab only: official instrumentation, pinned
-# to the combination verified in the Phase 1 spike.
+# Chapter 1 and 4 comparison labs only: official instrumentation,
+# pinned to the combination verified in the initial compatibility check.
 lab = [
     "opentelemetry-instrumentation-openai-v2==2.4b0",
     "opentelemetry-util-genai==0.4b0",
@@ -52,3 +59,12 @@ select = ["E", "F", "W", "I", "UP", "B"]
 [tool.mypy]
 strict = true
 python_version = "3.12"
+mypy_path = "src,scripts"
+explicit_package_bases = true
+# The official OpenAI instrumentation (lab group only) is partly
+# untyped; allow calls into it without relaxing anything else.
+untyped_calls_exclude = ["opentelemetry.instrumentation.openai_v2"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]

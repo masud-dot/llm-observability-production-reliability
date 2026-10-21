@@ -1,4 +1,4 @@
-"""Phase 1.5 alert smoke: a file-provisioned Grafana alert rule
+"""Alert smoke (check 9): a file-provisioned Grafana alert rule
 must reach the webhook sink. Stdlib only."""
 
 from __future__ import annotations

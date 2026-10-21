@@ -1,0 +1,76 @@
+# Wrenholt's service level objectives (Chapter 12). Every candidate
+# in sli_catalog.yaml, and three SLIs this chapter adds, gets a
+# decision: an objective over the window and an owner, or no
+# objective and the reason. src/wrenholt/slo/rules.py writes the
+# Prometheus recording rules from this file; Chapter 14 alerts on
+# them. The error budget policy says what an owner does when a
+# budget runs low.
+version: 1
+window: 28d
+
+objectives:
+  - slo: availability
+    layer: L1
+    objective: 0.999
+    owner: platform
+    counted_by: events
+
+  - slo: ttfc_interactive
+    sli: ttfc
+    layer: L1
+    request_class: interactive
+    threshold_s: 2.5
+    objective: 0.99
+    owner: platform
+    counted_by: first_chunk
+
+  - slo: ttfc_critical_action
+    sli: ttfc
+    layer: L1
+    request_class: critical_action
+    threshold_s: 4.0
+    objective: 0.99
+    owner: platform
+    counted_by: first_chunk
+
+  - slo: decision_validity
+    layer: L2
+    objective: 0.999
+    owner: assistant
+    counted_by: refund_calls
+
+  - slo: not_refused
+    layer: L2
+    objective: 0.995
+    owner: assistant
+    counted_by: events
+
+  - slo: groundedness
+    layer: L2
+    objective: 0.99
+    owner: assistant
+    counted_by: evaluation  # Chapter 13: evaluation results
+    bad_label: ungrounded
+
+  - slo: policy_freshness
+    layer: L3
+    objective: 0.99
+    owner: help-centre
+    counted_by: events
+
+  - slo: answer_cost
+    layer: L4
+    max_cost_usd: "0.0004"  # SIMULATED; a refund costs 0.0003336
+    objective: 0.99
+    owner: platform
+    counted_by: events
+
+  - slo: resolution
+    layer: L4
+    reason: a target would reward keeping customers from people
+    counted_by: events
+
+  - slo: provider_attempts
+    layer: L1
+    reason: a cause, not a symptom; it explains budget spent elsewhere
+    counted_by: attempts

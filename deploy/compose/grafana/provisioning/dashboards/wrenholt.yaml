@@ -1,0 +1,11 @@
+# File-provisioned dashboards (Chapter 5). Every query in them is
+# linted against the conventions module by tests/drift.
+apiVersion: 1
+providers:
+  - name: wrenholt
+    folder: Wrenholt
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards

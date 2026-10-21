@@ -1,0 +1,46 @@
+# First tier for a scaled deployment (Chapter 10): validated with
+# `otelcol-contrib validate` and run natively. Every span of a
+# trace goes to the same sampling Collector, chosen by trace ID from
+# the addresses DNS returns for otel-sampler; each of those runs
+# config.production.yaml. Only traces need routing: services send
+# them here (OTEL_EXPORTER_OTLP_TRACES_ENDPOINT), and metrics and
+# logs straight to the samplers.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 400
+    spike_limit_mib: 100
+
+exporters:
+  load_balancing:
+    routing_key: traceID
+    # Off by default: when a sampler leaves and its sub-exporter has
+    # given up, send to the samplers DNS returns next.
+    timeout: 10s
+    retry_on_failure:
+      enabled: true
+    sending_queue:
+      enabled: true
+    protocol:
+      otlp:
+        tls:
+          insecure: true  # inside one network; use TLS across hosts
+    resolver:
+      dns:
+        hostname: otel-sampler
+        port: "4317"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter]
+      exporters: [load_balancing]

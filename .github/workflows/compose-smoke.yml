@@ -1,6 +1,7 @@
-# Phase 1.5 gate: prove the locked local stack end to end.
-# Checks 1-8 run in stack-smoke; check 9 (file-provisioned Grafana
-# alert reaching a webhook) runs in alert-smoke.
+# Prove the local stack end to end: checks 1-8 run in stack-smoke
+# and check 9 (a file-provisioned Grafana alert reaching a webhook)
+# in alert-smoke. Chapter 3 adds config-lint and checks
+# 10-17 for the application plane, including a Collector outage.
 name: compose-smoke
 
 on:
@@ -9,12 +10,24 @@ on:
     paths:
       - "deploy/compose/**"
       - "services/**"
+      - "src/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "tests/unit/test_config_lint.py"
+      - "tests/drift/**"
       - "scripts/smoke_*.py"
       - ".github/workflows/compose-smoke.yml"
   pull_request:
     paths:
       - "deploy/compose/**"
       - "services/**"
+      - "src/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "tests/unit/test_config_lint.py"
+      - "tests/drift/**"
       - "scripts/smoke_*.py"
       - ".github/workflows/compose-smoke.yml"
 
@@ -25,8 +38,55 @@ env:
   COMPOSE_VERSION: v5.5.1
 
 jobs:
+  config-lint:
+    name: Config lint (Chapter 3)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Lint rules (pytest, no Docker)
+        run: |
+          pipx install uv==0.11.7
+          uv sync --frozen
+          uv run pytest tests/unit/test_config_lint.py
+
+      - name: Collector validates its own config
+        run: |
+          # The development-only key compose also uses (Chapter 7):
+          # redaction refuses an empty HMAC key at validate time.
+          # Production sets its own REDACTION_HMAC_KEY.
+          docker run --rm \
+            -e TEMPO_OTLP_HTTP=http://tempo:4318 \
+            -e PROM_OTLP_HTTP=http://prometheus:9090/api/v1/otlp \
+            -e LOKI_OTLP_HTTP=http://loki:3100/otlp \
+            -e REDACTION_HMAC_KEY=dev-only-redaction-key-not-for-production \
+            -v "$PWD/deploy/compose/otelcol:/cfg:ro" \
+            ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0-amd64 \
+            validate --config=/cfg/config.yaml
+
+      - name: promtool checks the Prometheus config
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "$PWD/deploy/compose/prometheus:/cfg:ro" \
+            prom/prometheus:v3.15.0 check config /cfg/prometheus.yml
+
+      - name: Drift suite against the pinned GenAI commit (Chapter 5)
+        run: |
+          docker create --name prom prom/prometheus:v3.15.0
+          docker cp prom:/bin/promtool "$RUNNER_TEMP/promtool"
+          docker rm prom
+          GENAI=open-telemetry/semantic-conventions-genai
+          git clone -q --filter=blob:none \
+            "https://github.com/$GENAI" "$RUNNER_TEMP/genai"
+          git -C "$RUNNER_TEMP/genai" checkout -q \
+            bcc7f9c2856fa7f4feb753f54d4ebba9455cc3dc
+          PATH="$RUNNER_TEMP:$PATH" \
+            SEMCONV_GENAI_DIR="$RUNNER_TEMP/genai" \
+            uv run pytest tests/drift
+
   stack-smoke:
-    name: Stack smoke (checks 1-8)
+    name: Stack smoke (checks 1-8, 10-17)
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -51,6 +111,21 @@ jobs:
 
       - name: "Checks 1-7: smoke test"
         run: python3 scripts/smoke_stack.py
+
+      - name: "Checks 10-15 and 18: application plane"
+        run: python3 scripts/smoke_wrenholt.py
+
+      - name: "Check 16: Linnet keeps serving without a Collector"
+        run: |
+          docker compose -f deploy/compose/docker-compose.yml \
+            stop otel-collector
+          python3 scripts/smoke_wrenholt.py --collector-down
+
+      - name: "Check 17: telemetry resumes after recovery"
+        run: |
+          docker compose -f deploy/compose/docker-compose.yml \
+            start otel-collector
+          python3 scripts/smoke_wrenholt.py --collector-recovered
 
       - name: Dump logs on failure
         if: failure()

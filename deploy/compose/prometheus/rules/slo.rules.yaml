@@ -1,0 +1,609 @@
+# Generated from src/wrenholt/slo/objectives.yaml by
+# scripts/slo_rules.py. Do not edit by hand.
+groups:
+- name: slo-availability
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[5m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[5m])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[30m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[30m])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[1h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[1h])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[6h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[6h])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[3d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[3d])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}[28d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[28d])) > 0)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[1h]))
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="availability"}[6h]))
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:objective:ratio
+    expr: vector(0.999)
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="availability"} / 0.001
+    labels:
+      slo: availability
+      sli: availability
+      layer: L1
+- name: slo-ttfc_interactive
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[5m])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[5m])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[5m])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate30m
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[30m])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[30m])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[30m])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate1h
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[1h])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[1h])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[1h])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate6h
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[6h])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[6h])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[6h])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate3d
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[3d])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[3d])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[3d])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate28d
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[28d])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}[28d])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[28d])) > 0)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[1h]))
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}[6h]))
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="ttfc_interactive"} / 0.01
+    labels:
+      slo: ttfc_interactive
+      sli: ttfc
+      layer: L1
+- name: slo-ttfc_critical_action
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[5m])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[5m])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[5m])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate30m
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[30m])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[30m])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[30m])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate1h
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[1h])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[1h])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[1h])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate6h
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[6h])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[6h])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[6h])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate3d
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[3d])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[3d])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[3d])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:sli_error:ratio_rate28d
+    expr: ((sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[28d])) - (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}[28d])) or vector(0))) or vector(0)) / (sum(rate(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[28d])) > 0)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[1h]))
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}[6h]))
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="ttfc_critical_action"} / 0.01
+    labels:
+      slo: ttfc_critical_action
+      sli: ttfc
+      layer: L1
+- name: slo-decision_validity
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[5m])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[5m])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[30m])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[30m])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[1h])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[1h])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[6h])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[6h])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[3d])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[3d])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}[28d])) or vector(0)) / (sum(rate(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[28d])) > 0)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[1h]))
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}[6h]))
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:objective:ratio
+    expr: vector(0.999)
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="decision_validity"} / 0.001
+    labels:
+      slo: decision_validity
+      sli: decision_validity
+      layer: L2
+- name: slo-not_refused
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[5m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[5m])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[30m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[30m])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[1h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[1h])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[6h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[6h])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[3d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[3d])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}[28d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[28d])) > 0)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[1h]))
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="not_refused"}[6h]))
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:objective:ratio
+    expr: vector(0.995)
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="not_refused"} / 0.005
+    labels:
+      slo: not_refused
+      sli: not_refused
+      layer: L2
+- name: slo-groundedness
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[5m])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[5m])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[30m])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[30m])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[1h])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[1h])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[6h])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[6h])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[3d])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[3d])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness",gen_ai_evaluation_score_label="ungrounded"}[28d])) or vector(0)) / (sum(rate(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[28d])) > 0)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[1h]))
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name="groundedness"}[6h]))
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="groundedness"} / 0.01
+    labels:
+      slo: groundedness
+      sli: groundedness
+      layer: L2
+- name: slo-policy_freshness
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[5m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[5m])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[30m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[30m])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[1h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[1h])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[6h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[6h])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[3d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[3d])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness",wrenholt_slo_good="false"}[28d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[28d])) > 0)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[1h]))
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="policy_freshness"}[6h]))
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="policy_freshness"} / 0.01
+    labels:
+      slo: policy_freshness
+      sli: policy_freshness
+      layer: L3
+- name: slo-answer_cost
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[5m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[5m])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[30m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[30m])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[1h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[1h])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[6h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[6h])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[3d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[3d])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost",wrenholt_slo_good="false"}[28d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[28d])) > 0)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[1h]))
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="answer_cost"}[6h]))
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:objective:ratio
+    expr: vector(0.99)
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+  - record: slo:error_budget_remaining:ratio
+    expr: 1 - slo:sli_error:ratio_rate28d{slo="answer_cost"} / 0.01
+    labels:
+      slo: answer_cost
+      sli: answer_cost
+      layer: L4
+- name: slo-resolution
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[5m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[5m])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[30m])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[30m])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[1h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[1h])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[6h])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[6h])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[3d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[3d])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution",wrenholt_slo_good="false"}[28d])) or vector(0)) / (sum(rate(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[28d])) > 0)
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[1h]))
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_slo_events_total{wrenholt_slo_sli="resolution"}[6h]))
+    labels:
+      slo: resolution
+      sli: resolution
+      layer: L4
+- name: slo-provider_attempts
+  interval: 1m
+  rules:
+  - record: slo:sli_error:ratio_rate5m
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[5m])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[5m])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:sli_error:ratio_rate30m
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[30m])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[30m])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:sli_error:ratio_rate1h
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[1h])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[1h])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:sli_error:ratio_rate6h
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[6h])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[6h])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:sli_error:ratio_rate3d
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[3d])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[3d])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:sli_error:ratio_rate28d
+    expr: (sum(rate(wrenholt_gateway_attempts_total{error_type!=""}[28d])) or vector(0)) / (sum(rate(wrenholt_gateway_attempts_total[28d])) > 0)
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:valid_events:increase1h
+    expr: sum(increase(wrenholt_gateway_attempts_total[1h]))
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1
+  - record: slo:valid_events:increase6h
+    expr: sum(increase(wrenholt_gateway_attempts_total[6h]))
+    labels:
+      slo: provider_attempts
+      sli: provider_attempts
+      layer: L1

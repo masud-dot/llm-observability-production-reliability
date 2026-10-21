@@ -1,0 +1,107 @@
+# promtool test rules for the generated SLO rules (Chapter 12).
+# Synthetic series, one sample a minute; numbers from Section 12.6.
+rule_files:
+  - ../../deploy/compose/prometheus/rules/slo.rules.yaml
+evaluation_interval: 1m
+fuzzy_compare: true
+
+tests:
+  # FS-17's hour: 90 answered and 30 refused. With an hour of data,
+  # the 28-day ratio is the hour's, and the budget is overspent.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="true"}'
+        values: '0+1.5x60'
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="not_refused",wrenholt_slo_good="false"}'
+        values: '0+0.5x60'
+    alert_rule_test: []
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="not_refused"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate1h{slo="not_refused",sli="not_refused",layer="L2"}'
+            value: 0.25
+      - expr: slo:valid_events:increase1h{slo="not_refused"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:valid_events:increase1h{slo="not_refused",sli="not_refused",layer="L2"}'
+            value: 120
+      - expr: slo:error_budget_remaining:ratio{slo="not_refused"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:error_budget_remaining:ratio{slo="not_refused",sli="not_refused",layer="L2"}'
+            value: -49
+
+  # The critical-action threshold is the bucket Prometheus stores as
+  # le="4": half of these first chunks were later than 4 seconds.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}'
+        values: '0+2x60'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="2.5"}'
+        values: '0+0.5x60'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4"}'
+        values: '0+1x60'
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate1h{slo="ttfc_critical_action",sli="ttfc",layer="L1"}'
+            value: 0.5
+
+  # A store that wrote the boundary as "4.0" matches no bucket: every
+  # first chunk counts as late, loudly, rather than none of them.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="critical_action"}'
+        values: '0+2x60'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="critical_action",le="4.0"}'
+        values: '0+2x60'
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="ttfc_critical_action"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate1h{slo="ttfc_critical_action",sli="ttfc",layer="L1"}'
+            value: 1
+
+  # Normal refunds: no invalid decision yet, so no series of them.
+  # The ratio is zero, not missing, and the budget is whole.
+  - interval: 1m
+    input_series:
+      - series: 'gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund"}'
+        values: '0+0.5x60'
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="decision_validity"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate1h{slo="decision_validity",sli="decision_validity",layer="L2"}'
+            value: 0
+      - expr: slo:error_budget_remaining:ratio{slo="decision_validity"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:error_budget_remaining:ratio{slo="decision_validity",sli="decision_validity",layer="L2"}'
+            value: 1
+
+  # One malformed decision, in a series born with it: rate() sees no
+  # increase, so the rules see no event at all.
+  - interval: 1m
+    input_series:
+      - series: 'gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}'
+        values: '_x29 1x31'
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="decision_validity"}
+        eval_time: 1h
+        exp_samples: []
+
+  # The same decision in a series recorded at zero first, as the
+  # API's SLI events are: the rules see it.
+  - interval: 1m
+    input_series:
+      - series: 'gen_ai_execute_tool_duration_seconds_count{gen_ai_tool_name="issue_refund",error_type="invalid_arguments"}'
+        values: '0x29 1x31'
+    promql_expr_test:
+      - expr: slo:sli_error:ratio_rate1h{slo="decision_validity"}
+        eval_time: 1h
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate1h{slo="decision_validity",sli="decision_validity",layer="L2"}'
+            value: 1

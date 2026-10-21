@@ -1,0 +1,168 @@
+{
+ "version": "ch18",
+ "label": "SIMULATED",
+ "results": [
+  {
+   "id": "FS-01",
+   "kind": "held",
+   "hypothesis": "the retry budget keeps calls per question at 1.05 or under",
+   "command": "python scripts/protect_lab.py",
+   "evidence": "1.02 calls a question",
+   "verdict": "held",
+   "seconds": 1.3
+  },
+  {
+   "id": "FS-02",
+   "kind": "detected",
+   "hypothesis": "a two-hour brownout pages within 10 minutes",
+   "command": "python scripts/fs02_fs03_paging.py",
+   "evidence": "page after 9 min",
+   "verdict": "detected",
+   "seconds": 1.5
+  },
+  {
+   "id": "FS-03",
+   "kind": "held",
+   "hypothesis": "with B behind A, no answer fails in a 100 s outage",
+   "command": "python scripts/fallback_lab.py",
+   "evidence": "0 answers failed",
+   "verdict": "held",
+   "seconds": 2.2
+  },
+  {
+   "id": "FS-04",
+   "kind": "detected",
+   "hypothesis": "a stream cut after its first chunk is recorded as such",
+   "command": "python scripts/fs04_stream_cut.py",
+   "evidence": "stream_interrupted",
+   "verdict": "detected",
+   "seconds": 9.9
+  },
+  {
+   "id": "FS-05",
+   "kind": "detected",
+   "hypothesis": "decision_validity burns at the 1-hour page's rate or more",
+   "command": "python scripts/fs05_malformed_refund.py",
+   "evidence": "burn rate 1000",
+   "verdict": "detected",
+   "seconds": 2.9
+  },
+  {
+   "id": "FS-06",
+   "kind": "held",
+   "hypothesis": "the repeat check stops a tool loop after one lookup",
+   "command": "python scripts/fs06_tool_loop.py",
+   "evidence": "1 tool call",
+   "verdict": "held",
+   "seconds": 3.7
+  },
+  {
+   "id": "FS-07",
+   "kind": "held",
+   "hypothesis": "a key per refund pays a timed-out refund once",
+   "command": "python scripts/fs07_duplicate_refund.py",
+   "evidence": "1 refund made",
+   "verdict": "held",
+   "seconds": 9.1
+  },
+  {
+   "id": "FS-08",
+   "kind": "held",
+   "hypothesis": "start-up refuses an index built by another embedder",
+   "command": "python scripts/fs08_empty_retrieval.py",
+   "evidence": "start-up refuses",
+   "verdict": "held",
+   "seconds": 3.3
+  },
+  {
+   "id": "FS-09",
+   "kind": "detected",
+   "hypothesis": "policy_freshness falls below its objective",
+   "command": "python scripts/fs09_sli_report.py",
+   "evidence": "freshness 60.0%",
+   "verdict": "detected",
+   "seconds": 0.2
+  },
+  {
+   "id": "FS-10",
+   "kind": "detected",
+   "hypothesis": "evaluation flags a refusing prompt within 4 hours",
+   "command": "python scripts/fs10_prompt_regression.py",
+   "evidence": "flagged after 3 h",
+   "verdict": "detected",
+   "seconds": 2.9
+  },
+  {
+   "id": "FS-11",
+   "kind": "detected",
+   "hypothesis": "a response from an unpinned model is a mismatch",
+   "command": "python scripts/fs11_model_change.py",
+   "evidence": "mismatch True",
+   "verdict": "detected",
+   "seconds": 1.5
+  },
+  {
+   "id": "FS-12",
+   "kind": "detected",
+   "hypothesis": "the output-token p99 more than doubles in the histogram",
+   "command": "python scripts/fs12_token_explosion.py",
+   "evidence": "p99 251.7 tokens",
+   "verdict": "detected",
+   "seconds": 3.0
+  },
+  {
+   "id": "FS-13",
+   "kind": "held",
+   "hypothesis": "start-up refuses a fallback the peak cannot afford",
+   "command": "python scripts/fallback_lab.py",
+   "evidence": "mock-a-large refused",
+   "verdict": "held",
+   "seconds": 2.2
+  },
+  {
+   "id": "FS-14",
+   "kind": "held",
+   "hypothesis": "as designed, exported telemetry holds no personal data",
+   "command": "python scripts/fs14_pii.py",
+   "evidence": "found 0 0 0 0",
+   "verdict": "held",
+   "seconds": 20.7
+  },
+  {
+   "id": "FS-15",
+   "kind": "held",
+   "hypothesis": "sampling keeps every substituted-model trace",
+   "command": "python scripts/fs15_sampling_blind_spot.py",
+   "evidence": "kept 4 of 4",
+   "verdict": "held",
+   "seconds": 54.9
+  },
+  {
+   "id": "FS-16",
+   "kind": "held",
+   "hypothesis": "at twice the peak, admitted answers keep p95 within 2.5 s",
+   "command": "python scripts/fallback_lab.py",
+   "evidence": "p95 2.00 s",
+   "verdict": "held",
+   "seconds": 2.2
+  },
+  {
+   "id": "FS-17",
+   "kind": "detected",
+   "hypothesis": "not_refused burns at the 1-hour page's rate or more",
+   "command": "python scripts/fs17_over_blocking.py",
+   "evidence": "burn rate 50",
+   "verdict": "detected",
+   "seconds": 3.1
+  },
+  {
+   "id": "FS-18",
+   "kind": "held",
+   "hypothesis": "a spent quota is never retried",
+   "command": "python scripts/protect_lab.py",
+   "evidence": "not_retryable",
+   "verdict": "held",
+   "seconds": 1.3
+  }
+ ]
+}

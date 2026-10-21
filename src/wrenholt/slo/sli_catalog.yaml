@@ -1,0 +1,61 @@
+# Linnet's candidate SLIs. Each SLI is good events over valid
+# events. Thresholds are candidates, not objectives: Chapter 12
+# sets objectives and budgets, and Chapter 14 adds alerts.
+version: 1
+min_events: 30  # below this, report the counts but no ratio
+
+slis:
+  - id: availability
+    layer: L1
+    kind: availability
+    good: answered without a server error
+    valid: requests, excluding client errors and cancellations
+    journeys: [policy_question, order_status, refund_request]
+    measured_at: api
+    source: API and gateway spans (Chapter 4)
+
+  - id: ttfc
+    layer: L1
+    kind: latency
+    good: first chunk within the request-class threshold
+    valid: answered requests
+    journeys: [policy_question, order_status, refund_request]
+    measured_at: model_first_chunk
+    source: streaming timers (Chapter 8)
+    thresholds_s: {interactive: 2.5, critical_action: 4.0}
+
+  - id: decision_validity
+    layer: L2
+    kind: validity
+    good: refund decision passes its schema
+    valid: refund decisions produced
+    journeys: [refund_request]
+    measured_at: decision_check
+    source: decision validator (Chapter 12)
+
+  - id: groundedness
+    layer: L2
+    kind: groundedness
+    good: evaluator judged the answer grounded in its context
+    valid: answers that received an evaluation result
+    journeys: [policy_question]
+    measured_at: evaluation
+    source: evaluation results, consumed (Chapter 13)
+
+  - id: policy_freshness
+    layer: L3
+    kind: freshness
+    good: answer relied on the policy version in force
+    valid: answers that relied on a policy document
+    journeys: [policy_question, refund_request]
+    measured_at: retrieval
+    source: retrieval spans with document version (Chapter 9)
+
+  - id: resolution
+    layer: L4
+    kind: resolution
+    good: conversation resolved without a human agent
+    valid: answered conversations
+    journeys: [policy_question, order_status, refund_request]
+    measured_at: outcome
+    source: conversation outcome events (Chapter 12)

@@ -1,0 +1,131 @@
+{
+  "uid": "wrenholt-evaluation",
+  "title": "Evaluation results",
+  "tags": [
+    "wrenholt",
+    "chapter-13"
+  ],
+  "editable": false,
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Refusals among evaluated answers, by prompt version (6 h)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "version {{gen_ai_prompt_version}}",
+          "expr": "sum by (gen_ai_prompt_version) (increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name=\"refusal\",gen_ai_evaluation_score_label=\"refusal\"}[6h])) / sum by (gen_ai_prompt_version) (increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name=\"refusal\"}[6h]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Correct policy answers, by index build (6 h)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "{{wrenholt_index_version}}",
+          "expr": "sum by (wrenholt_index_version) (increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name=\"policy_accuracy\",gen_ai_evaluation_score_label=\"correct\"}[6h])) / sum by (wrenholt_index_version) (increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name=\"policy_accuracy\"}[6h]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "barchart",
+      "title": "Intent mix of evaluated answers (6 h)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "{{gen_ai_evaluation_score_label}}",
+          "expr": "sum by (gen_ai_evaluation_score_label) (increase(wrenholt_evaluation_results_total{gen_ai_evaluation_name=\"intent\"}[6h]))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Evaluated answers in the last hour, by evaluation",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "{{gen_ai_evaluation_name}}",
+          "expr": "sum by (gen_ai_evaluation_name) (increase(wrenholt_evaluation_results_total[1h]))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+# promtool test rules for the generated SLO alerts (Chapter 14).
+# Synthetic series, one sample a minute, after six hours of normal
+# traffic: 120 answers an hour, 90 of them interactive. Numbers from
+# Section 14.6. Six hours of history is enough for the pages; the
+# ticket's 3-day window is tested by arithmetic in test_alerts.py.
+rule_files:
+  - ../../deploy/compose/prometheus/rules/slo.rules.yaml
+  - slo_alerts.rules.yaml
+evaluation_interval: 1m
+fuzzy_compare: true
+# The recording rules run first at each step, so an alert reads the
+# ratios of the same minute; in production it may read the minute
+# before.
+group_eval_order:
+  - slo-availability
+  - slo-ttfc_interactive
+  - slo-ttfc_critical_action
+  - slo-decision_validity
+  - slo-not_refused
+  - slo-groundedness
+  - slo-policy_freshness
+  - slo-answer_cost
+  - slo-resolution
+  - slo-provider_attempts
+  - slo-alerts-availability
+  - slo-alerts-ttfc_interactive
+  - slo-alerts-ttfc_critical_action
+  - slo-alerts-decision_validity
+  - slo-alerts-not_refused
+  - slo-alerts-groundedness
+  - slo-alerts-policy_freshness
+  - slo-alerts-answer_cost
+
+tests:
+  # FS-03: from 6h01m every answer fails. Two failures in the first
+  # minute already spend the budget 14.4 times too fast.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="true"}'
+        values: '0+2x360 720x30'
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}'
+        values: '0x360 2+2x29'
+    alert_rule_test:
+      - eval_time: 6h
+        alertname: slo_burn_availability_page_1h
+        exp_alerts: []
+      - eval_time: 6h1m
+        alertname: slo_burn_availability_page_1h
+        exp_alerts:
+          - exp_labels: &availability_1h
+              severity: page
+              slo: availability
+              sli: availability
+              layer: L1
+              owner: platform
+              window: 1h
+      - eval_time: 6h2m
+        alertname: slo_burn_availability_page_6h
+        exp_alerts: []
+      - eval_time: 6h3m
+        alertname: slo_burn_availability_page_6h
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: availability
+              sli: availability
+              layer: L1
+              owner: platform
+              window: 6h
+      # The last failures are recorded at 6h30m. Once the short
+      # window no longer holds the sample before them, the fast page
+      # resets: four minutes later.
+      - eval_time: 6h33m
+        alertname: slo_burn_availability_page_1h
+        exp_alerts:
+          - exp_labels: *availability_1h
+      - eval_time: 6h34m
+        alertname: slo_burn_availability_page_1h
+        exp_alerts: []
+
+  # FS-02, sustained: from 6h01m every first chunk takes 3.0 s, over
+  # the interactive threshold of 2.5 s and under the critical
+  # action's 4.0 s.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}'
+        values: '0+1.5x420'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}'
+        values: '0+1.5x360 540x60'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="4"}'
+        values: '0+1.5x420'
+    alert_rule_test:
+      - eval_time: 6h8m
+        alertname: slo_burn_ttfc_interactive_page_1h
+        exp_alerts: []
+      - eval_time: 6h9m
+        alertname: slo_burn_ttfc_interactive_page_1h
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: ttfc_interactive
+              sli: ttfc
+              layer: L1
+              owner: platform
+              window: 1h
+      - eval_time: 6h21m
+        alertname: slo_burn_ttfc_interactive_page_6h
+        exp_alerts: []
+      - eval_time: 6h22m
+        alertname: slo_burn_ttfc_interactive_page_6h
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              slo: ttfc_interactive
+              sli: ttfc
+              layer: L1
+              owner: platform
+              window: 6h
+
+  # A five-minute brownout: the short window burns, the long ones
+  # never cross. Nobody is paged.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_count{wrenholt_request_class="interactive"}'
+        values: '0+1.5x420'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="2.5"}'
+        values: '0+1.5x360 540x5 541.5+1.5x54'
+      - series: 'wrenholt_answer_time_to_first_chunk_seconds_bucket{wrenholt_request_class="interactive",le="4"}'
+        values: '0+1.5x420'
+    alert_rule_test:
+      - eval_time: 6h5m
+        alertname: slo_burn_ttfc_interactive_page_1h
+        exp_alerts: []
+      - eval_time: 6h10m
+        alertname: slo_burn_ttfc_interactive_page_1h
+        exp_alerts: []
+      - eval_time: 6h5m
+        alertname: slo_burn_ttfc_interactive_page_6h
+        exp_alerts: []
+      - eval_time: 6h30m
+        alertname: slo_burn_ttfc_interactive_page_6h
+        exp_alerts: []
+    promql_expr_test:
+      # The short window alone would have paged.
+      - expr: slo:sli_error:ratio_rate5m{slo="ttfc_interactive"} > 0.144
+        eval_time: 6h5m
+        exp_samples:
+          - labels: 'slo:sli_error:ratio_rate5m{slo="ttfc_interactive",sli="ttfc",layer="L1"}'
+            value: 1
+
+  # Ten answers an hour and one failure at 6h01m: both pages' windows
+  # are over their thresholds, but one bad event never pages.
+  - interval: 1m
+    input_series:
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="true"}'
+        values: '0+0.16666666666666666x390'
+      - series: 'wrenholt_slo_events_total{wrenholt_slo_sli="availability",wrenholt_slo_good="false"}'
+        values: '0x360 1x30'
+    alert_rule_test:
+      - eval_time: 6h2m
+        alertname: slo_burn_availability_page_1h
+        exp_alerts: []
+      - eval_time: 6h2m
+        alertname: slo_burn_availability_page_6h
+        exp_alerts: []
+    promql_expr_test:
+      - expr: |-
+          count(
+            slo:sli_error:ratio_rate1h{slo="availability"} > 0.0144
+            and slo:sli_error:ratio_rate5m{slo="availability"} > 0.0144
+          )
+        eval_time: 6h2m
+        exp_samples:
+          - labels: '{}'
+            value: 1
+      - expr: |-
+          count(
+            slo:sli_error:ratio_rate6h{slo="availability"} > 0.006
+            and slo:sli_error:ratio_rate30m{slo="availability"} > 0.006
+          )
+        eval_time: 6h2m
+        exp_samples:
+          - labels: '{}'
+            value: 1
+      - expr: |-
+          slo:sli_error:ratio_rate6h{slo="availability"}
+            * slo:valid_events:increase6h{slo="availability"}
+        eval_time: 6h2m
+        exp_samples:
+          - labels: '{slo="availability",sli="availability",layer="L1"}'
+            value: 1
